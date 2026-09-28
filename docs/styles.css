@@ -133,6 +133,97 @@ main {
   padding: 2rem 0;
 }
 
+/* Desktop header search */
+.desktop-search-form {
+  display: none;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.desktop-search-form input {
+  width: 260px;
+  padding: 8px 16px;
+  border: 2px solid var(--secondary-color);
+  border-radius: 40px;
+  font-size: 14px;
+  font-family: 'Questrial', sans-serif;
+  color: #333;
+}
+
+.desktop-search-form button {
+  padding: 8px 20px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 40px;
+  font-family: 'Questrial', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+@media (min-width: 769px) {
+  .desktop-search-form {
+    display: flex;
+  }
+}
+
+/* Mobile search row */
+.mobile-search-row {
+  display: none;
+  padding: 8px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e3e3ee;
+}
+
+.mobile-search-row form {
+  display: flex;
+  gap: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.mobile-search-row input {
+  flex: 1;
+  min-height: 44px;
+  border: 2px solid var(--secondary-color);
+  border-radius: 40px;
+  padding: 0 16px;
+  font-family: 'Questrial', sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+
+.mobile-search-row button {
+  min-height: 44px;
+  padding: 0 20px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 40px;
+  font-family: 'Questrial', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mobile-search-row.active {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .desktop-search-form {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-search-row {
+    display: none !important;
+  }
+}
+
 /* P1-3: Archivo headings with navy color */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Archivo', sans-serif;
@@ -171,6 +262,18 @@ p {
 .hero h1 {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+}
+
+.hero-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.hero-link:hover {
+  text-decoration: underline;
 }
 
 /* Services Cards */
@@ -393,8 +496,9 @@ p {
 }
 
 .badge.aftermarket {
-  background: var(--accent-color);
+  background: white;
   color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
 }
 
 .badge.oem {
@@ -578,8 +682,11 @@ footer p {
 footer a {
   color: white;
   text-decoration: underline;
-  word-break: keep-all;
-  overflow-wrap: normal;
+}
+
+footer h3 a[href^="mailto:"] {
+  font-size: clamp(17px, 5.6vw, 24px);
+  overflow-wrap: anywhere;
 }
 
 footer .small {
@@ -618,7 +725,15 @@ footer .small {
   .services {
     grid-template-columns: 1fr;
   }
-  
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .model-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
   .model-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
@@ -792,9 +907,8 @@ footer .small {
 .mobile-menu {
   position: fixed;
   top: 96px;
-  left: -390px;
-  width: 390px;
-  max-width: 100%;
+  left: -100%;
+  width: min(390px, 85vw);
   height: calc(100vh - 96px);
   background: var(--secondary-color);
   transition: left 0.3s ease;
@@ -811,7 +925,7 @@ footer .small {
 
 .mobile-menu-backdrop {
   position: fixed;
-  top: 96px;
+  top: 99px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -983,7 +1097,7 @@ footer .small {
 }
 
 .model-group {
-  scroll-margin-top: calc(38.4px + 60px);
+  scroll-margin-top: calc(38.4px + 77px + 12px);
 }
 
 .no-match-message {
@@ -1130,8 +1244,9 @@ footer .small {
 }
 
 .aftermarket-badge {
-  background: var(--accent-color);
+  background: white;
   color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
   padding: 6px 12px;
   border-radius: 40px;
   display: inline-block;

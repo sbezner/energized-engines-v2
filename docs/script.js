@@ -1,5 +1,16 @@
 // Energized Engines v2 site scripts
 
+// Mobile search row toggle
+function toggleMobileSearch() {
+  const searchRow = document.querySelector('.mobile-search-row');
+  if (searchRow) {
+    searchRow.classList.toggle('active');
+    if (searchRow.classList.contains('active')) {
+      searchRow.querySelector('input')?.focus();
+    }
+  }
+}
+
 // P1-2: Mobile menu toggle with accessibility improvements
 let lastFocusedElement = null;
 

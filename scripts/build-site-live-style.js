@@ -121,12 +121,12 @@ function getHeader(title, activePage = '') {
                 <a href="${BASE_PATH}/" class="logo-link-mobile">
                     <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <a href="${BASE_PATH}/search.html" class="search-icon-btn" aria-label="Search">
+                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                </a>
+                </button>
             </div>
             
             <!-- Desktop header (existing) -->
@@ -169,6 +169,7 @@ function getHeader(title, activePage = '') {
     <div class="mobile-search-row">
         <form action="${BASE_PATH}/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
+            <button type="submit">Search</button>
         </form>
     </div>
     <main class="container">`;
@@ -212,21 +213,21 @@ function buildHomePage() {
             <div class="service-card">
                 <h3>Parts</h3>
                 <p>OEM Sumner parts and house-brand aftermarket replacement parts for all major models.</p>
-                <a href="${BASE_PATH}/models.html" class="btn">Shop by Model</a>
+                <a href="${BASE_PATH}/models.html" class="btn">Shop by model</a>
             </div>
             
             <!-- P1-7: Updated rental CTA -->
             <div class="service-card">
                 <h3>Rentals</h3>
                 <p>Sumner 2118, 2124, 2412, and 2416 lifts available for rent. Daily, weekly, or monthly rates.</p>
-                <a href="mailto:Sales@EnergizedEngines.com?subject=Rental%20Inquiry" class="btn">Email about rentals</a>
+                <a href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental" class="btn btn-secondary">Email about rentals</a>
             </div>
             
             <!-- P1-7: Updated winch rebuild CTA -->
             <div class="service-card">
                 <h3>Winch Rebuilds</h3>
                 <p>We offer affordable winch rebuild services for Sumner winches.</p>
-                <a href="mailto:Sales@EnergizedEngines.com?subject=Winch%20Rebuild%20Inquiry" class="btn">Ask about a rebuild</a>
+                <a href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild" class="btn btn-secondary">Ask about a rebuild</a>
             </div>
         </section>
 
@@ -700,7 +701,7 @@ function buildModelsPage() {
             <div class="model-grid">`;
       
       groupModels.sort().forEach(model => {
-        const modelNorm = model.trim().toUpperCase();
+        const modelNorm = model.trim().toUpperCase().replace(/\s+/g, '');
         const count = normalizedModels[modelNorm] ? normalizedModels[modelNorm].products.length : 0;
         const modelSlug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         modelsHtml += `
@@ -833,11 +834,7 @@ function buildModelPages() {
             d.manualUrl && d.page && seriesModels.includes(d.model)
           );
           if (seriesMatch) {
-            const allMatches = partDiagrams.filter(d => 
-              d.manualUrl && d.page && seriesModels.includes(d.model)
-            );
-            const coveredModels = [...new Set(allMatches.map(m => m.model))].sort();
-            fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
+            fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${model} parts manual, p. ${seriesMatch.page}</span> <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}</a></p>`;
           }
         }
       }
@@ -903,8 +900,9 @@ function buildSearchPage() {
   };
   
   const searchData = data.products.map(p => {
-    // Compute verified models for this product
-    const verifiedModels = [];
+    // Compute verified models for this product, split by exact vs series
+    const exactVerified = [];
+    const seriesListed = [];
     const partNumber = p.extracted_part_number;
     const models = p.models || [];
     
@@ -914,7 +912,7 @@ function buildSearchPage() {
         // Check exact match
         const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === model);
         if (exactMatch) {
-          verifiedModels.push(model);
+          exactVerified.push(model);
         }
         // Check series match
         else if (seriesMap[model]) {
@@ -923,7 +921,7 @@ function buildSearchPage() {
             d.manualUrl && d.page && seriesModels.includes(d.model)
           );
           if (seriesMatch) {
-            verifiedModels.push(model);
+            seriesListed.push(model);
           }
         }
       });
@@ -938,7 +936,8 @@ function buildSearchPage() {
       price: p.variants?.[0]?.price,
       vendor: p.vendor,
       models: p.models,
-      verified_models: verifiedModels,
+      exact_verified: exactVerified,
+      series_listed: seriesListed,
       url: p.url
     };
   });
@@ -1071,10 +1070,16 @@ function buildSearchPage() {
               }
             }
             
-            const hasVerified = product.verified_models && product.verified_models.length > 0;
-            const fitmentLabel = hasVerified 
-              ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
-              : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+            let fitmentLabel;
+            if (product.exact_verified && product.exact_verified.length > 0) {
+              const models = product.exact_verified.join(', ');
+              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+            } else if (product.series_listed && product.series_listed.length > 0) {
+              const series = product.series_listed.includes('2000') ? '2000' : '2100';
+              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
+            } else {
+              fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+            }
             
             html += \`
               <div class="product-card">
@@ -1113,10 +1118,16 @@ function buildSearchPage() {
                   replacesLine = \`<p class="replaces-note">Replaces Sumner \${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>\`;
                 }
               }
-              const hasVerified = product.verified_models && product.verified_models.length > 0;
-              const fitmentLabel = hasVerified 
-                ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
-                : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+              let fitmentLabel;
+              if (product.exact_verified && product.exact_verified.length > 0) {
+                const models = product.exact_verified.join(', ');
+                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+              } else if (product.series_listed && product.series_listed.length > 0) {
+                const series = product.series_listed.includes('2000') ? '2000' : '2100';
+                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
+              } else {
+                fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+              }
               return \`
                 <div class="product-card">
                   <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
@@ -1132,7 +1143,7 @@ function buildSearchPage() {
               \`;
             }).join(''));
             if (displayedCount < allMatches.length) {
-              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
+              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true); setTimeout(() => document.querySelector(\\'.products-grid .product-card:nth-child(\\' + (displayedCount - PAGE_SIZE + 1) + \\')')?.focus(), 100)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
             }
           } else {
             results.innerHTML = html;

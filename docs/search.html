@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -63,9 +63,9 @@
                     <a href="/energized-engines-v2/search.html" class="active">Search Parts</a>
                     <a href="/energized-engines-v2/about.html" >About</a>
                     <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -189,8 +189,11 @@
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
-            if (isAftermarket && product.part_number) {
-              replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(product.part_number)}</p>`;
+            if (isAftermarket) {
+              const sumnerMatch = (product.title || '').match(/7[78]d{4}/);
+              if (sumnerMatch) {
+                replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(sumnerMatch[0])}</p>`;
+              }
             }
             
             html += `
@@ -224,8 +227,11 @@
               const isAftermarket = product.vendor === 'Energized Engines';
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
-              if (isAftermarket && product.part_number) {
-                replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(product.part_number)}</p>`;
+              if (isAftermarket) {
+                const sumnerMatch = (product.title || '').match(/7[78]d{4}/);
+                if (sumnerMatch) {
+                  replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(sumnerMatch[0])}</p>`;
+                }
               }
               return `
                 <div class="product-card">

@@ -1,12 +1,76 @@
 // Energized Engines v2 site scripts
 
-// P1-2: Mobile menu toggle
+// P1-2: Mobile menu toggle with accessibility improvements
+let lastFocusedElement = null;
+
 function toggleMobileMenu() {
   const menu = document.getElementById('mobileMenu');
-  if (menu) {
-    menu.classList.toggle('open');
+  const hamburger = document.querySelector('.hamburger-btn');
+  
+  if (menu && hamburger) {
+    const isOpen = menu.classList.contains('open');
+    
+    if (isOpen) {
+      // Close menu
+      menu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      
+      // Return focus to hamburger
+      if (lastFocusedElement) {
+        lastFocusedElement.focus();
+        lastFocusedElement = null;
+      }
+    } else {
+      // Open menu
+      lastFocusedElement = document.activeElement;
+      menu.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      
+      // Set menu top from header bottom
+      const header = document.querySelector('header');
+      if (header) {
+        const headerBottom = header.getBoundingClientRect().bottom;
+        menu.style.top = headerBottom + 'px';
+      }
+      
+      // Move focus to first link
+      const firstLink = menu.querySelector('a');
+      if (firstLink) {
+        setTimeout(() => firstLink.focus(), 100);
+      }
+    }
   }
 }
+
+// Trap focus within mobile menu when open
+document.addEventListener('keydown', function(event) {
+  const menu = document.getElementById('mobileMenu');
+  
+  if (!menu || !menu.classList.contains('open')) return;
+  
+  // Close on Escape
+  if (event.key === 'Escape') {
+    toggleMobileMenu();
+    return;
+  }
+  
+  // Trap Tab focus
+  if (event.key === 'Tab') {
+    const focusableElements = menu.querySelectorAll('a, button');
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  }
+});
 
 // P2-1: Model search on models page
 if (document.getElementById('modelSearchInput')) {
@@ -16,6 +80,7 @@ if (document.getElementById('modelSearchInput')) {
   searchInput.addEventListener('input', function() {
     const query = this.value.toLowerCase().trim();
     const modelGroups = container.querySelectorAll('.model-group');
+    let hasAnyVisibleCards = false;
     
     modelGroups.forEach(group => {
       const modelCards = group.querySelectorAll('.model-card');
@@ -26,6 +91,7 @@ if (document.getElementById('modelSearchInput')) {
         if (!query || text.includes(query)) {
           card.style.display = '';
           hasVisibleCards = true;
+          hasAnyVisibleCards = true;
         } else {
           card.style.display = 'none';
         }
@@ -33,6 +99,21 @@ if (document.getElementById('modelSearchInput')) {
       
       group.style.display = hasVisibleCards ? '' : 'none';
     });
+    
+    // Show/hide "no models match" message
+    let noMatchMsg = document.getElementById('noModelsMatch');
+    if (!hasAnyVisibleCards && query) {
+      if (!noMatchMsg) {
+        noMatchMsg = document.createElement('p');
+        noMatchMsg.id = 'noModelsMatch';
+        noMatchMsg.className = 'no-match-message';
+        noMatchMsg.textContent = 'No models match your search.';
+        container.before(noMatchMsg);
+      }
+      noMatchMsg.style.display = 'block';
+    } else if (noMatchMsg) {
+      noMatchMsg.style.display = 'none';
+    }
   });
 }
 
@@ -86,7 +167,7 @@ document.addEventListener('click', function(event) {
   
   if (menu && menu.classList.contains('open')) {
     if (!menu.contains(event.target) && !hamburger.contains(event.target)) {
-      menu.classList.remove('open');
+      toggleMobileMenu();
     }
   }
 });

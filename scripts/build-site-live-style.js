@@ -74,13 +74,16 @@ function formatPrice(price) {
 function cleanUTF8(text) {
   if (!text) return text;
   return text
-    .replace(/â€™/g, "'")  // right single quote
+    .replace(/â€™/g, "'")  // right single quote (longest first)
     .replace(/â€œ/g, '"')  // left double quote
-    .replace(/â€/g, '"')   // right double quote
+    .replace(/â€\x9d/g, '"')  // right double quote with control char
     .replace(/â€"/g, '—')  // em dash
     .replace(/â€"/g, '–')  // en dash
-    .replace(/Â°/g, '°')   // degree symbol
     .replace(/â€¦/g, '…')  // ellipsis
+    .replace(/â€/g, '"')   // bare right double quote (after longer patterns)
+    .replace(/Â°/g, '°')   // degree symbol
+    .replace(/Â(?=[\s\u00a0.,])/g, '')  // stray Â before space/punctuation
+    .replace(/[\x80-\x9f]/g, '')  // control characters
     .replace(/Â /g, ' ');  // non-breaking space
 }
 
@@ -106,7 +109,7 @@ function getHeader(title, activePage = '') {
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -150,9 +153,9 @@ function getHeader(title, activePage = '') {
                     <a href="${BASE_PATH}/search.html" ${activePage === 'search' ? 'class="active"' : ''}>Search Parts</a>
                     <a href="${BASE_PATH}/about.html" ${activePage === 'about' ? 'class="active"' : ''}>About</a>
                     <a href="${BASE_PATH}/return-policy.html" ${activePage === 'return-policy' ? 'class="active"' : ''}>Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -355,14 +358,40 @@ function buildProductPages() {
     const isAftermarket = product.vendor === 'Energized Engines';
     const cleanTitle = cleanUTF8(product.title);
     
-    // P2-3: Product images
+    // P2-3: Product images with performance optimizations
     let imageHtml = '';
     if (product.images && product.images.length > 0) {
       const primaryImage = product.images[0].src;
-      imageHtml = `
-        <div class="product-images">
-          <img src="${primaryImage}" alt="${escapeHtml(cleanTitle)}" loading="lazy">
+      const imageWidth = product.images[0].width || 600;
+      const imageHeight = product.images[0].height || 600;
+      
+      // Check if it's the Sumner logo placeholder
+      const isSumnerLogo = primaryImage && primaryImage.includes('Sumner_Logo');
+      
+      if (isSumnerLogo) {
+        imageHtml = `
+        <div class="photo-coming-soon">
+          Photo coming soon
         </div>`;
+      } else {
+        // Build srcset for Shopify image variants
+        const baseUrl = primaryImage.split('?')[0];
+        const srcset = [400, 800, 1200].map(w => `${baseUrl}?width=${w} ${w}w`).join(', ');
+        
+        imageHtml = `
+        <div class="product-images">
+          <img 
+            src="${primaryImage}" 
+            srcset="${srcset}"
+            sizes="(min-width: 769px) 45vw, 100vw"
+            width="${imageWidth}"
+            height="${imageHeight}"
+            alt="${escapeHtml(cleanTitle)}" 
+            loading="eager"
+            fetchpriority="high"
+            onerror="this.closest('.product-images').classList.add('no-img')">
+        </div>`;
+      }
     }
     
     // Check for diagram references
@@ -492,11 +521,12 @@ function buildProductPages() {
                 
                 <div class="product-info-panel">
                     ${partNumber ? `<p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>` : ''}
+                    ${isAftermarket && (() => { const m = (product.title || '').match(/\b7[78]\d{4}\b/); return m ? `<p class="replaces-note">Replaces Sumner ${escapeHtml(m[0])}</p>` : ''; })()}
                     <p class="price-display">${price}</p>
                     ${isAftermarket ? '<p class="vendor-badge aftermarket-badge">Aftermarket Part</p>' : '<p class="vendor-badge oem-badge">OEM Part</p>'}
                     
                     <!-- P2-3: Button with www. to avoid redirect -->
-                    <a href="https://www.energizedengines.com/products/${slug}" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
+                    <a href="https://www.energizedengines.com/products/${slug}" class="btn btn-primary">Buy on energizedengines.com</a>
                 </div>
             </div>
             
@@ -522,7 +552,22 @@ ${getFooter()}`;
 
 // Build models index page
 function buildModelsPage() {
-  const models = Object.keys(data.models);
+  // Normalize model names case-insensitively to merge duplicates
+  const normalizedModels = {};
+  Object.keys(data.models).forEach(model => {
+    const normalizedKey = model.trim().toUpperCase();
+    if (!normalizedModels[normalizedKey]) {
+      normalizedModels[normalizedKey] = {
+        canonical: model,
+        products: []
+      };
+    }
+    // Merge products from all case variants
+    normalizedModels[normalizedKey].products.push(...data.models[model]);
+  });
+  
+  // Use normalized data for grouping
+  const models = Object.values(normalizedModels).map(m => m.canonical);
   
   // P2-1: Fixed model grouping with proper series organization
   const modelGroups = {
@@ -539,24 +584,22 @@ function buildModelsPage() {
   };
   
   models.forEach(model => {
-    const modelUpper = model.toUpperCase();
     const modelNorm = model.trim().toUpperCase();
     
-    // Series 2000 - Per Sumner's manual: 2010, 2015, 2020, 2025
-    if (modelNorm === '2010' || modelNorm === '2015' || modelNorm === '2020' || modelNorm === '2025' || 
-        modelNorm === '2010G' || modelNorm === '2015G' || modelNorm === '2020G' || modelNorm === '2025G' || 
-        modelNorm === '2012S') {
+    // Series 2000 - Full 2000 family: 2000, 2001-2018, 2020, 2021, 2024, etc.
+    // Keep 2020 and 2025 in Series 2000 per user instruction
+    if (modelNorm.match(/^20(0\d|1[0-8]|2[01]|24)[A-Z]?$/)) {
       modelGroups['Series 2000'].push(model);
     }
-    // Series 2100
-    else if (modelNorm.match(/^211[0-9][A-Z]?$/) || modelNorm.match(/^2118[A-Z]?$/) || modelNorm.match(/^2124[A-Z]?$/)) {
+    // Series 2100 - Add 2100 exact match
+    else if (modelNorm.match(/^21\d{2}[A-Z]?$/)) {
       modelGroups['Series 2100'].push(model);
     }
     // Series 2200
     else if (modelNorm.match(/^220[0-9][A-Z]?$/) || modelNorm.match(/^2208[A-Z]?$/) || modelNorm.match(/^2210[A-Z]?$/)) {
       modelGroups['Series 2200'].push(model);
     }
-    // Series 2400
+    // Series 2400 - only if data exists
     else if (modelNorm.match(/^241[0-9][A-Z]?$/) || modelNorm.match(/^2412[A-Z]?$/) || modelNorm.match(/^2416[A-Z]?$/)) {
       modelGroups['Series 2400'].push(model);
     }
@@ -569,15 +612,15 @@ function buildModelsPage() {
       modelGroups['Series 2600'].push(model);
     }
     // Roust-A-Bout / R-series
-    else if (modelUpper.includes('ROUST') || modelNorm.match(/^R-[0-9]+/)) {
+    else if (modelNorm.includes('ROUST') || modelNorm.match(/^R-[0-9]+/)) {
       modelGroups['Roust-A-Bout (R-Series)'].push(model);
     }
     // Eventer
-    else if (modelUpper.includes('EVENTER')) {
+    else if (modelNorm.includes('EVENTER')) {
       modelGroups['Eventer Series'].push(model);
     }
     // Gantry
-    else if (modelUpper.includes('GANTRY') || modelUpper.includes('GH')) {
+    else if (modelNorm.includes('GANTRY') || modelNorm.includes('GH')) {
       modelGroups['Gantry'].push(model);
     }
     // Everything else
@@ -605,7 +648,8 @@ function buildModelsPage() {
             <div class="model-grid">`;
       
       groupModels.sort().forEach(model => {
-        const count = data.models[model].length;
+        const modelNorm = model.trim().toUpperCase();
+        const count = normalizedModels[modelNorm] ? normalizedModels[modelNorm].products.length : 0;
         const modelSlug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         modelsHtml += `
                 <a href="${BASE_PATH}/models/${modelSlug}.html" class="model-card">
@@ -650,7 +694,20 @@ function buildModelPages() {
     fs.mkdirSync(modelsDir, { recursive: true });
   }
   
-  Object.entries(data.models).forEach(([model, products]) => {
+  // Normalize model names case-insensitively
+  const normalizedModels = {};
+  Object.keys(data.models).forEach(model => {
+    const normalizedKey = model.trim().toUpperCase();
+    if (!normalizedModels[normalizedKey]) {
+      normalizedModels[normalizedKey] = {
+        canonical: model,
+        products: []
+      };
+    }
+    normalizedModels[normalizedKey].products.push(...data.models[model]);
+  });
+  
+  Object.values(normalizedModels).forEach(({ canonical: model, products }) => {
     const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     
     // Check for parts manual
@@ -769,7 +826,7 @@ ${getFooter()}`;
 function buildSearchPage() {
   const searchData = data.products.map(p => ({
     id: p.id,
-    title: p.title,
+    title: cleanUTF8(p.title),
     handle: p.handle,
     part_number: p.extracted_part_number,
     normalized_pn: p.normalized_part_number,
@@ -900,8 +957,11 @@ function buildSearchPage() {
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
-            if (isAftermarket && product.part_number) {
-              replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(product.part_number)}</p>\`;
+            if (isAftermarket) {
+              const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/);
+              if (sumnerMatch) {
+                replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(sumnerMatch[0])}</p>\`;
+              }
             }
             
             html += \`
@@ -935,8 +995,11 @@ function buildSearchPage() {
               const isAftermarket = product.vendor === 'Energized Engines';
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
-              if (isAftermarket && product.part_number) {
-                replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(product.part_number)}</p>\`;
+              if (isAftermarket) {
+                const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/);
+                if (sumnerMatch) {
+                  replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(sumnerMatch[0])}</p>\`;
+                }
               }
               return \`
                 <div class="product-card">

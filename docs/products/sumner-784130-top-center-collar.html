@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -63,9 +63,9 @@
                     <a href="/energized-engines-v2/search.html" >Search Parts</a>
                     <a href="/energized-engines-v2/about.html" >About</a>
                     <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -83,17 +83,18 @@
             
             <div class="product-layout">
                 
-        <div class="product-images">
-          <img src="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/Sumner_Logo_d8da4a5e-230b-404d-a6d3-b4f2bb85d764.png?v=1703806175" alt="Sumner 784130 TOP &amp; CENTER COLLAR" loading="lazy">
+        <div class="photo-coming-soon">
+          Photo coming soon
         </div>
                 
                 <div class="product-info-panel">
                     <p class="part-number"><strong>Part Number:</strong> 784130</p>
+                    false
                     <p class="price-display">$41.62</p>
                     <p class="vendor-badge oem-badge">OEM Part</p>
                     
                     <!-- P2-3: Button with www. to avoid redirect -->
-                    <a href="https://www.energizedengines.com/products/sumner-784130-top-center-collar" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
+                    <a href="https://www.energizedengines.com/products/sumner-784130-top-center-collar" class="btn btn-primary">Buy on energizedengines.com</a>
                 </div>
             </div>
             

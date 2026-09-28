@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -63,9 +63,9 @@
                     <a href="/energized-engines-v2/search.html" >Search Parts</a>
                     <a href="/energized-engines-v2/about.html" >About</a>
                     <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -84,16 +84,26 @@
             <div class="product-layout">
                 
         <div class="product-images">
-          <img src="https://cdn.shopify.com/s/files/1/0832/7050/0671/files/IMG-2405.heic?v=1769622668" alt="Sumner 774092 PIN, ROLL 1/8 X 5/8" loading="lazy">
+          <img 
+            src="https://cdn.shopify.com/s/files/1/0832/7050/0671/files/IMG-2405.heic?v=1769622668" 
+            srcset="https://cdn.shopify.com/s/files/1/0832/7050/0671/files/IMG-2405.heic?width=400 400w, https://cdn.shopify.com/s/files/1/0832/7050/0671/files/IMG-2405.heic?width=800 800w, https://cdn.shopify.com/s/files/1/0832/7050/0671/files/IMG-2405.heic?width=1200 1200w"
+            sizes="(min-width: 769px) 45vw, 100vw"
+            width="3024"
+            height="4032"
+            alt="Sumner 774092 PIN, ROLL 1/8 X 5/8" 
+            loading="eager"
+            fetchpriority="high"
+            onerror="this.closest('.product-images').classList.add('no-img')">
         </div>
                 
                 <div class="product-info-panel">
                     <p class="part-number"><strong>Part Number:</strong> 774092</p>
+                    false
                     <p class="price-display">$0.38</p>
                     <p class="vendor-badge oem-badge">OEM Part</p>
                     
                     <!-- P2-3: Button with www. to avoid redirect -->
-                    <a href="https://www.energizedengines.com/products/sumner-774092-pin-roll-1-8-x-5-8" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
+                    <a href="https://www.energizedengines.com/products/sumner-774092-pin-roll-1-8-x-5-8" class="btn btn-primary">Buy on energizedengines.com</a>
                 </div>
             </div>
             

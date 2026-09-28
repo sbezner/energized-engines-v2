@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -27,7 +27,7 @@
                 <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
+                <button class="search-icon-btn" aria-label="Search" aria-expanded="false" aria-controls="mobileSearchRow">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -56,7 +56,7 @@
             </div>
             
             <!-- Mobile menu drawer -->
-            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
+            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
             <div class="mobile-menu" id="mobileMenu">
                 <nav class="mobile-nav">
                     <a href="/energized-engines-v2/" >Home</a>
@@ -72,7 +72,7 @@
             </div>
         </div>
     </header>
-    <div class="mobile-search-row">
+    <div class="mobile-search-row" id="mobileSearchRow">
         <form action="/energized-engines-v2/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
             <button type="submit">Search</button>
@@ -101,14 +101,13 @@
             </div>
         </div>
         
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         <div class="products-grid" id="productsGrid">
             
             <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/sumner-s783800-eventer-25.html">Sumner S783800 Eventer 25</a></h3>
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: &#039;S783800</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> Eventer 25</p>
                 <p class="description">Sumner Part Number S783800 Eventer 25...</p>
                 <div class="product-footer">
                     <span class="price">$8588.00</span>
@@ -119,7 +118,7 @@
                 <h3><a href="/energized-engines-v2/products/sumner-778354-label-eventer-25-mast.html">Sumner 778354 LABEL, EVENTER 25 - MAST</a></h3>
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 778354</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> EVENTER 25</p>
                 <p class="description">Sumner Part Number 778354 as indicated in the COMMON LABEL PLACEMENT DIAGRAM. LABEL, EVENTER 25 - MAST...</p>
                 <div class="product-footer">
                     <span class="price">$4.02</span>
@@ -130,7 +129,7 @@
                 <h3><a href="/energized-engines-v2/products/sumner-eventer-25-decals.html">EE 1035 After Market Sumner 778354 Eventer 25 Decals</a></h3>
                 <span class="badge aftermarket">Aftermarket</span>
                 <p class="part-number">Part #: 1035</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> Eventer 25</p>
                 <p class="description">Sumner Eventer 25 Decals This is an after market part for Sumner Part 778354...</p>
                 <div class="product-footer">
                     <span class="price">$4.00</span>
@@ -141,7 +140,7 @@
                 <h3><a href="/energized-engines-v2/products/sumner-783885-brake-kit-for-2025-eventer25-1.html">Sumner 783885 BRAKE KIT FOR 2025, EVENTER25</a></h3>
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 783885</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> 2025, EVENTER25</p>
                 <p class="description">Sumner Part Number 783885 as indicated in the EVENTER 20/25 LIFT ASSEMBLY DIAGRAM. BRAKE KIT FOR 2025, EVENTER25...</p>
                 <div class="product-footer">
                     <span class="price">$358.17</span>

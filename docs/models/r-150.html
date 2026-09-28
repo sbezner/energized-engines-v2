@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -27,7 +27,7 @@
                 <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
+                <button class="search-icon-btn" aria-label="Search" aria-expanded="false" aria-controls="mobileSearchRow">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -56,7 +56,7 @@
             </div>
             
             <!-- Mobile menu drawer -->
-            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
+            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
             <div class="mobile-menu" id="mobileMenu">
                 <nav class="mobile-nav">
                     <a href="/energized-engines-v2/" >Home</a>
@@ -72,7 +72,7 @@
             </div>
         </div>
     </header>
-    <div class="mobile-search-row">
+    <div class="mobile-search-row" id="mobileSearchRow">
         <form action="/energized-engines-v2/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
             <button type="submit">Search</button>
@@ -101,14 +101,13 @@
             </div>
         </div>
         
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         <div class="products-grid" id="productsGrid">
             
             <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/sumner-r-150-roust-a-bout™-15-top-ht-sku-780301.html">Sumner 780301 Sumner R-150 Roust-A-Bout™, 15&quot; Top Ht</a></h3>
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780301</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> R-150, Roust-A-Bout</p>
                 <p class="description">The Sumner* Roust-A-Bout™ lift enables one man to lift and place loads in tight locations that would be impossible with other lifts. Features and Bene...</p>
                 <div class="product-footer">
                     <span class="price">$7520.00</span>
@@ -119,7 +118,7 @@
                 <h3><a href="/energized-engines-v2/products/sumner-778395-label-model-number-r-100-r-150.html">Sumner 778395 LABEL, MODEL NUMBER R-100/R-150</a></h3>
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 778395</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> R-100, R-150</p>
                 <p class="description">Sumner Part Number 778395 as indicated in the LABEL INSTALL ASSEMBLY DIAGRAM. LABEL, MODEL NUMBER R-100/R-150...</p>
                 <div class="product-footer">
                     <span class="price">$27.00</span>
@@ -130,7 +129,7 @@
                 <h3><a href="/energized-engines-v2/products/sumner-780017-base-weldment-z-r-150.html">Sumner 780017 BASE WELDMENT, Z &amp; R-150</a></h3>
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780017</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> R-150</p>
                 <p class="description">Sumner Part Number 780017 as indicated in the ROUST-A-BOUT HOIST LIFT ASSEMBLY DIAGRAM. BASE WELDMENT, Z &amp; R-150...</p>
                 <div class="product-footer">
                     <span class="price">$4692.00</span>
@@ -141,7 +140,7 @@
                 <h3><a href="/energized-engines-v2/products/1000.html">EE 1000 Bolt for RAB Counterweight</a></h3>
                 <span class="badge aftermarket">Aftermarket</span>
                 <p class="part-number">Part #: 1000</p>
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                <p><strong>Fits:</strong> R-150</p>
                 <p class="description">This bolt will fit the lift hook on a R-150, R-180 and R-250 Roust-A-Bout....</p>
                 <div class="product-footer">
                     <span class="price">$7.95</span>

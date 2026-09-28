@@ -3,9 +3,13 @@
 // Mobile search row toggle
 function toggleMobileSearch() {
   const searchRow = document.querySelector('.mobile-search-row');
+  const searchIcon = document.querySelector('.search-icon-btn');
   if (searchRow) {
-    searchRow.classList.toggle('active');
-    if (searchRow.classList.contains('active')) {
+    const isActive = searchRow.classList.toggle('active');
+    if (searchIcon) {
+      searchIcon.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+    }
+    if (isActive) {
       searchRow.querySelector('input')?.focus();
     }
   }
@@ -13,6 +17,27 @@ function toggleMobileSearch() {
 
 // P1-2: Mobile menu toggle with accessibility improvements
 let lastFocusedElement = null;
+
+// Attach event listeners after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Hamburger button
+  const hamburger = document.querySelector('.hamburger-btn');
+  if (hamburger) {
+    hamburger.addEventListener('click', toggleMobileMenu);
+  }
+  
+  // Search icon button  
+  const searchIcon = document.querySelector('.search-icon-btn');
+  if (searchIcon) {
+    searchIcon.addEventListener('click', toggleMobileSearch);
+  }
+  
+  // Mobile menu backdrop
+  const backdrop = document.querySelector('.mobile-menu-backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', toggleMobileMenu);
+  }
+});
 
 function toggleMobileMenu() {
   const menu = document.getElementById('mobileMenu');

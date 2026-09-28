@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Search Parts - Energized Engines v2 Preview</title>
+    <title>Search Parts - Energized Engines</title>
     <link rel="stylesheet" href="/energized-engines-v2/styles.css">
 </head>
 <body>
@@ -13,23 +13,30 @@
     </div>
     <header>
         <div class="container">
-            <h1><a href="/energized-engines-v2/">Energized Engines v2</a></h1>
-            <p class="tagline">Preview of Improved Sumner Lift Parts Catalog</p>
+            <div class="header-content">
+                <a href="/energized-engines-v2/" class="logo-link">
+                    <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                </a>
+                <div class="contact-info">
+                    <p>832-444-5426</p>
+                    <p>Sales@EnergizedEngines.com</p>
+                </div>
+            </div>
             <nav>
                 <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" >Shop by Model</a>
+                <a href="/energized-engines-v2/models.html" >Parts by Model</a>
                 <a href="/energized-engines-v2/search.html" class="active">Search Parts</a>
                 <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Return Policy</a>
+                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
             </nav>
         </div>
     </header>
     <main class="container">
-        <h2>Search Part Numbers</h2>
-        <p>Fast client-side search. Enter a part number (spaces and dashes are ignored).</p>
+        <h1>Search Part Numbers</h1>
+        <p>Enter a part number to search. Spaces and dashes are ignored.</p>
         
         <div class="search-box">
-            <input type="text" id="search-input" placeholder="Enter part number (e.g. 783540, 783921)" autofocus>
+            <input type="text" id="search-input" placeholder="Enter part number (e.g. 783540)" autofocus>
             <button id="search-btn" onclick="performSearch()">Search</button>
         </div>
         
@@ -38,12 +45,10 @@
         <script>
         let productsData = [];
         
-        // Load search data from JSON file
         fetch('/energized-engines-v2/search-data.json')
           .then(response => response.json())
           .then(data => {
             productsData = data;
-            console.log('Loaded', productsData.length, 'products');
           })
           .catch(err => {
             console.error('Failed to load search data:', err);
@@ -65,7 +70,7 @@
           }
           
           if (productsData.length === 0) {
-            results.innerHTML = '<p class="warning">Product data still loading. Please wait a moment and try again.</p>';
+            results.innerHTML = '<p class="warning">Loading product data. Please wait and try again.</p>';
             return;
           }
           
@@ -79,11 +84,11 @@
           });
           
           if (matches.length === 0) {
-            results.innerHTML = '<p class="warning">No parts found matching "' + escapeHtml(query) + '"</p>';
+            results.innerHTML = '<p class="warning">No parts found for "' + escapeHtml(query) + '"</p>';
             return;
           }
           
-          let html = '<h3>Found ' + matches.length + ' ' + (matches.length === 1 ? 'part' : 'parts') + '</h3><div class="products-grid">';
+          let html = '<h2>' + matches.length + ' ' + (matches.length === 1 ? 'part' : 'parts') + ' found</h2><div class="products-grid">';
           
           matches.forEach(product => {
             const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
@@ -92,21 +97,12 @@
             
             html += `
               <div class="product-card">
-                <div class="product-header">
-                  <h4><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h4>
-                  <div class="badges-inline">
-                    ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : ''}
-                    ${product.is_merged ? '<span class="badge merged">Merged</span>' : ''}
-                  </div>
-                </div>
+                <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
+                ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 <p class="part-number">Part #: ${escapeHtml(product.part_number || 'N/A')}</p>
-                ${product.models.length > 0 ? '<p class="models">Fits: ' + product.models.join(', ') + ' <span class="badge unverified">Unverified</span></p>' : ''}
                 <div class="product-footer">
                   <span class="price">${price}</span>
-                  <div class="button-group">
-                    <a href="/energized-engines-v2/products/${slug}.html" class="btn btn-sm">Details</a>
-                    <a href="${product.url}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">Buy →</a>
-                  </div>
+                  <a href="/energized-engines-v2/products/${slug}.html" class="btn btn-sm">Details</a>
                 </div>
               </div>
             `;
@@ -132,15 +128,14 @@
     </main>
     <footer>
         <div class="container">
-            <p>Energized Engines v2 Preview Site</p>
-            <p>This is a demonstration site showing improved catalog organization.</p>
-            <p>Official store: <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a></p>
-            <nav class="footer-nav">
-                <a href="/energized-engines-v2/about.html">About</a>
-                <a href="/energized-engines-v2/return-policy.html">Return Policy</a>
-                <a href="https://github.com/sbezner/energized-engines-v2">GitHub</a>
-            </nav>
-            <p class="small">Generated 9/28/2026 from 3387 products (2369 after deduplication)</p>
+            <h3>832-444-5426</h3>
+            <h3>Sales@EnergizedEngines.com</h3>
+            <p>Call, Text or Email</p>
+            <p>We offer free standard ground shipping on parts orders over $150 shipped within the contiguous U.S. (Lower 48 states).</p>
+            <p>Free delivery on in-stock items to locations within 10 miles of Jersey Village, TX.</p>
+            <p>20% restocking fee on eligible returns. See our <a href="/energized-engines-v2/return-policy.html">Return Policy</a> for details.</p>
+            <p class="small">PLEASE NOTE: Not all parts are kept in stock. If you need expedited service, contact us to confirm availability.</p>
+            <p class="small">Prices may adjust occasionally due to supplier increases. We work hard to keep our listings current - thank you for rolling with us!</p>
         </div>
     </footer>
     <script src="/energized-engines-v2/script.js"></script>

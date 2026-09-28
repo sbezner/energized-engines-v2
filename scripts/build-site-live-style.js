@@ -150,6 +150,7 @@ function getHeader(title, activePage = '') {
             </div>
             
             <!-- Mobile menu drawer -->
+            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
             <div class="mobile-menu" id="mobileMenu">
                 <nav class="mobile-nav">
                     <a href="${BASE_PATH}/" ${activePage === 'home' ? 'class="active"' : ''}>Home</a>
@@ -165,6 +166,11 @@ function getHeader(title, activePage = '') {
             </div>
         </div>
     </header>
+    <div class="mobile-search-row">
+        <form action="${BASE_PATH}/search.html" method="get">
+            <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
+        </form>
+    </div>
     <main class="container">`;
 }
 
@@ -358,12 +364,17 @@ function buildProductPages() {
     const partNumber = product.extracted_part_number;
     const rawDescription = stripHtml(product.body_html);
     const description = rawDescription ? cleanUTF8(rawDescription) : null;
-    // Deduplicate models (normalize case and spacing)
+    // Deduplicate models (normalize case and spacing) and filter out EE part numbers
+    const eePartNumbers = ['2001', '2003', '2004', '2005', '2017', '2021', 'EVENTER25'];
     const rawModels = product.models || [];
     const uniqueModels = [];
     const seenModels = new Set();
     rawModels.forEach(m => {
       const normalized = m.trim().toUpperCase().replace(/\s+/g, '');
+      // Skip EE part numbers
+      if (eePartNumbers.includes(m.trim().toUpperCase())) {
+        return;
+      }
       if (!seenModels.has(normalized)) {
         seenModels.add(normalized);
         uniqueModels.push(m);
@@ -476,8 +487,11 @@ function buildProductPages() {
           if (seriesMatches.length > 0) {
             const match = seriesMatches[0];
             // Filter covered models to only those in the same manual as the match
+            // Also exclude 2012S if citing the standard Series 2000 manual
+            const isStandardSeries2000Manual = match.manualUrl && match.manualUrl.includes('Series-2000') && !match.manualUrl.includes('Short-Stack');
             const coveredModels = [...new Set(seriesMatches
               .filter(m => m.manualUrl === match.manualUrl)
+              .filter(m => !(isStandardSeries2000Manual && m.model === '2012S'))
               .map(m => m.model))].sort();
             verifications.set(productModel, {
               manual: match.manualTitle,
@@ -508,7 +522,7 @@ function buildProductPages() {
           let citation = '';
           if (verification.isSeries) {
             // Series-level: don't claim fit for each individual model
-            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Listed in ${escapeHtml(verification.seriesName)} parts manual</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${escapeHtml(verification.seriesName)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}</a></p>`;
           } else {
             // Exact model match
             citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Verified for ${escapeHtml(model)}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
@@ -602,10 +616,10 @@ function buildModelsPage() {
   
   // Use normalized data for grouping
   // Filter out EE part numbers that were parsed as models
-  const eePartNumbers = ['2001', '2003', '2004', '2005', '2017', '2021'];
+  const eePartNumbers = ['2001', '2003', '2004', '2005', '2017', '2021', 'EVENTER25'];
   const models = Object.values(normalizedModels)
     .map(m => m.canonical)
-    .filter(m => !eePartNumbers.includes(m.trim()));
+    .filter(m => !eePartNumbers.includes(m.trim().toUpperCase()));
   
   // P2-1: Fixed model grouping with proper series organization
   const modelGroups = {
@@ -728,13 +742,23 @@ ${getFooter()}`;
 // Build individual model pages
 function buildModelPages() {
   const modelsDir = path.join(DOCS_DIR, 'models');
-  if (!fs.existsSync(modelsDir)) {
-    fs.mkdirSync(modelsDir, { recursive: true });
+  // Clean the models directory before writing
+  if (fs.existsSync(modelsDir)) {
+    fs.rmSync(modelsDir, { recursive: true, force: true });
   }
+  fs.mkdirSync(modelsDir, { recursive: true });
+  
+  // Filter out EE part numbers before normalization
+  const eePartNumbers = ['2001', '2003', '2004', '2005', '2017', '2021', 'EVENTER25'];
   
   // Normalize model names case-insensitively (including space removal)
   const normalizedModels = {};
   Object.keys(data.models).forEach(model => {
+    // Skip EE part numbers
+    if (eePartNumbers.includes(model.trim().toUpperCase())) {
+      return;
+    }
+    
     const normalizedKey = model.trim().toUpperCase().replace(/\s+/g, '');
     if (!normalizedModels[normalizedKey]) {
       normalizedModels[normalizedKey] = {

@@ -5,6 +5,7 @@ let lastFocusedElement = null;
 
 function toggleMobileMenu() {
   const menu = document.getElementById('mobileMenu');
+  const backdrop = document.getElementById('mobileMenuBackdrop');
   const hamburger = document.querySelector('.hamburger-btn');
   
   if (menu && hamburger) {
@@ -13,6 +14,7 @@ function toggleMobileMenu() {
     if (isOpen) {
       // Close menu
       menu.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('active');
       hamburger.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
       
@@ -25,6 +27,7 @@ function toggleMobileMenu() {
       // Open menu
       lastFocusedElement = document.activeElement;
       menu.classList.add('open');
+      if (backdrop) backdrop.classList.add('active');
       hamburger.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
       

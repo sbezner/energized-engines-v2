@@ -35,11 +35,19 @@ if (fs.existsSync(DIAGRAM_MAP_FILE)) {
   const diagramCsv = fs.readFileSync(DIAGRAM_MAP_FILE, 'utf8');
   diagramCsv.split('\n').slice(1).forEach(line => {
     if (!line.trim()) return;
-    const match = line.match(/^"([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/);
+    // Allow empty model field (second field) by using * instead of +
+    const match = line.match(/^"([^"]+)","([^"]*)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/);
     if (match) {
       const [, partNum, model, manualTitle, manualUrl, page, diagramRef, note] = match;
       if (!diagramMap[partNum]) diagramMap[partNum] = [];
-      diagramMap[partNum].push({ model, manualTitle, manualUrl, page, diagramRef, note });
+      
+      // Parse badge type from note if present
+      let badgeType = 'exact';
+      if (note.startsWith('exact:')) badgeType = 'exact';
+      else if (note.startsWith('series:')) badgeType = 'series';
+      else if (note.startsWith('listed:')) badgeType = 'listed';
+      
+      diagramMap[partNum].push({ model, manualTitle, manualUrl, page, diagramRef, note, badgeType });
     }
   });
 }
@@ -468,38 +476,29 @@ function buildProductPages() {
     
     if (diagrams && partNumber) {
       models.forEach(productModel => {
-        // Check for exact match
-        const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === productModel);
-        if (exactMatch) {
-          verifications.set(productModel, {
-            manual: exactMatch.manualTitle,
-            url: exactMatch.manualUrl,
-            page: exactMatch.page,
-            diagramModels: [exactMatch.model],
-            isSeries: false
-          });
-        }
-        // Check for series-level match
-        else if (seriesMap[productModel]) {
-          const seriesModels = seriesMap[productModel];
-          const seriesMatches = diagrams.filter(d => 
-            d.manualUrl && d.page && seriesModels.includes(d.model)
-          );
+        // Check diagrams for this product model, respecting badgeType
+        const productModelDiagrams = diagrams.filter(d => d.manualUrl && d.page && d.model === productModel);
+        
+        if (productModelDiagrams.length > 0) {
+          // Use the first diagram's badgeType to determine exact vs series
+          const firstDiagram = productModelDiagrams[0];
           
-          if (seriesMatches.length > 0) {
-            const match = seriesMatches[0];
-            // Filter covered models to only those in the same manual as the match
-            // Also exclude 2012S if citing the standard Series 2000 manual
-            const isStandardSeries2000Manual = match.manualUrl && match.manualUrl.includes('Series-2000') && !match.manualUrl.includes('Short-Stack');
-            const coveredModels = [...new Set(seriesMatches
-              .filter(m => m.manualUrl === match.manualUrl)
-              .filter(m => !(isStandardSeries2000Manual && m.model === '2012S'))
-              .map(m => m.model))].sort();
+          if (firstDiagram.badgeType === 'exact') {
+            // Exact model match
             verifications.set(productModel, {
-              manual: match.manualTitle,
-              url: match.manualUrl,
-              page: match.page,
-              diagramModels: coveredModels,
+              manual: firstDiagram.manualTitle,
+              url: firstDiagram.manualUrl,
+              page: firstDiagram.page,
+              diagramModels: [firstDiagram.model],
+              isSeries: false
+            });
+          } else if (firstDiagram.badgeType === 'series') {
+            // Series-level match
+            verifications.set(productModel, {
+              manual: firstDiagram.manualTitle,
+              url: firstDiagram.manualUrl,
+              page: firstDiagram.page,
+              diagramModels: [firstDiagram.model],
               isSeries: true,
               seriesName: productModel
             });
@@ -511,8 +510,19 @@ function buildProductPages() {
     // Build per-model fitment display
     let fitmentLines = [];
     
+    // Check for "listed" badges (products with no model claim found in manuals)
+    const listedBadges = diagrams ? diagrams.filter(d => d.badgeType === 'listed') : [];
+    
     if (models.length === 0) {
-      fitmentLines.push(`<p>Models not listed yet.</p>`);
+      if (listedBadges.length > 0) {
+        // No models claimed but found in manuals
+        fitmentLines.push(`<p>Models not listed yet.</p>`);
+        listedBadges.forEach(badge => {
+          fitmentLines.push(`<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Sumner ${escapeHtml(badge.manualTitle)}, p. ${badge.page}</span> <a href="${badge.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">View manual</a></p>`);
+        });
+      } else {
+        fitmentLines.push(`<p>Models not listed yet.</p>`);
+      }
     } else {
       // Show plain "Fits:" line with models
       fitmentLines.push(`<p><strong>Fits:</strong> ${models.map(m => escapeHtml(m)).join(', ')}</p>`);

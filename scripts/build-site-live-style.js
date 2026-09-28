@@ -630,6 +630,7 @@ function buildModelsPage() {
     'Roust-A-Bout (R-Series)': [],
     'Eventer Series': [],
     'Gantry': [],
+    'Other Parts': [],  // Added for products not linked to model pages
     'Other': []
   };
   
@@ -679,6 +680,18 @@ function buildModelsPage() {
     }
   });
   
+  // Find products that only have EE part numbers as models (orphans)
+  const orphanProducts = data.products.filter(product => {
+    const productModels = product.models || [];
+    if (productModels.length === 0) return false;
+    // Check if all models are EE part numbers
+    return productModels.every(m => eePartNumbers.includes(m.trim().toUpperCase()));
+  });
+  
+  if (orphanProducts.length > 0) {
+    modelGroups['Other Parts'].push('other-parts');
+  }
+  
   // P2-1: Build series jump chips
   const seriesChips = Object.entries(modelGroups)
     .filter(([group, models]) => models.length > 0)
@@ -699,11 +712,21 @@ function buildModelsPage() {
       
       groupModels.sort().forEach(model => {
         const modelNorm = model.trim().toUpperCase().replace(/\s+/g, '');
-        const count = normalizedModels[modelNorm] ? normalizedModels[modelNorm].products.length : 0;
+        let count, displayName;
+        
+        if (model === 'other-parts') {
+          // Special case for Other Parts
+          count = orphanProducts.length;
+          displayName = 'Other Parts';
+        } else {
+          count = normalizedModels[modelNorm] ? normalizedModels[modelNorm].products.length : 0;
+          displayName = model;
+        }
+        
         const modelSlug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         modelsHtml += `
                 <a href="${BASE_PATH}/models/${modelSlug}.html" class="model-card">
-                    <strong>${escapeHtml(model)}</strong>
+                    <strong>${escapeHtml(displayName)}</strong>
                     <span>${count} ${count === 1 ? 'part' : 'parts'}</span>
                 </a>`;
       });
@@ -884,6 +907,56 @@ ${getFooter()}`;
     
     fs.writeFileSync(path.join(modelsDir, `${slug}.html`), html);
   });
+  
+  // Build Other Parts page for products with only EE part numbers
+  const orphanProducts = data.products.filter(product => {
+    const productModels = product.models || [];
+    if (productModels.length === 0) return false;
+    return productModels.every(m => eePartNumbers.includes(m.trim().toUpperCase()));
+  });
+  
+  if (orphanProducts.length > 0) {
+    let orphanHtml = '';
+    orphanProducts.forEach(product => {
+      const fullProduct = data.products.find(p => p.id === product.id);
+      if (!fullProduct) return;
+      
+      const price = formatPrice(product.price);
+      const isAftermarket = product.vendor === 'Energized Engines';
+      const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
+      const cleanTitle = cleanUTF8(product.title);
+      
+      orphanHtml += `
+          <div class="product-card">
+              <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(cleanTitle)}</a></h3>
+              ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
+              
+              <div class="product-footer">
+                  <span class="price">${price}</span>
+                  <a href="${BASE_PATH}/products/${productSlug}.html" class="btn btn-sm">Details</a>
+              </div>
+          </div>`;
+    });
+    
+    const otherPartsHtml = `${getHeader('Other Parts', 'models')}
+        <div class="breadcrumb">
+            <a href="${BASE_PATH}/">Home</a> › 
+            <a href="${BASE_PATH}/models.html">Parts by Model</a> › 
+            Other Parts
+        </div>
+        
+        <h1>Other Parts</h1>
+        <p class="parts-count">${orphanProducts.length} ${orphanProducts.length === 1 ? 'part' : 'parts'}</p>
+        
+        <p>Accessories and universal parts not specific to one model.</p>
+        
+        <div class="products-grid">
+            ${orphanHtml}
+        </div>
+${getFooter()}`;
+    
+    fs.writeFileSync(path.join(modelsDir, 'other-parts.html'), otherPartsHtml);
+  }
   
   console.log(`Built: ${Object.keys(data.models).length} model pages`);
 }

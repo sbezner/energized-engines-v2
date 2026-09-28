@@ -1,115 +1,121 @@
-# Sumner Manual Check Summary
-
-Generated: 2026-09-28
+# Sumner Manual Verification Summary
 
 ## Overview
+Complete verification of Sumner OEM parts against official parts manuals and exploded diagrams.
 
-- **Total Sumner OEM products checked:** 2,168
-- **Unique Sumner OEM part numbers:** 2,168  
-- **Parts found in manuals with exact page matches:** 22
-- **Confirmations added to diagram-map.csv:** 22
-- **Manual-only matches:** 581 (parts in manuals but product doesn't claim that model)
-- **Parts not found in any manual:** 2,146
-- **Manuals checked:** 10 PDFs with page-level extraction
+## Products Checked
+- **Total Sumner products processed**: 2,168 (all Sumner OEM part numbers in catalog)
+- **Unique part numbers**: 2,168
+- **Products found in any manual**: 302 unique parts
+- **Total confirmations recorded**: 350 (some parts found in multiple manuals)
 
-## Part Count Explanation
+## Badge Distribution (from built site grep)
+- **Verified (Exact Model Match)**: 156 badges on 132 product pages
+  - Product claims specific model (e.g. "2015", "GH2T", "EVENTER 16")
+  - Part number found in that model's official parts manual
+- **Listed in Series**: 15 badges on 15 product pages
+  - Product claims series designation (e.g. "2000", "2100")
+  - Part number found in that series' parts manual
+- **Listed in Sumner (Factual/No Model Claim)**: 194 badges on 170 product pages
+  - Product title claims NO model
+  - Part number found in official Sumner parts manual
+  - Badge format: "✓ Listed in Sumner \<manual title\>, p. N"
+- **Total product pages with at least one badge**: 302
 
-The catalog contains 2,168 Sumner OEM products (vendor="Sumner"). Each product has a unique part number in the 77xxxx or 78xxxx series. The previous informal count of "965" likely referred to a different metric or outdated data.
+## Other Findings
+- **Manual-only matches**: 253 entries
+  - Part found in a manual but product claims a DIFFERENT model family
+  - Recorded in `notes/manual-only-matches.csv` for review
+- **Not in claimed manual**: 69 entries
+  - Product claims a model family with a manual
+  - Part number NOT found in that family's manual
+  - No specific component conflict identified
+  - Recorded in `notes/not-in-claimed-manual.csv`
+- **Fitment conflicts**: 0
+  - No cases where manual shows same component under different part number
+- **Not found anywhere**: 1,866 parts (2,168 - 302 found)
 
-This check used:
-- **Source:** data/processed-products.json
-- **Filter:** Products where vendor == "Sumner" and extracted_part_number is not null
-- **Count method:** Unique part numbers on actual catalog products
+## Manuals Used
+1. Series 2000 Lift Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/11/Series-2000-Lift-Assembly-Exploded-Diagram.pdf
+   - Covers: 2010, 2015, 2020, 2025
 
-## Manuals Checked (with HTTP Status)
+2. Series 2000 Short Stack Lift Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/Series-2000-Short-Stack-Lift-Assembly-Exploded-Diagram.pdf
+   - Covers: 2012S
 
-All manuals successfully downloaded (HTTP 200):
+3. Series 2100 Lift Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/Series-2100-Lift-Assembly-Exploded-Diagram.pdf
+   - Covers: 2112, 2118, 2124 (including G versions)
 
-1. Series 2000 Lift Assembly Exploded Diagram (2010, 2015, 2020, 2025) - 26 pages
-2. Series 2000 Short Stack (2012S) - 19 pages  
-3. Series 2100 Lift Assembly (2112, 2118, 2124) - 23 pages
-4. Series 2200 Lift Assembly (2208, 2210) - 18 pages
-5. 2412 Series Lift Assembly (2412, 2416) - 19 pages
-6. Series 2500 Lift Assembly (2512, 2515) - 24 pages **[NEW]**
-7. Series 2600 Lift Assembly (2615) - 19 pages
-8. Eventer 16 Parts Manual - 16 pages **[NEW]**
-9. 2 Ton Gantry Assembly (GH2T) - 13 pages
-10. Sumner 1910 Series Lift (1908, 1910) - 4 pages **[NEW]**
+4. Series 2200 Lift Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/11/Series-2200-Lift-Assembly-Exploded-Diagram.pdf
+   - Covers: 2208, 2210
 
-## Manuals NOT Found
+5. 2412 Series Lift Assembly
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/2412-Series-Lift-Assembly.pdf
+   - Covers: 2412, 2416 (including G versions)
 
-Searched sumner.com with no results:
+6. Series 2500 Lift Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/2010_Series2500Lift_diagrams.pdf
+   - Covers: 2512, 2515
 
-- **R-100, R-150, R-180, R-250:** No parts manual or exploded diagram exists
-- **Roust-A-Bout:** No exploded diagram (only product spec page)  
-- **SLC-18, SLC-24:** No manual found (may not be valid Sumner models)
+7. Series 2600 Lift Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/Series-2600-Lift-Assembly-Exploded-Diagram.pdf
+   - Covers: 2615
 
-Search methods used:
-- `site:sumner.com filetype:pdf [model] parts manual exploded diagram`
-- Direct URL checks on sumner.com/wp-content/uploads/
-- Product page inspection
+8. Eventer 16 Parts Manual
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/Eventer_16_Parts_Manual_10_11.pdf
+   - Covers: EVENTER 16
 
-## Verification Method
+9. 2 Ton Gantry Assembly Exploded Diagram
+   - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/2-Ton-Gantry-Assembly-Exploded-Diagram.pdf
+   - Covers: GH2T, Gantry
 
-For each of the 2,168 products:
-1. Extracted text from all manual PDFs with page markers (form feed separators)
-2. Searched each page for exact part number matches
-3. **Only added confirmation if:**
-   - Part number appears on a specific page
-   - Product's claimed models match the manual's coverage
-   - Page number is recorded
+10. Sumner 1910 Series Lift Exploded Diagram
+    - URL: https://sumner.com/wp-content/uploads/sites/14/2025/07/Sumner-1910-Series-Lift-Exploded-Diagram.pdf
+    - Covers: 1908, 1910
 
-This strict matching explains the low confirmation rate (22/2168 = 1%).
+## Model Family Normalization
+To ensure accurate matching, the following model normalization rules were applied:
 
-## Badge Logic
+- **Gantry family**: Gantry, 2 Ton Gantry, GH2T, and all GH2T size variants
+- **Series 2000**: 2000, 2010, 2015, 2020, 2025 (excludes 2012S)
+- **Series 2000 Short Stack**: 2012S only
+- **Series 2100**: 2100, 2112, 2118, 2124, 2112G, 2118G, 2124G
+- **Series 2200**: 2200, 2208, 2210
+- **Series 2400**: 2400, 2412, 2416, 2412G, 2416G
+- **Series 2500**: 2500, 2512, 2515
+- **Series 2600**: 2600, 2615
+- **Series 1900/1910**: 1900, 1908, 1910
+- **Eventer**: EVENTER 16, EVENTER 20, EVENTER 25 (normalized by removing spaces)
 
-Badges are shown when:
-- Part is in diagram-map.csv with a matching model
-- Badge text:
-  - "✓ Verified in Sumner {model} parts manual, p. {N}" (exact model match)
-  - "✓ Listed in Series {X} parts manual, p. {N}" (series-level match)
+## Methodology
+1. Extracted all Sumner OEM parts from catalog
+2. Downloaded official parts manuals from sumner.com
+3. Converted PDFs to text with `pdftotext -layout`
+4. Applied model family normalization rules
+5. Matched part numbers against manual text with page tracking
+6. Categorized matches as exact, series-level, or factual (no model claim)
+7. Logged cross-family matches and missing parts for review
+8. Updated site generator to display badges on product pages, model pages, and search results
 
-Badges are NOT shown for:
-- Manual-only matches (581 cases where part is in manual but product doesn't claim that model)
-- Parts not found in any manual
+## Manual Source Tracking
+All manual URLs attempted are logged in `notes/manual-sources.csv` with HTTP status codes and coverage notes.
 
-## Manual-Only Matches
+## Files Generated
+- `notes/diagram-map.csv`: All confirmations with page numbers and URLs
+- `notes/manual-only-matches.csv`: Cross-family matches requiring review
+- `notes/not-in-claimed-manual.csv`: Parts not found in their claimed family's manual
+- `notes/fitment-conflicts.csv`: Component conflicts (none found)
+- `notes/manual-sources.csv`: Manual source tracking
 
-581 parts appear in manuals but the product doesn't claim any model that manual covers. Examples:
-- Part in Series 2100 manual but product only claims "2000" models
-- Part in Gantry manual but product claims no Gantry model
-
-These are logged in `notes/manual-only-matches.csv` for investigation but don't receive badges.
-
-## Conflicts
-
-No conflicts found. A conflict would be:
-- Product title claims model X
-- Model X has a parts manual  
-- Manual lists the same component name under a different part number
-- Manual has no occurrence of the product's part number
-
-Evaluated: All 2,168 products checked for conflicts
-Conflicts found: 0
-
-## Files Created/Updated
-
-- `notes/diagram-map.csv` - Added 22 new confirmed matches with page numbers
-- `notes/manual-only-matches.csv` - 581 parts in manuals without model match
-- `notes/manual-sources.csv` - Updated with HTTP 200 status for all URLs
-- `notes/fitment-conflicts.csv` - Created (header only, no conflicts found)
-- `notes/manual-check-summary.md` - This file
-
-## Recommendations
-
-1. **High not-found rate (99%):** Most parts are not in the checked exploded diagrams, likely because:
-   - They're hardware/fasteners covered separately
-   - They're newer parts added after manuals published
-   - They're listed only in operator manuals (not diagram PDFs)
-   
-2. **Manual-only matches (581):** These parts physically exist in manuals but product model claims don't match. May indicate:
-   - Incorrect model assignment on products
-   - Parts that fit multiple series
-   - Need for series-level fitment review
-
-3. **Missing R-series/Roust-A-Bout manuals:** Contact Sumner directly for parts documentation on these legacy models.
+## Verification
+Badge counts verified with:
+```bash
+cd docs/products
+grep -oh "✓ Verified in Sumner [^<]*" *.html | wc -l  # 156
+grep -oh "✓ Listed in Series [^<]*" *.html | wc -l    # 15
+grep -oh "✓ Listed in Sumner [^<]*" *.html | wc -l    # 194
+grep -l "fitment-flag--verified" *.html | wc -l       # 302 pages
+```

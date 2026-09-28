@@ -622,6 +622,12 @@ footer .small {
   .products-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   
   .search-box {
     flex-direction: column;
@@ -1167,6 +1173,13 @@ footer .small {
   justify-content: center;
   margin-top: 2rem;
   flex-wrap: wrap;
+}
+
+.search-count {
+  font-size: 20px;
+  color: var(--secondary-color);
+  margin: 1rem 0;
+  font-weight: 600;
 }
 
 /* P1-6: Show more button */

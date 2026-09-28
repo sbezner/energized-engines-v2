@@ -162,11 +162,12 @@
           if (allMatches.length === 0) {
             results.innerHTML = `
               <div class="search-empty-state">
-                <p class="warning">No parts found for "${escapeHtml(query)}"</p>
-                <p>Can't find what you need? We're here to help.</p>
+                <p>No parts match "${escapeHtml(query)}"</p>
+                <p>Double-check spelling, try a different keyword, or <a href="/energized-engines-v2/models.html">browse by model</a>.</p>
                 <div class="empty-state-actions">
                   <a href="tel:+18324445426" class="btn btn-primary">Call 832-444-5426</a>
                   <a href="/energized-engines-v2/models.html" class="btn btn-secondary">Shop by Model</a>
+                  <a href="/energized-engines-v2/about.html" class="btn btn-secondary">Parts Manuals</a>
                 </div>
               </div>
             `;
@@ -178,7 +179,7 @@
           
           let html = '';
           if (!append) {
-            html += '<h2>' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part' : 'parts') + ' found</h2>';
+            html += '<h2 class="search-count">' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part matches' : 'parts match') + ' ' + escapeHtml(query) + '</h2>';
             html += '<div class="products-grid">';
           }
           

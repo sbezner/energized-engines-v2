@@ -474,20 +474,22 @@ function buildProductPages() {
     }
     
     if (allModelsVerified && verifications.size > 0) {
-      // All models verified - show citation
-      const firstVerification = verifications.values().next().value;
-      let citation = '';
-      
-      if (firstVerification.isSeries) {
-        citation = `Listed in <a href="${firstVerification.url}" target="_blank" rel="noopener">${escapeHtml(firstVerification.manual)}, p. ${firstVerification.page}</a> (covers ${firstVerification.diagramModels.join(', ')})`;
-      } else {
-        citation = `Listed in <a href="${firstVerification.url}" target="_blank" rel="noopener">${escapeHtml(firstVerification.manual)}, p. ${firstVerification.page}</a>`;
-      }
+      // All models verified - show citations per model
+      const citationList = [];
+      verifications.forEach((verification, model) => {
+        let citation = '';
+        if (verification.isSeries) {
+          citation = `<span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a> (covers ${verification.diagramModels.join(', ')})`;
+        } else {
+          citation = `<span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a>`;
+        }
+        citationList.push(`<p>${citation}</p>`);
+      });
       
       fitmentHtml = `
         <section class="fitment-info">
           ${modelLine}
-          <p><strong>Fitment verified:</strong> ${citation}</p>
+          ${citationList.join('\n')}
         </section>`;
     } else {
       // Not all verified or no verification
@@ -499,18 +501,18 @@ function buildProductPages() {
     }
     
     // P2-3: Accurate breadcrumbs
-    let breadcrumbModel = '';
+    let breadcrumbPath = '';
     if (models.length > 0) {
       const firstModel = models[0];
       const modelSlug = firstModel.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      breadcrumbModel = ` › <a href="${BASE_PATH}/models/${modelSlug}.html">${escapeHtml(firstModel)}</a>`;
+      breadcrumbPath = `<a href="${BASE_PATH}/models.html">Parts by Model</a> › <a href="${BASE_PATH}/models/${modelSlug}.html">Sumner ${escapeHtml(firstModel)}</a>`;
+    } else {
+      breadcrumbPath = `<a href="${BASE_PATH}/search.html">Search Parts</a>`;
     }
     
     const html = `${getHeader(cleanTitle)}
         <div class="breadcrumb">
-            <a href="${BASE_PATH}/">Home</a> › 
-            <a href="${BASE_PATH}/models.html">Parts by Model</a>${breadcrumbModel} › 
-            ${escapeHtml(cleanTitle)}
+            <a href="${BASE_PATH}/">Home</a> › ${breadcrumbPath} › ${escapeHtml(cleanTitle)}
         </div>
         
         <article class="product-page">
@@ -754,7 +756,7 @@ function buildModelPages() {
         const match = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
         
         if (match) {
-          fitmentLine = `<p><strong>Fitment verified:</strong> Listed in <a href="${match.manualUrl}" target="_blank" rel="noopener">${escapeHtml(match.manualTitle)}, p. ${match.page}</a></p>`;
+          fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${match.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(match.manualTitle)}, p. ${match.page}</a></p>`;
         } else {
           // Check if this model is part of a series and the part is in that series
           for (const [seriesNum, seriesModels] of Object.entries(seriesMap)) {
@@ -767,7 +769,7 @@ function buildModelPages() {
                   d.manualUrl && d.page && seriesModels.includes(d.model)
                 );
                 const coveredModels = [...new Set(allMatches.map(m => m.model))].sort();
-                fitmentLine = `<p><strong>Fitment verified:</strong> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
+                fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
                 break;
               }
             }
@@ -930,11 +932,12 @@ function buildSearchPage() {
           if (allMatches.length === 0) {
             results.innerHTML = \`
               <div class="search-empty-state">
-                <p class="warning">No parts found for "\${escapeHtml(query)}"</p>
-                <p>Can't find what you need? We're here to help.</p>
+                <p>No parts match "\${escapeHtml(query)}"</p>
+                <p>Double-check spelling, try a different keyword, or <a href="${BASE_PATH}/models.html">browse by model</a>.</p>
                 <div class="empty-state-actions">
                   <a href="tel:+18324445426" class="btn btn-primary">Call 832-444-5426</a>
                   <a href="${BASE_PATH}/models.html" class="btn btn-secondary">Shop by Model</a>
+                  <a href="${BASE_PATH}/about.html" class="btn btn-secondary">Parts Manuals</a>
                 </div>
               </div>
             \`;
@@ -946,7 +949,7 @@ function buildSearchPage() {
           
           let html = '';
           if (!append) {
-            html += '<h2>' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part' : 'parts') + ' found</h2>';
+            html += '<h2 class="search-count">' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part matches' : 'parts match') + ' ' + escapeHtml(query) + '</h2>';
             html += '<div class="products-grid">';
           }
           

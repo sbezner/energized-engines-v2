@@ -27,12 +27,12 @@
                 <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                </a>
+                </button>
             </div>
             
             <!-- Desktop header (existing) -->
@@ -75,6 +75,7 @@
     <div class="mobile-search-row">
         <form action="/energized-engines-v2/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
+            <button type="submit">Search</button>
         </form>
     </div>
     <main class="container">
@@ -202,10 +203,16 @@
               }
             }
             
-            const hasVerified = product.verified_models && product.verified_models.length > 0;
-            const fitmentLabel = hasVerified 
-              ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
-              : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+            let fitmentLabel;
+            if (product.exact_verified && product.exact_verified.length > 0) {
+              const models = product.exact_verified.join(', ');
+              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+            } else if (product.series_listed && product.series_listed.length > 0) {
+              const series = product.series_listed.includes('2000') ? '2000' : '2100';
+              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
+            } else {
+              fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+            }
             
             html += `
               <div class="product-card">
@@ -244,10 +251,16 @@
                   replacesLine = `<p class="replaces-note">Replaces Sumner ${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>`;
                 }
               }
-              const hasVerified = product.verified_models && product.verified_models.length > 0;
-              const fitmentLabel = hasVerified 
-                ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
-                : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+              let fitmentLabel;
+              if (product.exact_verified && product.exact_verified.length > 0) {
+                const models = product.exact_verified.join(', ');
+                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+              } else if (product.series_listed && product.series_listed.length > 0) {
+                const series = product.series_listed.includes('2000') ? '2000' : '2100';
+                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
+              } else {
+                fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+              }
               return `
                 <div class="product-card">
                   <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
@@ -263,7 +276,7 @@
               `;
             }).join(''));
             if (displayedCount < allMatches.length) {
-              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
+              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true); setTimeout(() => document.querySelector(\'.products-grid .product-card:nth-child(\' + (displayedCount - PAGE_SIZE + 1) + \')')?.focus(), 100)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
             }
           } else {
             results.innerHTML = html;

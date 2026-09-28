@@ -27,12 +27,12 @@
                 <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                </a>
+                </button>
             </div>
             
             <!-- Desktop header (existing) -->
@@ -75,6 +75,7 @@
     <div class="mobile-search-row">
         <form action="/energized-engines-v2/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
+            <button type="submit">Search</button>
         </form>
     </div>
     <main class="container">

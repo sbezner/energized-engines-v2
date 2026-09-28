@@ -27,12 +27,12 @@
                 <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                </a>
+                </button>
             </div>
             
             <!-- Desktop header (existing) -->
@@ -75,6 +75,7 @@
     <div class="mobile-search-row">
         <form action="/energized-engines-v2/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
+            <button type="submit">Search</button>
         </form>
     </div>
     <main class="container">
@@ -94,21 +95,21 @@
             <div class="service-card">
                 <h3>Parts</h3>
                 <p>OEM Sumner parts and house-brand aftermarket replacement parts for all major models.</p>
-                <a href="/energized-engines-v2/models.html" class="btn">Shop by Model</a>
+                <a href="/energized-engines-v2/models.html" class="btn">Shop by model</a>
             </div>
             
             <!-- P1-7: Updated rental CTA -->
             <div class="service-card">
                 <h3>Rentals</h3>
                 <p>Sumner 2118, 2124, 2412, and 2416 lifts available for rent. Daily, weekly, or monthly rates.</p>
-                <a href="mailto:Sales@EnergizedEngines.com?subject=Rental%20Inquiry" class="btn">Email about rentals</a>
+                <a href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental" class="btn btn-secondary">Email about rentals</a>
             </div>
             
             <!-- P1-7: Updated winch rebuild CTA -->
             <div class="service-card">
                 <h3>Winch Rebuilds</h3>
                 <p>We offer affordable winch rebuild services for Sumner winches.</p>
-                <a href="mailto:Sales@EnergizedEngines.com?subject=Winch%20Rebuild%20Inquiry" class="btn">Ask about a rebuild</a>
+                <a href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild" class="btn btn-secondary">Ask about a rebuild</a>
             </div>
         </section>
 

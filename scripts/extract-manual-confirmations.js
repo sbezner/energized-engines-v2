@@ -91,8 +91,11 @@ for (const product of products) {
   for (const manual of manuals) {
     if (!manual.pages) continue;
     
+    // Use word-boundary regex for exact 6-digit part number matching
+    const partRegex = new RegExp(`\\b${part}\\b`);
+    
     for (let pageIdx = 0; pageIdx < manual.pages.length; pageIdx++) {
-      if (manual.pages[pageIdx].includes(part)) {
+      if (partRegex.test(manual.pages[pageIdx])) {
         foundIn.push({
           manual,
           page: pageIdx + 1,
@@ -183,24 +186,14 @@ for (const product of products) {
 
 console.log(`\nDone!\n`);
 
-// Load existing diagram-map and merge
-const existingMap = [];
-if (fs.existsSync(DIAGRAM_MAP)) {
-  const lines = fs.readFileSync(DIAGRAM_MAP, 'utf8').split('\n');
-  for (const line of lines) {
-    if (line && !line.startsWith('part_number')) {
-      existingMap.push(line);
-    }
-  }
-}
-
+// Write new diagram-map.csv (replace old file)
 const header = 'part_number,model,manual_title,manual_url,page,diagram_ref,match_note';
 const newRows = newConfirmations.map(c => 
   `"${c.part_number}","${c.model}","${c.manual_title}","${c.manual_url}","${c.page}","","${c.badge_type}:${c.match_note}"`
 );
 
-fs.writeFileSync(DIAGRAM_MAP, [header, ...existingMap, ...newRows].join('\n'));
-console.log(`Updated diagram-map.csv: +${newRows.length} new confirmations`);
+fs.writeFileSync(DIAGRAM_MAP, [header, ...newRows].join('\n'));
+console.log(`Created fresh diagram-map.csv: ${newRows.length} confirmations`);
 
 // Write files
 const manualOnlyHeader = 'part_number,product_handle,product_models,manual_title,manual_models,page';

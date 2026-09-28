@@ -113,7 +113,7 @@ function getHeader(title, activePage = '') {
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -121,7 +121,7 @@ function getHeader(title, activePage = '') {
                 <a href="${BASE_PATH}/" class="logo-link-mobile">
                     <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <button class="search-icon-btn" aria-label="Search" onclick="toggleMobileSearch()">
+                <button class="search-icon-btn" aria-label="Search">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -150,7 +150,7 @@ function getHeader(title, activePage = '') {
             </div>
             
             <!-- Mobile menu drawer -->
-            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="toggleMobileMenu()"></div>
+            <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
             <div class="mobile-menu" id="mobileMenu">
                 <nav class="mobile-nav">
                     <a href="${BASE_PATH}/" ${activePage === 'home' ? 'class="active"' : ''}>Home</a>
@@ -949,7 +949,7 @@ function buildSearchPage() {
         <h1>Search Part Numbers</h1>
         <p>Type a Sumner or EE part number.</p>
         
-        <form role="search" class="search-box" onsubmit="performSearch(); return false;">
+        <form role="search" class="search-box" id="search-form">
             <input type="search" id="search-input" placeholder="Enter part number (e.g. 783540)" aria-label="Part number">
             <button type="submit" id="search-btn" class="btn btn-primary">Search</button>
         </form>
@@ -961,6 +961,16 @@ function buildSearchPage() {
         let allMatches = [];
         let displayedCount = 0;
         const PAGE_SIZE = 24;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+          const searchForm = document.getElementById('search-form');
+          if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+              e.preventDefault();
+              performSearch();
+            });
+          }
+        });
         
         fetch('${BASE_PATH}/search-data.json')
           .then(response => response.json())
@@ -1097,7 +1107,7 @@ function buildSearchPage() {
           });
           
           if (displayedCount < allMatches.length) {
-            html += '</div><button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>';
+            html += '</div>';
           } else {
             html += '</div>';
           }
@@ -1105,6 +1115,9 @@ function buildSearchPage() {
           if (append) {
             const showMoreBtn = results.querySelector('.show-more-btn');
             if (showMoreBtn) showMoreBtn.remove();
+            
+            const firstNewCardIndex = displayedCount - PAGE_SIZE;
+            
             results.querySelector('.products-grid').insertAdjacentHTML('beforeend', nextBatch.map(product => {
               const price = (product.price && parseFloat(product.price) !== 0)
                 ? '$' + parseFloat(product.price).toFixed(2)
@@ -1143,10 +1156,38 @@ function buildSearchPage() {
               \`;
             }).join(''));
             if (displayedCount < allMatches.length) {
-              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true); setTimeout(() => document.querySelector(\\'.products-grid .product-card:nth-child(\\' + (displayedCount - PAGE_SIZE + 1) + \\')')?.focus(), 100)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
+              const showMoreBtn = document.createElement('button');
+              showMoreBtn.className = 'btn btn-secondary show-more-btn';
+              showMoreBtn.textContent = 'Show more parts (' + (allMatches.length - displayedCount) + ' remaining)';
+              showMoreBtn.addEventListener('click', function() {
+                const currentFirstNew = displayedCount - PAGE_SIZE;
+                performSearch(true);
+                setTimeout(function() {
+                  const cards = document.querySelectorAll('.products-grid .product-card');
+                  if (cards[currentFirstNew]) {
+                    cards[currentFirstNew].querySelector('a')?.focus();
+                  }
+                }, 100);
+              });
+              results.appendChild(showMoreBtn);
             }
           } else {
             results.innerHTML = html;
+            if (displayedCount < allMatches.length) {
+              const showMoreBtn = document.createElement('button');
+              showMoreBtn.className = 'btn btn-secondary show-more-btn';
+              showMoreBtn.textContent = 'Show more parts (' + (allMatches.length - displayedCount) + ' remaining)';
+              showMoreBtn.addEventListener('click', function() {
+                performSearch(true);
+                setTimeout(function() {
+                  const cards = document.querySelectorAll('.products-grid .product-card');
+                  if (cards[PAGE_SIZE]) {
+                    cards[PAGE_SIZE].querySelector('a')?.focus();
+                  }
+                }, 100);
+              });
+              results.appendChild(showMoreBtn);
+            }
           }
         }
         

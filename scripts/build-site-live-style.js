@@ -35,11 +35,19 @@ if (fs.existsSync(DIAGRAM_MAP_FILE)) {
   const diagramCsv = fs.readFileSync(DIAGRAM_MAP_FILE, 'utf8');
   diagramCsv.split('\n').slice(1).forEach(line => {
     if (!line.trim()) return;
-    const match = line.match(/^"([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/);
+    // Allow empty model field (second field) by using * instead of +
+    const match = line.match(/^"([^"]+)","([^"]*)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/);
     if (match) {
       const [, partNum, model, manualTitle, manualUrl, page, diagramRef, note] = match;
       if (!diagramMap[partNum]) diagramMap[partNum] = [];
-      diagramMap[partNum].push({ model, manualTitle, manualUrl, page, diagramRef, note });
+      
+      // Parse badge type from note if present
+      let badgeType = 'exact';
+      if (note.startsWith('exact:')) badgeType = 'exact';
+      else if (note.startsWith('series:')) badgeType = 'series';
+      else if (note.startsWith('listed:')) badgeType = 'listed';
+      
+      diagramMap[partNum].push({ model, manualTitle, manualUrl, page, diagramRef, note, badgeType });
     }
   });
 }
@@ -511,8 +519,19 @@ function buildProductPages() {
     // Build per-model fitment display
     let fitmentLines = [];
     
+    // Check for "listed" badges (products with no model claim found in manuals)
+    const listedBadges = diagrams ? diagrams.filter(d => d.badgeType === 'listed') : [];
+    
     if (models.length === 0) {
-      fitmentLines.push(`<p>Models not listed yet.</p>`);
+      if (listedBadges.length > 0) {
+        // No models claimed but found in manuals
+        fitmentLines.push(`<p>Models not listed yet.</p>`);
+        listedBadges.forEach(badge => {
+          fitmentLines.push(`<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Sumner ${escapeHtml(badge.manualTitle)}, p. ${badge.page}</span> <a href="${badge.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">View manual</a></p>`);
+        });
+      } else {
+        fitmentLines.push(`<p>Models not listed yet.</p>`);
+      }
     } else {
       // Show plain "Fits:" line with models
       fitmentLines.push(`<p><strong>Fits:</strong> ${models.map(m => escapeHtml(m)).join(', ')}</p>`);

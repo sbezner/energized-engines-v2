@@ -824,9 +824,10 @@ footer .small {
   color: white;
 }
 
-/* P3: Style exact badges differently (solid green) */
+/* P3: Style exact badges as solid navy */
 .fitment-flag--exact {
-  background: #10b981;
+  background: var(--secondary-color);
+  color: white;
   border: none;
 }
 

@@ -295,8 +295,10 @@ p {
 }
 
 .model-card strong {
-  font-size: 1.2rem;
-  color: var(--primary-color);
+  font-size: 24px;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 700;
+  color: var(--secondary-color);
   margin-bottom: 0.5rem;
 }
 
@@ -936,6 +938,8 @@ footer .small {
   font-weight: 600;
   transition: all 0.2s;
   border: 1px solid var(--secondary-color);
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .series-chip:hover {
@@ -956,8 +960,8 @@ footer .small {
   }
 }
 
-.model-group h2 {
-  scroll-margin-top: calc(38.4px + 80px);
+.model-group {
+  scroll-margin-top: calc(38.4px + 60px);
 }
 
 .no-match-message {
@@ -1103,7 +1107,7 @@ footer .small {
   margin: 0;
 }
 
-.aftermarket-badge, .oem-badge {
+.aftermarket-badge {
   background: var(--accent-color);
   color: var(--secondary-color);
   padding: 6px 12px;
@@ -1113,8 +1117,18 @@ footer .small {
   font-size: 12px;
   align-self: flex-start;
   white-space: nowrap;
-  font-weight: 600;
-  font-size: 14px;
+}
+
+.oem-badge {
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  padding: 6px 12px;
+  border-radius: 40px;
+  display: inline-block;
+  font-weight: 700;
+  font-size: 12px;
+  align-self: flex-start;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
@@ -1146,7 +1160,7 @@ footer .small {
   justify-content: center;
   aspect-ratio: 1/1;
   background: #f5f5fa;
-  color: var(--text-secondary);
+  color: var(--secondary-color);
   font-size: 16px;
   padding: 16px;
   border-radius: 18px;

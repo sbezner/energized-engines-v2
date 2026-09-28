@@ -123,8 +123,8 @@
             history.replaceState({}, '', url);
           }
           
-          if (!query) {
-            results.innerHTML = '<p class="info">Enter a part number to search.</p>';
+          if (!query || query.length < 2) {
+            results.innerHTML = '<p class="info">Enter at least 2 characters to search.</p>';
             return;
           }
           
@@ -141,16 +141,15 @@
             const titleMatch = [];
             
             productsData.forEach(p => {
-              if (!p.normalized_pn) return;
-              const normalizedPN = p.normalized_pn;
+              const normalizedPN = p.normalized_pn || '';
               const normalizedTitle = normalizePN(p.title);
-              if (normalizedPN === normalizedQuery) {
+              if (normalizedPN && normalizedPN === normalizedQuery) {
                 exact.push(p);
-              } else if (normalizedPN.startsWith(normalizedQuery)) {
+              } else if (normalizedPN && normalizedPN.startsWith(normalizedQuery)) {
                 startsWith.push(p);
-              } else if (normalizedPN.includes(normalizedQuery)) {
+              } else if (normalizedPN && normalizedPN.includes(normalizedQuery)) {
                 contains.push(p);
-              } else if (normalizedTitle.includes(normalizedQuery)) {
+              } else if (normalizedTitle && normalizedTitle.includes(normalizedQuery)) {
                 titleMatch.push(p);
               }
             });
@@ -191,11 +190,16 @@
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
             if (isAftermarket) {
-              const sumnerMatch = (product.title || '').match(/7[78]d{4}/);
+              const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/g);
               if (sumnerMatch) {
-                replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(sumnerMatch[0])}</p>`;
+                replacesLine = `<p class="replaces-note">Replaces Sumner ${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>`;
               }
             }
+            
+            const hasVerified = product.verified_models && product.verified_models.length > 0;
+            const fitmentLabel = hasVerified 
+              ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
+              : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
             
             html += `
               <div class="product-card">
@@ -203,7 +207,7 @@
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 ${product.part_number ? `<p class="part-number">Part #: ${escapeHtml(product.part_number)}</p>` : ''}
                 ${replacesLine}
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                ${fitmentLabel}
                 <div class="product-footer">
                   <span class="price">${price}</span>
                   <a href="/energized-engines-v2/products/${slug}.html" class="btn btn-sm">Details</a>
@@ -229,18 +233,22 @@
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
               if (isAftermarket) {
-                const sumnerMatch = (product.title || '').match(/7[78]d{4}/);
+                const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/g);
                 if (sumnerMatch) {
-                  replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(sumnerMatch[0])}</p>`;
+                  replacesLine = `<p class="replaces-note">Replaces Sumner ${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>`;
                 }
               }
+              const hasVerified = product.verified_models && product.verified_models.length > 0;
+              const fitmentLabel = hasVerified 
+                ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
+                : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
               return `
                 <div class="product-card">
                   <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
                   ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                   ${product.part_number ? `<p class="part-number">Part #: ${escapeHtml(product.part_number)}</p>` : ''}
                   ${replacesLine}
-                  <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                  ${fitmentLabel}
                   <div class="product-footer">
                     <span class="price">${price}</span>
                     <a href="/energized-engines-v2/products/${slug}.html" class="btn btn-sm">Details</a>

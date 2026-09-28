@@ -77,8 +77,10 @@ function cleanUTF8(text) {
     .replace(/â€™/g, "'")  // right single quote (longest first)
     .replace(/â€œ/g, '"')  // left double quote
     .replace(/â€\x9d/g, '"')  // right double quote with control char
-    .replace(/â€"/g, '—')  // em dash
-    .replace(/â€"/g, '–')  // en dash
+    .replace(/â€\u201d/g, '—')  // em dash (â€ + U+201D right double quote)
+    .replace(/â€\u201c/g, '–')  // en dash (â€ + U+201C left double quote)
+    .replace(/â€"/g, '—')  // em dash fallback
+    .replace(/â€"/g, '–')  // en dash fallback
     .replace(/â€¦/g, '…')  // ellipsis
     .replace(/â€/g, '"')   // bare right double quote (after longer patterns)
     .replace(/Â°/g, '°')   // degree symbol
@@ -356,7 +358,18 @@ function buildProductPages() {
     const partNumber = product.extracted_part_number;
     const rawDescription = stripHtml(product.body_html);
     const description = rawDescription ? cleanUTF8(rawDescription) : null;
-    const models = product.models || [];
+    // Deduplicate models (normalize case and spacing)
+    const rawModels = product.models || [];
+    const uniqueModels = [];
+    const seenModels = new Set();
+    rawModels.forEach(m => {
+      const normalized = m.trim().toUpperCase().replace(/\s+/g, '');
+      if (!seenModels.has(normalized)) {
+        seenModels.add(normalized);
+        uniqueModels.push(m);
+      }
+    });
+    const models = uniqueModels;
     const isAftermarket = product.vendor === 'Energized Engines';
     const cleanTitle = cleanUTF8(product.title);
     
@@ -372,8 +385,10 @@ function buildProductPages() {
       
       if (isSumnerLogo) {
         imageHtml = `
-        <div class="photo-coming-soon">
-          Photo coming soon
+        <div class="product-images photo-placeholder">
+          <div class="photo-coming-soon">
+            Photo coming soon
+          </div>
         </div>`;
       } else {
         // Build srcset for Shopify image variants
@@ -391,9 +406,17 @@ function buildProductPages() {
             alt="${escapeHtml(cleanTitle)}" 
             loading="eager"
             fetchpriority="high"
-            onerror="this.closest('.product-images').classList.add('no-img')">
+            onerror="this.parentElement.innerHTML='<div class=&quot;photo-coming-soon&quot;>Photo coming soon</div>'">
         </div>`;
       }
+    } else {
+      // No images at all - show placeholder
+      imageHtml = `
+        <div class="product-images photo-placeholder">
+          <div class="photo-coming-soon">
+            Photo coming soon
+          </div>
+        </div>`;
     }
     
     // Check for diagram references
@@ -452,7 +475,10 @@ function buildProductPages() {
           
           if (seriesMatches.length > 0) {
             const match = seriesMatches[0];
-            const coveredModels = [...new Set(seriesMatches.map(m => m.model))].sort();
+            // Filter covered models to only those in the same manual as the match
+            const coveredModels = [...new Set(seriesMatches
+              .filter(m => m.manualUrl === match.manualUrl)
+              .map(m => m.model))].sort();
             verifications.set(productModel, {
               manual: match.manualTitle,
               url: match.manualUrl,
@@ -481,9 +507,11 @@ function buildProductPages() {
           // This model is verified
           let citation = '';
           if (verification.isSeries) {
-            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a> (covers ${verification.diagramModels.join(', ')})</p>`;
+            // Series-level: don't claim fit for each individual model
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Listed in ${escapeHtml(verification.seriesName)} parts manual</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
           } else {
-            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
+            // Exact model match
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Verified for ${escapeHtml(model)}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
           }
           fitmentLines.push(citation);
         } else {
@@ -552,22 +580,32 @@ ${getFooter()}`;
 
 // Build models index page
 function buildModelsPage() {
-  // Normalize model names case-insensitively to merge duplicates
+  // Normalize model names case-insensitively to merge duplicates (including space removal)
   const normalizedModels = {};
   Object.keys(data.models).forEach(model => {
-    const normalizedKey = model.trim().toUpperCase();
+    const normalizedKey = model.trim().toUpperCase().replace(/\s+/g, '');
     if (!normalizedModels[normalizedKey]) {
       normalizedModels[normalizedKey] = {
         canonical: model,
-        products: []
+        products: [],
+        seen: new Set()
       };
     }
-    // Merge products from all case variants
-    normalizedModels[normalizedKey].products.push(...data.models[model]);
+    // Deduplicate products by ID
+    data.models[model].forEach(product => {
+      if (!normalizedModels[normalizedKey].seen.has(product.id)) {
+        normalizedModels[normalizedKey].seen.add(product.id);
+        normalizedModels[normalizedKey].products.push(product);
+      }
+    });
   });
   
   // Use normalized data for grouping
-  const models = Object.values(normalizedModels).map(m => m.canonical);
+  // Filter out EE part numbers that were parsed as models
+  const eePartNumbers = ['2001', '2003', '2004', '2005', '2017', '2021'];
+  const models = Object.values(normalizedModels)
+    .map(m => m.canonical)
+    .filter(m => !eePartNumbers.includes(m.trim()));
   
   // P2-1: Fixed model grouping with proper series organization
   const modelGroups = {
@@ -586,9 +624,9 @@ function buildModelsPage() {
   models.forEach(model => {
     const modelNorm = model.trim().toUpperCase();
     
-    // Series 2000 - Full 2000 family: 2000, 2001-2018, 2020, 2021, 2024, etc.
+    // Series 2000 - Full 2000 family: 2000, 2001-2018, 2020, 2024, 2025, etc.
     // Keep 2020 and 2025 in Series 2000 per user instruction
-    if (modelNorm.match(/^20(0\d|1[0-8]|2[01]|24)[A-Z]?$/)) {
+    if (modelNorm.match(/^20(0\d|1[0-8]|2[0-5]|24)[A-Z]?$/)) {
       modelGroups['Series 2000'].push(model);
     }
     // Series 2100 - Add 2100 exact match
@@ -694,17 +732,24 @@ function buildModelPages() {
     fs.mkdirSync(modelsDir, { recursive: true });
   }
   
-  // Normalize model names case-insensitively
+  // Normalize model names case-insensitively (including space removal)
   const normalizedModels = {};
   Object.keys(data.models).forEach(model => {
-    const normalizedKey = model.trim().toUpperCase();
+    const normalizedKey = model.trim().toUpperCase().replace(/\s+/g, '');
     if (!normalizedModels[normalizedKey]) {
       normalizedModels[normalizedKey] = {
         canonical: model,
-        products: []
+        products: [],
+        seen: new Set()
       };
     }
-    normalizedModels[normalizedKey].products.push(...data.models[model]);
+    // Deduplicate products by ID
+    data.models[model].forEach(product => {
+      if (!normalizedModels[normalizedKey].seen.has(product.id)) {
+        normalizedModels[normalizedKey].seen.add(product.id);
+        normalizedModels[normalizedKey].products.push(product);
+      }
+    });
   });
   
   Object.values(normalizedModels).forEach(({ canonical: model, products }) => {
@@ -747,30 +792,28 @@ function buildModelPages() {
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
       const cleanTitle = cleanUTF8(product.title);
       
-      // Check if this part is verified for this model
+      // Check if this part is verified for this model (must match product page logic)
       let fitmentLine = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
       if (diagramMap && partNumber && diagramMap[partNumber]) {
         const partDiagrams = diagramMap[partNumber];
-        const match = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
         
-        if (match) {
-          fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${match.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(match.manualTitle)}, p. ${match.page}</a></p>`;
-        } else {
-          // Check if this model is part of a series and the part is in that series
-          for (const [seriesNum, seriesModels] of Object.entries(seriesMap)) {
-            if (seriesModels.includes(model)) {
-              const seriesMatch = partDiagrams.find(d => 
-                d.manualUrl && d.page && seriesModels.includes(d.model)
-              );
-              if (seriesMatch) {
-                const allMatches = partDiagrams.filter(d => 
-                  d.manualUrl && d.page && seriesModels.includes(d.model)
-                );
-                const coveredModels = [...new Set(allMatches.map(m => m.model))].sort();
-                fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
-                break;
-              }
-            }
+        // Check for exact match first
+        const exactMatch = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
+        if (exactMatch) {
+          fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${exactMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(exactMatch.manualTitle)}, p. ${exactMatch.page}</a></p>`;
+        } 
+        // Check for series-level match (model page IS a series like "2000" or "2100")
+        else if (seriesMap[model]) {
+          const seriesModels = seriesMap[model];
+          const seriesMatch = partDiagrams.find(d => 
+            d.manualUrl && d.page && seriesModels.includes(d.model)
+          );
+          if (seriesMatch) {
+            const allMatches = partDiagrams.filter(d => 
+              d.manualUrl && d.page && seriesModels.includes(d.model)
+            );
+            const coveredModels = [...new Set(allMatches.map(m => m.model))].sort();
+            fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
           }
         }
       }
@@ -791,7 +834,9 @@ function buildModelPages() {
     
     const html = `${getHeader(`${model} Parts`, 'models')}
         <div class="breadcrumb">
-            <a href="${BASE_PATH}/models.html">← Back to all models</a>
+            <a href="${BASE_PATH}/">Home</a> › 
+            <a href="${BASE_PATH}/models.html">Parts by Model</a> › 
+            Sumner ${escapeHtml(model)}
         </div>
         
         <!-- P2-2: Updated h1 and count line -->
@@ -824,17 +869,55 @@ ${getFooter()}`;
 
 // Build search page
 function buildSearchPage() {
-  const searchData = data.products.map(p => ({
-    id: p.id,
-    title: cleanUTF8(p.title),
-    handle: p.handle,
-    part_number: p.extracted_part_number,
-    normalized_pn: p.normalized_part_number,
-    price: p.variants?.[0]?.price,
-    vendor: p.vendor,
-    models: p.models,
-    url: p.url
-  }));
+  // Series mapping for verification
+  const seriesMap = {
+    '2000': ['2010', '2015', '2020', '2025', '2012S'],
+    '2100': ['2112', '2118', '2124', '2112G', '2118G', '2124G'],
+    '2200': ['2208', '2210'],
+    '2400': ['2412', '2416', '2412G', '2416G'],
+    '2600': ['2615']
+  };
+  
+  const searchData = data.products.map(p => {
+    // Compute verified models for this product
+    const verifiedModels = [];
+    const partNumber = p.extracted_part_number;
+    const models = p.models || [];
+    
+    if (diagramMap && partNumber && diagramMap[partNumber]) {
+      const diagrams = diagramMap[partNumber];
+      models.forEach(model => {
+        // Check exact match
+        const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === model);
+        if (exactMatch) {
+          verifiedModels.push(model);
+        }
+        // Check series match
+        else if (seriesMap[model]) {
+          const seriesModels = seriesMap[model];
+          const seriesMatch = diagrams.find(d => 
+            d.manualUrl && d.page && seriesModels.includes(d.model)
+          );
+          if (seriesMatch) {
+            verifiedModels.push(model);
+          }
+        }
+      });
+    }
+    
+    return {
+      id: p.id,
+      title: cleanUTF8(p.title),
+      handle: p.handle,
+      part_number: p.extracted_part_number,
+      normalized_pn: p.normalized_part_number,
+      price: p.variants?.[0]?.price,
+      vendor: p.vendor,
+      models: p.models,
+      verified_models: verifiedModels,
+      url: p.url
+    };
+  });
   
   fs.writeFileSync(path.join(DOCS_DIR, 'search-data.json'), JSON.stringify(searchData));
   console.log('Wrote: search-data.json');
@@ -891,8 +974,8 @@ function buildSearchPage() {
             history.replaceState({}, '', url);
           }
           
-          if (!query) {
-            results.innerHTML = '<p class="info">Enter a part number to search.</p>';
+          if (!query || query.length < 2) {
+            results.innerHTML = '<p class="info">Enter at least 2 characters to search.</p>';
             return;
           }
           
@@ -909,16 +992,15 @@ function buildSearchPage() {
             const titleMatch = [];
             
             productsData.forEach(p => {
-              if (!p.normalized_pn) return;
-              const normalizedPN = p.normalized_pn;
+              const normalizedPN = p.normalized_pn || '';
               const normalizedTitle = normalizePN(p.title);
-              if (normalizedPN === normalizedQuery) {
+              if (normalizedPN && normalizedPN === normalizedQuery) {
                 exact.push(p);
-              } else if (normalizedPN.startsWith(normalizedQuery)) {
+              } else if (normalizedPN && normalizedPN.startsWith(normalizedQuery)) {
                 startsWith.push(p);
-              } else if (normalizedPN.includes(normalizedQuery)) {
+              } else if (normalizedPN && normalizedPN.includes(normalizedQuery)) {
                 contains.push(p);
-              } else if (normalizedTitle.includes(normalizedQuery)) {
+              } else if (normalizedTitle && normalizedTitle.includes(normalizedQuery)) {
                 titleMatch.push(p);
               }
             });
@@ -959,11 +1041,16 @@ function buildSearchPage() {
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
             if (isAftermarket) {
-              const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/);
+              const sumnerMatch = (product.title || '').match(/\\b7[78]\\d{4}\\b/g);
               if (sumnerMatch) {
-                replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(sumnerMatch[0])}</p>\`;
+                replacesLine = \`<p class="replaces-note">Replaces Sumner \${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>\`;
               }
             }
+            
+            const hasVerified = product.verified_models && product.verified_models.length > 0;
+            const fitmentLabel = hasVerified 
+              ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
+              : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
             
             html += \`
               <div class="product-card">
@@ -971,7 +1058,7 @@ function buildSearchPage() {
                 \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 \${product.part_number ? \`<p class="part-number">Part #: \${escapeHtml(product.part_number)}</p>\` : ''}
                 \${replacesLine}
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                \${fitmentLabel}
                 <div class="product-footer">
                   <span class="price">\${price}</span>
                   <a href="${BASE_PATH}/products/\${slug}.html" class="btn btn-sm">Details</a>
@@ -997,18 +1084,22 @@ function buildSearchPage() {
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
               if (isAftermarket) {
-                const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/);
+                const sumnerMatch = (product.title || '').match(/\\b7[78]\\d{4}\\b/g);
                 if (sumnerMatch) {
-                  replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(sumnerMatch[0])}</p>\`;
+                  replacesLine = \`<p class="replaces-note">Replaces Sumner \${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>\`;
                 }
               }
+              const hasVerified = product.verified_models && product.verified_models.length > 0;
+              const fitmentLabel = hasVerified 
+                ? '<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> for some models, see details</p>'
+                : '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
               return \`
                 <div class="product-card">
                   <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
                   \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                   \${product.part_number ? \`<p class="part-number">Part #: \${escapeHtml(product.part_number)}</p>\` : ''}
                   \${replacesLine}
-                  <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                  \${fitmentLabel}
                   <div class="product-footer">
                     <span class="price">\${price}</span>
                     <a href="${BASE_PATH}/products/\${slug}.html" class="btn btn-sm">Details</a>

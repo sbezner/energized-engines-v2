@@ -17,88 +17,92 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" >Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
         <h1>Parts by Model</h1>
-        <p>Select your Sumner lift model to browse parts.</p>
         
-        <section class="model-group">
+        <!-- P2-1: Series jump chips (sticky) -->
+        <div class="series-chips">
+            <a href="#series-2000" class="series-chip">Series 2000</a><a href="#series-2100" class="series-chip">Series 2100</a><a href="#series-2500" class="series-chip">Series 2500</a><a href="#roust-a-bout-r-series-" class="series-chip">Roust-A-Bout (R-Series)</a><a href="#eventer-series" class="series-chip">Eventer Series</a><a href="#gantry" class="series-chip">Gantry</a><a href="#other" class="series-chip">Other</a>
+        </div>
+        
+        <!-- P2-1: Inline model search -->
+        <div class="model-search">
+            <input type="text" id="modelSearchInput" placeholder="Search models..." aria-label="Search models">
+        </div>
+        
+        <p>Select your Sumner lift model to browse parts.</p>
+        <div id="modelGroupsContainer">
+            
+        <section class="model-group" id="series-2000">
             <h2>Series 2000</h2>
             <div class="model-grid">
-                <a href="/energized-engines-v2/models/2000.html" class="model-card">
-                    <strong>2000</strong>
-                    <span>272 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/2001.html" class="model-card">
-                    <strong>2001</strong>
-                    <span>1 part</span>
-                </a>
-                <a href="/energized-engines-v2/models/2003.html" class="model-card">
-                    <strong>2003</strong>
-                    <span>1 part</span>
-                </a>
-                <a href="/energized-engines-v2/models/2004.html" class="model-card">
-                    <strong>2004</strong>
-                    <span>1 part</span>
-                </a>
-                <a href="/energized-engines-v2/models/2005.html" class="model-card">
-                    <strong>2005</strong>
-                    <span>2 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/2008.html" class="model-card">
-                    <strong>2008</strong>
-                    <span>1 part</span>
-                </a>
                 <a href="/energized-engines-v2/models/2010.html" class="model-card">
                     <strong>2010</strong>
                     <span>10 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/2012.html" class="model-card">
-                    <strong>2012</strong>
-                    <span>3 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/2014.html" class="model-card">
-                    <strong>2014</strong>
-                    <span>1 part</span>
                 </a>
                 <a href="/energized-engines-v2/models/2015.html" class="model-card">
                     <strong>2015</strong>
                     <span>9 parts</span>
                 </a>
-                <a href="/energized-engines-v2/models/2017.html" class="model-card">
-                    <strong>2017</strong>
-                    <span>1 part</span>
-                </a>
-                <a href="/energized-engines-v2/models/2018.html" class="model-card">
-                    <strong>2018</strong>
-                    <span>3 parts</span>
-                </a>
             </div>
         </section>
-        <section class="model-group">
+        <section class="model-group" id="series-2100">
             <h2>Series 2100</h2>
             <div class="model-grid">
-                <a href="/energized-engines-v2/models/2100.html" class="model-card">
-                    <strong>2100</strong>
-                    <span>227 parts</span>
-                </a>
                 <a href="/energized-engines-v2/models/2112.html" class="model-card">
                     <strong>2112</strong>
                     <span>6 parts</span>
@@ -113,17 +117,46 @@
                 </a>
             </div>
         </section>
-        <section class="model-group">
-            <h2>Roust-A-Bout</h2>
+        <section class="model-group" id="series-2500">
+            <h2>Series 2500</h2>
             <div class="model-grid">
+                <a href="/energized-engines-v2/models/2020.html" class="model-card">
+                    <strong>2020</strong>
+                    <span>9 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/2025.html" class="model-card">
+                    <strong>2025</strong>
+                    <span>91 parts</span>
+                </a>
+            </div>
+        </section>
+        <section class="model-group" id="roust-a-bout-r-series-">
+            <h2>Roust-A-Bout (R-Series)</h2>
+            <div class="model-grid">
+                <a href="/energized-engines-v2/models/r-100.html" class="model-card">
+                    <strong>R-100</strong>
+                    <span>23 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/r-150.html" class="model-card">
+                    <strong>R-150</strong>
+                    <span>4 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/r-180.html" class="model-card">
+                    <strong>R-180</strong>
+                    <span>17 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/r-250.html" class="model-card">
+                    <strong>R-250</strong>
+                    <span>16 parts</span>
+                </a>
                 <a href="/energized-engines-v2/models/roust-a-bout.html" class="model-card">
                     <strong>Roust-A-Bout</strong>
                     <span>187 parts</span>
                 </a>
             </div>
         </section>
-        <section class="model-group">
-            <h2>Eventer</h2>
+        <section class="model-group" id="eventer-series">
+            <h2>Eventer Series</h2>
             <div class="model-grid">
                 <a href="/energized-engines-v2/models/eventer-16.html" class="model-card">
                     <strong>EVENTER 16</strong>
@@ -155,7 +188,7 @@
                 </a>
             </div>
         </section>
-        <section class="model-group">
+        <section class="model-group" id="gantry">
             <h2>Gantry</h2>
             <div class="model-grid">
                 <a href="/energized-engines-v2/models/gh2t.html" class="model-card">
@@ -168,12 +201,48 @@
                 </a>
             </div>
         </section>
-        <section class="model-group">
+        <section class="model-group" id="other">
             <h2>Other</h2>
             <div class="model-grid">
-                <a href="/energized-engines-v2/models/2020.html" class="model-card">
-                    <strong>2020</strong>
-                    <span>9 parts</span>
+                <a href="/energized-engines-v2/models/2000.html" class="model-card">
+                    <strong>2000</strong>
+                    <span>272 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/2001.html" class="model-card">
+                    <strong>2001</strong>
+                    <span>1 part</span>
+                </a>
+                <a href="/energized-engines-v2/models/2003.html" class="model-card">
+                    <strong>2003</strong>
+                    <span>1 part</span>
+                </a>
+                <a href="/energized-engines-v2/models/2004.html" class="model-card">
+                    <strong>2004</strong>
+                    <span>1 part</span>
+                </a>
+                <a href="/energized-engines-v2/models/2005.html" class="model-card">
+                    <strong>2005</strong>
+                    <span>2 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/2008.html" class="model-card">
+                    <strong>2008</strong>
+                    <span>1 part</span>
+                </a>
+                <a href="/energized-engines-v2/models/2012.html" class="model-card">
+                    <strong>2012</strong>
+                    <span>3 parts</span>
+                </a>
+                <a href="/energized-engines-v2/models/2014.html" class="model-card">
+                    <strong>2014</strong>
+                    <span>1 part</span>
+                </a>
+                <a href="/energized-engines-v2/models/2017.html" class="model-card">
+                    <strong>2017</strong>
+                    <span>1 part</span>
+                </a>
+                <a href="/energized-engines-v2/models/2018.html" class="model-card">
+                    <strong>2018</strong>
+                    <span>3 parts</span>
                 </a>
                 <a href="/energized-engines-v2/models/2021.html" class="model-card">
                     <strong>2021</strong>
@@ -183,25 +252,9 @@
                     <strong>2024</strong>
                     <span>2 parts</span>
                 </a>
-                <a href="/energized-engines-v2/models/2025.html" class="model-card">
-                    <strong>2025</strong>
-                    <span>91 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/r-100.html" class="model-card">
-                    <strong>R-100</strong>
-                    <span>23 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/r-150.html" class="model-card">
-                    <strong>R-150</strong>
-                    <span>4 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/r-180.html" class="model-card">
-                    <strong>R-180</strong>
-                    <span>17 parts</span>
-                </a>
-                <a href="/energized-engines-v2/models/r-250.html" class="model-card">
-                    <strong>R-250</strong>
-                    <span>16 parts</span>
+                <a href="/energized-engines-v2/models/2100.html" class="model-card">
+                    <strong>2100</strong>
+                    <span>227 parts</span>
                 </a>
                 <a href="/energized-engines-v2/models/slc-18.html" class="model-card">
                     <strong>SLC-18</strong>
@@ -213,6 +266,7 @@
                 </a>
             </div>
         </section>
+        </div>
     </main>
     <footer>
         <div class="container">

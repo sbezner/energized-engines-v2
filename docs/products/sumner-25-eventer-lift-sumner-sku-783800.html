@@ -17,56 +17,100 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" >Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" >Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
         <div class="breadcrumb">
             <a href="/energized-engines-v2/">Home</a> › 
-            <a href="/energized-engines-v2/search.html">Search</a> › 
+            <a href="/energized-engines-v2/models.html">Parts by Model</a> › 
             Sumner S 783800 Sumner - 25&#039; Eventer Lift
         </div>
         
         <article class="product-page">
             <h1>Sumner S 783800 Sumner - 25&#039; Eventer Lift</h1>
             
-            <div class="product-main">
-                <div class="product-info">
+            <div class="product-layout">
+                
+        <div class="product-images">
+          <img src="https://cdn.shopify.com/s/files/1/0832/7050/0671/files/783800.jpg?v=1699120655" alt="Sumner S 783800 Sumner - 25&#039; Eventer Lift" loading="lazy">
+        </div>
+                
+                <div class="product-info-panel">
                     <p class="part-number"><strong>Part Number:</strong> S783800</p>
                     <p class="price-display">$8588.00</p>
-                    <p class="vendor-badge">OEM Part</p>
-                    <a href="https://energizedengines.com/products/sumner-25-eventer-lift-sumner-sku-783800" class="btn btn-primary" target="_blank" rel="noopener">View on Store →</a>
-                    <p class="order-note">Orders are placed at energizedengines.com</p>
+                    <p class="vendor-badge oem-badge">OEM Part</p>
+                    
+                    <!-- P2-3: Button with www. to avoid redirect -->
+                    <a href="https://www.energizedengines.com/products/sumner-25-eventer-lift-sumner-sku-783800" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
                 </div>
-                
-                <section class="description">
-                    <h3>Description</h3>
-                    <p>The Eventer series, specifically designed for the theatrical and entertainment industries, has proven a reliable lifting solution for flying light and speaker arrays in both indoor and outdoor venues. Eventer Stage Lifts are specially designed to support speakers, lights and stage equipment. This telescoping stage lift has the ability to change from the operating to stored position in less than 5 minutes and rolls into standard box truck for quick &amp; easy set-up and transport. This Eventer has a height of 25 FT. Features and Benefits Black anodized aluminum telescoping masts fade out on the stage Lifts 650 lbs. (300 kg) 25’ (7.7m) Sumner-built winch specifically designed for the application Compact - folds up for storage and transport Low mast heights fit through most doorways and truck tailgates Winch cable away from operator Forks reverse for added height Safety stripe markings on legs Large, rubber padded leveling jacks Robust quick-action plungers Lifting bar for hoisting the Eventer</p>
-                </section>
-                
-                
-                
-                
+            </div>
+            
+            <!-- P2-3: Fitment above description -->
+            
       <section class="fitment-info">
         <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         <p>Models not listed yet.</p>
       </section>
-            </div>
+            
+            
+            
+            <!-- P2-3: Description without repeated "Orders are placed at..." -->
+            <section class="description">
+                <h3>Description</h3>
+                <p>The Eventer series, specifically designed for the theatrical and entertainment industries, has proven a reliable lifting solution for flying light and speaker arrays in both indoor and outdoor venues. Eventer Stage Lifts are specially designed to support speakers, lights and stage equipment. This telescoping stage lift has the ability to change from the operating to stored position in less than 5 minutes and rolls into standard box truck for quick &amp; easy set-up and transport. This Eventer has a height of 25 FT. Features and Benefits Black anodized aluminum telescoping masts fade out on the stage Lifts 650 lbs. (300 kg) 25’ (7.7m) Sumner-built winch specifically designed for the application Compact - folds up for storage and transport Low mast heights fit through most doorways and truck tailgates Winch cable away from operator Forks reverse for added height Safety stripe markings on legs Large, rubber padded leveling jacks Robust quick-action plungers Lifting bar for hoisting the Eventer</p>
+            </section>
         </article>
     </main>
     <footer>

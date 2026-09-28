@@ -17,22 +17,58 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" >Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" class="active">Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" class="active">Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" class="active">Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
@@ -48,11 +84,20 @@
         
         <script>
         let productsData = [];
+        let allMatches = [];
+        let displayedCount = 0;
+        const PAGE_SIZE = 24;
         
         fetch('/energized-engines-v2/search-data.json')
           .then(response => response.json())
           .then(data => {
             productsData = data;
+            const urlParams = new URLSearchParams(window.location.search);
+            const q = urlParams.get('q');
+            if (q) {
+              document.getElementById('search-input').value = q;
+              performSearch();
+            }
           })
           .catch(err => {
             console.error('Failed to load search data:', err);
@@ -64,9 +109,19 @@
           return pn.toString().replace(/[\s\-_]/g, '').toUpperCase();
         }
         
-        function performSearch() {
+        function performSearch(append = false) {
           const query = document.getElementById('search-input').value.trim();
           const results = document.getElementById('search-results');
+          
+          if (!append) {
+            const url = new URL(window.location);
+            if (query) {
+              url.searchParams.set('q', query);
+            } else {
+              url.searchParams.delete('q');
+            }
+            history.replaceState({}, '', url);
+          }
           
           if (!query) {
             results.innerHTML = '<p class="info">Enter a part number to search.</p>';
@@ -78,32 +133,70 @@
             return;
           }
           
-          const normalizedQuery = normalizePN(query);
-          const matches = productsData.filter(p => {
-            if (!p.normalized_pn) return false;
-            if (p.normalized_pn === normalizedQuery) return true;
-            if (p.normalized_pn.includes(normalizedQuery)) return true;
-            if (normalizePN(p.title).includes(normalizedQuery)) return true;
-            return false;
-          });
+          if (!append) {
+            const normalizedQuery = normalizePN(query);
+            const exact = [];
+            const startsWith = [];
+            const contains = [];
+            const titleMatch = [];
+            
+            productsData.forEach(p => {
+              if (!p.normalized_pn) return;
+              const normalizedPN = p.normalized_pn;
+              const normalizedTitle = normalizePN(p.title);
+              if (normalizedPN === normalizedQuery) {
+                exact.push(p);
+              } else if (normalizedPN.startsWith(normalizedQuery)) {
+                startsWith.push(p);
+              } else if (normalizedPN.includes(normalizedQuery)) {
+                contains.push(p);
+              } else if (normalizedTitle.includes(normalizedQuery)) {
+                titleMatch.push(p);
+              }
+            });
+            
+            allMatches = [...exact, ...startsWith, ...contains, ...titleMatch];
+            displayedCount = 0;
+          }
           
-          if (matches.length === 0) {
-            results.innerHTML = '<p class="warning">No parts found for "' + escapeHtml(query) + '"</p>';
+          if (allMatches.length === 0) {
+            results.innerHTML = `
+              <div class="search-empty-state">
+                <p class="warning">No parts found for "${escapeHtml(query)}"</p>
+                <p>Can't find what you need? We're here to help.</p>
+                <div class="empty-state-actions">
+                  <a href="tel:+18324445426" class="btn btn-primary">Call 832-444-5426</a>
+                  <a href="/energized-engines-v2/models.html" class="btn btn-secondary">Shop by Model</a>
+                </div>
+              </div>
+            `;
             return;
           }
           
-          let html = '<h2>' + matches.length + ' ' + (matches.length === 1 ? 'part' : 'parts') + ' found</h2><div class="products-grid">';
+          const nextBatch = allMatches.slice(displayedCount, displayedCount + PAGE_SIZE);
+          displayedCount += nextBatch.length;
           
-          matches.forEach(product => {
+          let html = '';
+          if (!append) {
+            html += '<h2>' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part' : 'parts') + ' found</h2>';
+            html += '<div class="products-grid">';
+          }
+          
+          nextBatch.forEach(product => {
             const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
+            let replacesLine = '';
+            if (isAftermarket && product.part_number) {
+              replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(product.part_number)}</p>`;
+            }
             
             html += `
               <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 <p class="part-number">Part #: ${escapeHtml(product.part_number || 'N/A')}</p>
+                ${replacesLine}
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <div class="product-footer">
                   <span class="price">${price}</span>
@@ -113,8 +206,43 @@
             `;
           });
           
-          html += '</div>';
-          results.innerHTML = html;
+          if (displayedCount < allMatches.length) {
+            html += '</div><button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>';
+          } else {
+            html += '</div>';
+          }
+          
+          if (append) {
+            const showMoreBtn = results.querySelector('.show-more-btn');
+            if (showMoreBtn) showMoreBtn.remove();
+            results.querySelector('.products-grid').insertAdjacentHTML('beforeend', nextBatch.map(product => {
+              const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+              const isAftermarket = product.vendor === 'Energized Engines';
+              const slug = product.handle || 'product-' + product.id;
+              let replacesLine = '';
+              if (isAftermarket && product.part_number) {
+                replacesLine = `<p class="replaces-note">Replaces Sumner ${escapeHtml(product.part_number)}</p>`;
+              }
+              return `
+                <div class="product-card">
+                  <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
+                  ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
+                  <p class="part-number">Part #: ${escapeHtml(product.part_number || 'N/A')}</p>
+                  ${replacesLine}
+                  <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                  <div class="product-footer">
+                    <span class="price">${price}</span>
+                    <a href="/energized-engines-v2/products/${slug}.html" class="btn btn-sm">Details</a>
+                  </div>
+                </div>
+              `;
+            }).join(''));
+            if (displayedCount < allMatches.length) {
+              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
+            }
+          } else {
+            results.innerHTML = html;
+          }
         }
         
         function escapeHtml(text) {

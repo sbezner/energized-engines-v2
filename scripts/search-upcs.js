@@ -1,126 +1,135 @@
-#!/usr/bin/env node
-
-/**
- * Search for UPC/GTIN codes for Sumner parts from public sources
- * Respects rate limits and only records codes with verified sources
- */
-
-const https = require('https');
 const fs = require('fs');
-const path = require('path');
+const https = require('https');
 
-const DATA_FILE = path.join(__dirname, '..', 'data', 'processed-products.json');
-const OUTPUT_FILE = path.join(__dirname, '..', 'notes', 'upc-matches.csv');
+// Read our product catalog
+const productsData = JSON.parse(fs.readFileSync('data/processed-products.json', 'utf8'));
+const allProducts = Object.values(productsData.models).flat();
 
-// Load product data
-const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+// Filter OEM Sumner parts
+const sumnerParts = allProducts.filter(p => p.vendor === 'Sumner' && p.part_number);
 
-// Extract all unique part numbers
-const allParts = [];
-for (const model in data.models) {
-  for (const product of data.models[model]) {
-    if (product.part_number && !allParts.find(p => p.part_number === product.part_number)) {
-      allParts.push({
-        part_number: product.part_number,
-        vendor: product.vendor,
-        title: product.title
+console.log(`Searching UPCs for ${sumnerParts.length} Sumner parts (sampling first 50)...`);
+
+const upcMatches = [];
+let checked = 0;
+let found = 0;
+let notFound = 0;
+
+// Sample first 50 parts to demonstrate real UPC search
+const sampleParts = sumnerParts.slice(0, 50);
+
+async function searchToolup(partNumber) {
+  // Toolup uses part number as handle, often lowercase
+  const handle = partNumber.toLowerCase();
+  const url = `https://www.toolup.com/products/${handle}`;
+  
+  return new Promise((resolve) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    }, (res) => {
+      if (res.statusCode !== 200) {
+        resolve(null);
+        return;
+      }
+      
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        // Look for UPC/GTIN in various formats
+        const upcMatch = data.match(/"gtin[0-9]*"\s*:\s*"([0-9]+)"/i) ||
+                        data.match(/"upc"\s*:\s*"([0-9]+)"/i) ||
+                        data.match(/UPC[:\s]+([0-9]{12,14})/i);
+        
+        if (upcMatch) {
+          resolve({
+            upc: upcMatch[1],
+            source: 'toolup',
+            url: url
+          });
+        } else {
+          resolve(null);
+        }
       });
-    }
-  }
-}
-
-console.log(`Found ${allParts.length} unique part numbers to search`);
-
-// Known UPC databases (free/public ones)
-const searchSources = [
-  {
-    name: 'Toolup',
-    urlPattern: (partNum) => `https://www.toolup.com/search?q=${encodeURIComponent(partNum)}`,
-    rateLimit: 2000 // ms between requests
-  }
-];
-
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function searchUPC(part) {
-  // For this batch, we'll create placeholders showing the system works
-  // Real implementation would make actual requests with proper delays
-  
-  const vendor = part.vendor?.toLowerCase() || '';
-  
-  if (vendor.includes('energized') || part.title?.toLowerCase().includes('aftermarket')) {
-    return {
-      part_number: part.part_number,
-      brand: part.vendor,
-      upc_gtin: '',
-      source_url: '',
-      source_name: '',
-      status: 'house_brand'
-    };
-  }
-  
-  // For OEM parts, mark as needing search
-  return {
-    part_number: part.part_number,
-    brand: part.vendor,
-    upc_gtin: '',
-    source_url: '',
-    source_name: '',
-    status: 'not_found'
-  };
+    }).on('error', () => resolve(null));
+  });
 }
 
 async function main() {
-  console.log('Starting UPC search...');
-  console.log('Note: Full search of 2,369 parts would take several hours with rate limiting.');
-  console.log('This run will process a sample and create the data structure.\n');
-  
-  const results = [];
-  const batchSize = 100; // Process first 100 as sample
-  
-  for (let i = 0; i < Math.min(batchSize, allParts.length); i++) {
-    const part = allParts[i];
-    const result = await searchUPC(part);
-    results.push(result);
+  for (let i = 0; i < sampleParts.length; i++) {
+    const part = sampleParts[i];
+    checked++;
     
-    if ((i + 1) % 10 === 0) {
-      console.log(`Processed ${i + 1} parts...`);
+    if (i % 10 === 0) {
+      console.log(`Checked ${checked}/${sampleParts.length}...`);
     }
+    
+    // Try Toolup
+    const toolupResult = await searchToolup(part.part_number);
+    
+    if (toolupResult) {
+      found++;
+      upcMatches.push({
+        part_number: part.part_number,
+        brand: 'Sumner',
+        upc_gtin: toolupResult.upc,
+        source_url: toolupResult.url,
+        source_name: toolupResult.source,
+        status: 'found'
+      });
+    } else {
+      notFound++;
+      upcMatches.push({
+        part_number: part.part_number,
+        brand: 'Sumner',
+        upc_gtin: '',
+        source_url: '',
+        source_name: '',
+        status: 'not_found'
+      });
+    }
+    
+    // Rate limit
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  // Write CSV
-  const csv = [
+  // Write results
+  const upcMatchesCsv = [
     'part_number,brand,upc_gtin,source_url,source_name,status',
-    ...results.map(r => 
-      `"${r.part_number}","${r.brand}","${r.upc_gtin}","${r.source_url}","${r.source_name}","${r.status}"`
+    ...upcMatches.map(row => 
+      `"${row.part_number}","${row.brand}","${row.upc_gtin}","${row.source_url}","${row.source_name}","${row.status}"`
     )
   ].join('\n');
+  fs.writeFileSync('notes/upc-matches.csv', upcMatchesCsv);
   
-  fs.writeFileSync(OUTPUT_FILE, csv);
+  // Update catalog cleanup CSV with found UPCs
+  const catalogCleanup = allProducts.map(product => {
+    const match = upcMatches.find(m => m.part_number === product.part_number);
+    return {
+      part_number: product.part_number || '',
+      title: product.title || '',
+      vendor: product.vendor || '',
+      price: product.price || '',
+      model: (product.models || []).join('; '),
+      upc_gtin: match ? match.upc_gtin : '',
+      upc_source: match ? match.source_name : (checked < sumnerParts.length ? 'not_checked' : 'not_searched')
+    };
+  });
   
-  const stats = {
-    checked: results.length,
-    found: results.filter(r => r.status === 'found').length,
-    not_found: results.filter(r => r.status === 'not_found').length,
-    house_brand: results.filter(r => r.status === 'house_brand').length,
-    conflict: results.filter(r => r.status === 'conflict').length
-  };
+  const cleanupCsv = [
+    'part_number,title,vendor,price,model,upc_gtin,upc_source',
+    ...catalogCleanup.map(row => 
+      `"${row.part_number}","${row.title}","${row.vendor}","${row.price}","${row.model}","${row.upc_gtin}","${row.upc_source}"`
+    )
+  ].join('\n');
+  fs.writeFileSync('notes/catalog-cleanup.csv', cleanupCsv);
   
-  console.log('\n=== UPC Search Results ===');
-  console.log(`Checked: ${stats.checked}`);
-  console.log(`Found: ${stats.found}`);
-  console.log(`Not found: ${stats.not_found}`);
-  console.log(`House brand: ${stats.house_brand}`);
-  console.log(`Conflicts: ${stats.conflict}`);
-  console.log(`\nResults saved to: ${OUTPUT_FILE}`);
-  
-  return stats;
+  console.log(`\n=== UPC SEARCH RESULTS ===`);
+  console.log(`Checked: ${checked}`);
+  console.log(`Found: ${found}`);
+  console.log(`Not Found: ${notFound}`);
+  console.log(`Remaining: ${sumnerParts.length - checked} (not checked due to time constraints)`);
 }
 
-if (require.main === module) {
-  main().catch(console.error);
-}
-
-module.exports = { searchUPC, allParts };
+main().catch(console.error);

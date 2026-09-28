@@ -503,3 +503,204 @@ footer a {
 .small {
   font-size: 0.85rem;
 }
+
+/* Additional styles for v2 features */
+
+.draft-notice {
+  background: #fef3c7;
+  border-left: 4px solid var(--accent-color);
+  padding: 1rem;
+  margin: 2rem 0;
+  border-radius: 4px;
+}
+
+.draft-notice strong {
+  color: var(--text-primary);
+}
+
+.page-content {
+  max-width: 800px;
+}
+
+.page-content h3 {
+  margin-top: 2rem;
+}
+
+.page-content ul, .page-content ol {
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.page-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Product pages */
+
+.product-page {
+  max-width: 900px;
+}
+
+.product-header {
+  margin-bottom: 2rem;
+}
+
+.product-header h2 {
+  margin-bottom: 0.5rem;
+}
+
+.badges-inline {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.product-main {
+  display: grid;
+  gap: 2rem;
+}
+
+.product-info {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.price-display {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 1rem 0;
+}
+
+.description, .fitment, .specs, .merged-sources {
+  margin: 2rem 0;
+}
+
+.description-text {
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.unverified-notice {
+  background: #fffbeb;
+  padding: 0.75rem;
+  border-left: 3px solid var(--accent-color);
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.specs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.specs table th,
+.specs table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.specs table th {
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 30%;
+}
+
+.specs table td {
+  color: var(--text-secondary);
+}
+
+.source-list {
+  list-style: none;
+  padding: 0;
+}
+
+.source-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.source-list li:last-child {
+  border-bottom: none;
+}
+
+.source-list a {
+  color: var(--primary-color);
+  word-break: break-all;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button-group .btn {
+  flex: 1;
+}
+
+/* Model pages */
+
+.fitment-notice {
+  background: #fffbeb;
+  padding: 1rem;
+  border-left: 4px solid var(--accent-color);
+  margin: 1rem 0 2rem;
+  border-radius: 4px;
+}
+
+.model-intro {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* Footer nav */
+
+.footer-nav {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.footer-nav a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.footer-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Badge variations */
+
+.badge.oem {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.badge.unverified {
+  background: var(--accent-color);
+  color: white;
+}
+
+/* Responsive updates */
+
+@media (max-width: 768px) {
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .badges-inline {
+    font-size: 0.7rem;
+  }
+  
+  .price-display {
+    font-size: 1.5rem;
+  }
+}

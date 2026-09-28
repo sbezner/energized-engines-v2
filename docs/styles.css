@@ -106,8 +106,6 @@ nav {
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
-  border-top: 1px solid var(--border-color);
-  padding-top: 1rem;
 }
 
 nav a {
@@ -146,6 +144,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 40px;
   margin-bottom: 1rem;
+  overflow-wrap: anywhere;
 }
 
 h2 {
@@ -160,7 +159,7 @@ h3 {
 
 p {
   margin-bottom: 1rem;
-  color: var(--text-secondary);
+  color: #4a4970;
 }
 
 /* Hero Section */
@@ -337,7 +336,7 @@ p {
 }
 
 .product-card h3 a {
-  color: var(--text-primary);
+  color: #3c3b6e;
   text-decoration: none;
 }
 
@@ -347,7 +346,7 @@ p {
 
 .part-number {
   font-family: 'Courier New', monospace;
-  color: var(--text-secondary);
+  color: #3c3b6e;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
@@ -371,7 +370,7 @@ p {
 .price {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #3c3b6e;
 }
 
 /* P0-2: Fixed badge styles */
@@ -385,6 +384,10 @@ p {
   letter-spacing: 0.04em;
   white-space: nowrap;
   margin-bottom: 0.5rem;
+}
+
+.product-card .badge {
+  align-self: flex-start;
 }
 
 .badge.aftermarket {
@@ -410,10 +413,10 @@ p {
 }
 
 .product-info {
-  background: var(--surface);
+  background: white;
   padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  border: 1px solid #e3e3ee;
 }
 
 .price-display {
@@ -450,21 +453,27 @@ p {
 }
 
 #search-input {
+  flex: 1 1 auto;
+  min-height: 48px;
   height: 48px;
   padding: 0 20px;
   border: 1px solid #c9c9d9;
   border-radius: 40px;
   font-size: 17px;
-  flex: 1;
-  border-radius: 6px;
-  font-size: 1rem;
   font-family: 'Courier New', monospace;
+}
+
+@media (max-width: 768px) {
+  .search-box #search-input {
+    flex: 0 0 48px;
+    width: 100%;
+  }
 }
 
 #search-input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(60, 59, 110, 0.1);
 }
 
 #search-results {
@@ -577,8 +586,8 @@ footer .small {
 /* Responsive */
 @media (max-width: 768px) {
   .preview-banner {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    padding: 8px;
+    font-size: 14px;
   }
   
   .logo {
@@ -1068,4 +1077,14 @@ footer .small {
   color: var(--text-secondary);
   font-style: italic;
   margin: 0.5rem 0;
+}
+
+/* Call for price link styling */
+.call-price {
+  color: #b22234;
+  text-decoration: none;
+}
+
+.call-price:hover {
+  text-decoration: underline;
 }

@@ -65,9 +65,23 @@ function stripHtml(html) {
 function formatPrice(price) {
   // P0-6: Handle $0.00 and missing prices
   if (!price || parseFloat(price) === 0) {
-    return '<a href="tel:+18324445426" style="color: #b22234; text-decoration: none;">Call for price</a>';
+    return '<a href="tel:+18324445426" style="color: #b22234; text-decoration: none;" class="call-price">Call for price</a>';
   }
   return `$${parseFloat(price).toFixed(2)}`;
+}
+
+// Fix double-encoded UTF-8/cp1252 sequences
+function cleanUTF8(text) {
+  if (!text) return text;
+  return text
+    .replace(/â€™/g, "'")  // right single quote
+    .replace(/â€œ/g, '"')  // left double quote
+    .replace(/â€/g, '"')   // right double quote
+    .replace(/â€"/g, '—')  // em dash
+    .replace(/â€"/g, '–')  // en dash
+    .replace(/Â°/g, '°')   // degree symbol
+    .replace(/â€¦/g, '…')  // ellipsis
+    .replace(/Â /g, ' ');  // non-breaking space
 }
 
 function getHeader(title, activePage = '') {
@@ -241,7 +255,7 @@ function buildAboutPage() {
 
         <section class="model-section">
             <h2>Eventer Lifts</h2>
-            <p>Designed for staging and events, easy transport and setup, safety features for public spaces. Also called an Entertainment Lift.</p>
+            <p>Designed for entertainment venues and live events, easy transport and setup, safety features for public spaces. Also called an Entertainment Lift.</p>
             <p><strong>Models:</strong> Sumner Eventer 16, Sumner Eventer 20, Sumner Eventer 25</p>
         </section>
 ${getFooter()}`;
@@ -334,10 +348,12 @@ function buildProductPages() {
   data.products.forEach(product => {
     const slug = product.handle || `product-${product.id}`;
     const price = formatPrice(product.variants?.[0]?.price);
-    const partNumber = product.extracted_part_number || 'No part number';
-    const description = stripHtml(product.body_html) || 'No description available';
+    const partNumber = product.extracted_part_number;
+    const rawDescription = stripHtml(product.body_html);
+    const description = rawDescription ? cleanUTF8(rawDescription) : null;
     const models = product.models || [];
     const isAftermarket = product.vendor === 'Energized Engines';
+    const cleanTitle = cleanUTF8(product.title);
     
     // P2-3: Product images
     let imageHtml = '';
@@ -345,7 +361,7 @@ function buildProductPages() {
       const primaryImage = product.images[0].src;
       imageHtml = `
         <div class="product-images">
-          <img src="${primaryImage}" alt="${escapeHtml(product.title)}" loading="lazy">
+          <img src="${primaryImage}" alt="${escapeHtml(cleanTitle)}" loading="lazy">
         </div>`;
     }
     
@@ -371,9 +387,19 @@ function buildProductPages() {
     }
     
     // P2-3: Fitment panel (moved above description)
+    // Hardened verification: only show "verified" when diagram exists with manual_url AND page
     let fitmentHtml = '';
-    const verifiedModels = diagrams ? diagrams.map(d => d.model) : [];
-    const allVerified = models.length > 0 && verifiedModels.length === models.length;
+    const verifiedPairs = [];
+    
+    if (diagrams && partNumber) {
+      diagrams.forEach(d => {
+        if (d.manualUrl && d.page && models.includes(d.model)) {
+          verifiedPairs.push({ model: d.model, manual: d.manualTitle, url: d.manualUrl, page: d.page });
+        }
+      });
+    }
+    
+    const allModelsVerified = models.length > 0 && verifiedPairs.length === models.length;
     
     let modelLine = '';
     if (models.length > 0) {
@@ -382,17 +408,20 @@ function buildProductPages() {
       modelLine = `<p>Models not listed yet.</p>`;
     }
     
-    fitmentHtml = `
-      <section class="fitment-info">
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        ${modelLine}
-      </section>`;
-    
-    // If all models are verified, show verified status instead
-    if (allVerified && models.length > 0) {
+    if (allModelsVerified && verifiedPairs.length > 0) {
+      // All models verified - show citation
+      const citation = verifiedPairs[0];
       fitmentHtml = `
         <section class="fitment-info">
-          <p class="fitment-verified"><strong>Fitment verified</strong> for ${models.map(m => escapeHtml(m)).join(', ')}: Listed in official Sumner parts manual.</p>
+          ${modelLine}
+          <p><strong>Fitment verified:</strong> Listed in <a href="${citation.url}" target="_blank" rel="noopener">${escapeHtml(citation.manual)}, p. ${citation.page}</a></p>
+        </section>`;
+    } else {
+      // Not all verified or no verification
+      fitmentHtml = `
+        <section class="fitment-info">
+          ${modelLine}
+          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         </section>`;
     }
     
@@ -404,21 +433,21 @@ function buildProductPages() {
       breadcrumbModel = ` › <a href="${BASE_PATH}/models/${modelSlug}.html">${escapeHtml(firstModel)}</a>`;
     }
     
-    const html = `${getHeader(product.title)}
+    const html = `${getHeader(cleanTitle)}
         <div class="breadcrumb">
             <a href="${BASE_PATH}/">Home</a> › 
             <a href="${BASE_PATH}/models.html">Parts by Model</a>${breadcrumbModel} › 
-            ${escapeHtml(product.title)}
+            ${escapeHtml(cleanTitle)}
         </div>
         
         <article class="product-page">
-            <h1>${escapeHtml(product.title)}</h1>
+            <h1>${escapeHtml(cleanTitle)}</h1>
             
             <div class="product-layout">
                 ${imageHtml}
                 
                 <div class="product-info-panel">
-                    <p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>
+                    ${partNumber ? `<p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>` : ''}
                     <p class="price-display">${price}</p>
                     ${isAftermarket ? '<p class="vendor-badge aftermarket-badge">Aftermarket Part</p>' : '<p class="vendor-badge oem-badge">OEM Part</p>'}
                     
@@ -433,10 +462,10 @@ function buildProductPages() {
             ${diagramHtml}
             
             <!-- P2-3: Description without repeated "Orders are placed at..." -->
-            <section class="description">
+            ${description ? `<section class="description">
                 <h3>Description</h3>
                 <p>${escapeHtml(description)}</p>
-            </section>
+            </section>` : ''}
         </article>
 ${getFooter()}`;
     
@@ -599,18 +628,20 @@ function buildModelPages() {
       if (!fullProduct) return;
       
       const price = formatPrice(product.price);
-      const partNumber = product.part_number || 'No part number';
-      const description = stripHtml(fullProduct.body_html).substring(0, 150) + '...';
+      const partNumber = product.part_number;
+      const rawDesc = stripHtml(fullProduct.body_html);
+      const description = rawDesc ? cleanUTF8(rawDesc).substring(0, 150) + '...' : null;
       const isAftermarket = product.vendor === 'Energized Engines';
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
+      const cleanTitle = cleanUTF8(product.title);
       
       productsHtml += `
             <div class="product-card">
-                <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(product.title)}</a></h3>
+                <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(cleanTitle)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                <p class="part-number">Part #: ${escapeHtml(partNumber)}</p>
+                ${partNumber ? `<p class="part-number">Part #: ${escapeHtml(partNumber)}</p>` : ''}
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">${escapeHtml(description)}</p>
+                ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
                 <div class="product-footer">
                     <span class="price">${price}</span>
                     <a href="${BASE_PATH}/products/${productSlug}.html" class="btn btn-sm">Details</a>
@@ -780,7 +811,9 @@ function buildSearchPage() {
           }
           
           nextBatch.forEach(product => {
-            const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+            const price = (product.price && parseFloat(product.price) !== 0) 
+              ? '$' + parseFloat(product.price).toFixed(2) 
+              : '<a href="tel:+18324445426" class="call-price">Call for price</a>';
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
@@ -792,7 +825,7 @@ function buildSearchPage() {
               <div class="product-card">
                 <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
                 \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                <p class="part-number">Part #: \${escapeHtml(product.part_number || 'N/A')}</p>
+                \${product.part_number ? \`<p class="part-number">Part #: \${escapeHtml(product.part_number)}</p>\` : ''}
                 \${replacesLine}
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <div class="product-footer">
@@ -813,7 +846,9 @@ function buildSearchPage() {
             const showMoreBtn = results.querySelector('.show-more-btn');
             if (showMoreBtn) showMoreBtn.remove();
             results.querySelector('.products-grid').insertAdjacentHTML('beforeend', nextBatch.map(product => {
-              const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+              const price = (product.price && parseFloat(product.price) !== 0)
+                ? '$' + parseFloat(product.price).toFixed(2)
+                : '<a href="tel:+18324445426" class="call-price">Call for price</a>';
               const isAftermarket = product.vendor === 'Energized Engines';
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
@@ -824,7 +859,7 @@ function buildSearchPage() {
                 <div class="product-card">
                   <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
                   \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                  <p class="part-number">Part #: \${escapeHtml(product.part_number || 'N/A')}</p>
+                  \${product.part_number ? \`<p class="part-number">Part #: \${escapeHtml(product.part_number)}</p>\` : ''}
                   \${replacesLine}
                   <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                   <div class="product-footer">
@@ -848,12 +883,6 @@ function buildSearchPage() {
           div.textContent = text;
           return div.innerHTML;
         }
-        
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-            performSearch();
-          }
-        });
         </script>
 ${getFooter()}`;
   

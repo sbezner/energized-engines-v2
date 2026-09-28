@@ -183,7 +183,9 @@
           }
           
           nextBatch.forEach(product => {
-            const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+            const price = (product.price && parseFloat(product.price) !== 0) 
+              ? '$' + parseFloat(product.price).toFixed(2) 
+              : '<a href="tel:+18324445426" class="call-price">Call for price</a>';
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
@@ -195,7 +197,7 @@
               <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                <p class="part-number">Part #: ${escapeHtml(product.part_number || 'N/A')}</p>
+                ${product.part_number ? `<p class="part-number">Part #: ${escapeHtml(product.part_number)}</p>` : ''}
                 ${replacesLine}
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <div class="product-footer">
@@ -216,7 +218,9 @@
             const showMoreBtn = results.querySelector('.show-more-btn');
             if (showMoreBtn) showMoreBtn.remove();
             results.querySelector('.products-grid').insertAdjacentHTML('beforeend', nextBatch.map(product => {
-              const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+              const price = (product.price && parseFloat(product.price) !== 0)
+                ? '$' + parseFloat(product.price).toFixed(2)
+                : '<a href="tel:+18324445426" class="call-price">Call for price</a>';
               const isAftermarket = product.vendor === 'Energized Engines';
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
@@ -227,7 +231,7 @@
                 <div class="product-card">
                   <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
                   ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                  <p class="part-number">Part #: ${escapeHtml(product.part_number || 'N/A')}</p>
+                  ${product.part_number ? `<p class="part-number">Part #: ${escapeHtml(product.part_number)}</p>` : ''}
                   ${replacesLine}
                   <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                   <div class="product-footer">
@@ -251,12 +255,6 @@
           div.textContent = text;
           return div.innerHTML;
         }
-        
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-            performSearch();
-          }
-        });
         </script>
     </main>
     <footer>

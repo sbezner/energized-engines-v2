@@ -74,14 +74,19 @@ function formatPrice(price) {
 function cleanUTF8(text) {
   if (!text) return text;
   return text
-    .replace(/â€™/g, "'")  // right single quote
+    .replace(/â€™/g, "'")  // right single quote (longest first)
     .replace(/â€œ/g, '"')  // left double quote
-    .replace(/â€/g, '"')   // right double quote
+    .replace(/â€\x9d/g, '"')  // right double quote with control char
     .replace(/â€"/g, '—')  // em dash
     .replace(/â€"/g, '–')  // en dash
-    .replace(/Â°/g, '°')   // degree symbol
     .replace(/â€¦/g, '…')  // ellipsis
-    .replace(/Â /g, ' ');  // non-breaking space
+    .replace(/â€/g, '"')   // bare right double quote (after longer patterns)
+    .replace(/Â°/g, '°')   // degree symbol
+    .replace(/Â(?=[\s\u00a0.,])/g, '')  // stray Â before space/punctuation
+    .replace(/[\x80-\x9f]/g, '')  // control characters
+    .replace(/Â /g, ' ')  // non-breaking space
+    .replace(/Â+/g, ' ')  // any remaining Â sequences
+    .trim();  // trim whitespace
 }
 
 function getHeader(title, activePage = '') {
@@ -106,7 +111,7 @@ function getHeader(title, activePage = '') {
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -150,9 +155,9 @@ function getHeader(title, activePage = '') {
                     <a href="${BASE_PATH}/search.html" ${activePage === 'search' ? 'class="active"' : ''}>Search Parts</a>
                     <a href="${BASE_PATH}/about.html" ${activePage === 'about' ? 'class="active"' : ''}>About</a>
                     <a href="${BASE_PATH}/return-policy.html" ${activePage === 'return-policy' ? 'class="active"' : ''}>Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -355,14 +360,40 @@ function buildProductPages() {
     const isAftermarket = product.vendor === 'Energized Engines';
     const cleanTitle = cleanUTF8(product.title);
     
-    // P2-3: Product images
+    // P2-3: Product images with performance optimizations
     let imageHtml = '';
     if (product.images && product.images.length > 0) {
       const primaryImage = product.images[0].src;
-      imageHtml = `
-        <div class="product-images">
-          <img src="${primaryImage}" alt="${escapeHtml(cleanTitle)}" loading="lazy">
+      const imageWidth = product.images[0].width || 600;
+      const imageHeight = product.images[0].height || 600;
+      
+      // Check if it's the Sumner logo placeholder
+      const isSumnerLogo = primaryImage && primaryImage.includes('Sumner_Logo');
+      
+      if (isSumnerLogo) {
+        imageHtml = `
+        <div class="photo-coming-soon">
+          Photo coming soon
         </div>`;
+      } else {
+        // Build srcset for Shopify image variants
+        const baseUrl = primaryImage.split('?')[0];
+        const srcset = [400, 800, 1200].map(w => `${baseUrl}?width=${w} ${w}w`).join(', ');
+        
+        imageHtml = `
+        <div class="product-images">
+          <img 
+            src="${primaryImage}" 
+            srcset="${srcset}"
+            sizes="(min-width: 769px) 45vw, 100vw"
+            width="${imageWidth}"
+            height="${imageHeight}"
+            alt="${escapeHtml(cleanTitle)}" 
+            loading="eager"
+            fetchpriority="high"
+            onerror="this.closest('.product-images').classList.add('no-img')">
+        </div>`;
+      }
     }
     
     // Check for diagram references
@@ -386,58 +417,100 @@ function buildProductPages() {
         </section>`;
     }
     
-    // P2-3: Fitment panel (moved above description)
-    // Hardened verification: only show "verified" when diagram exists with manual_url AND page
+    // P2-3: Fitment panel with series-level matching
+    // Series mapping: series number -> specific models in that series
+    const seriesMap = {
+      '2000': ['2010', '2015', '2020', '2025', '2012S'],
+      '2100': ['2112', '2118', '2124', '2112G', '2118G', '2124G'],
+      '2200': ['2208', '2210'],
+      '2400': ['2412', '2416', '2412G', '2416G'],
+      '2600': ['2615']
+    };
+    
     let fitmentHtml = '';
-    const verifiedPairs = [];
+    const verifications = new Map(); // model -> {manual, url, page, diagramModels[]}
     
     if (diagrams && partNumber) {
-      diagrams.forEach(d => {
-        if (d.manualUrl && d.page && models.includes(d.model)) {
-          verifiedPairs.push({ model: d.model, manual: d.manualTitle, url: d.manualUrl, page: d.page });
+      models.forEach(productModel => {
+        // Check for exact match
+        const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === productModel);
+        if (exactMatch) {
+          verifications.set(productModel, {
+            manual: exactMatch.manualTitle,
+            url: exactMatch.manualUrl,
+            page: exactMatch.page,
+            diagramModels: [exactMatch.model],
+            isSeries: false
+          });
+        }
+        // Check for series-level match
+        else if (seriesMap[productModel]) {
+          const seriesModels = seriesMap[productModel];
+          const seriesMatches = diagrams.filter(d => 
+            d.manualUrl && d.page && seriesModels.includes(d.model)
+          );
+          
+          if (seriesMatches.length > 0) {
+            const match = seriesMatches[0];
+            const coveredModels = [...new Set(seriesMatches.map(m => m.model))].sort();
+            verifications.set(productModel, {
+              manual: match.manualTitle,
+              url: match.manualUrl,
+              page: match.page,
+              diagramModels: coveredModels,
+              isSeries: true,
+              seriesName: productModel
+            });
+          }
         }
       });
     }
     
-    const allModelsVerified = models.length > 0 && verifiedPairs.length === models.length;
+    // Build per-model fitment display
+    let fitmentLines = [];
     
-    let modelLine = '';
-    if (models.length > 0) {
-      modelLine = `<p>Fits: ${models.map(m => escapeHtml(m)).join(', ')}</p>`;
+    if (models.length === 0) {
+      fitmentLines.push(`<p>Models not listed yet.</p>`);
+      fitmentLines.push(`<p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>`);
     } else {
-      modelLine = `<p>Models not listed yet.</p>`;
+      // Show status for each model
+      models.forEach(model => {
+        const verification = verifications.get(model);
+        
+        if (verification) {
+          // This model is verified
+          let citation = '';
+          if (verification.isSeries) {
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a> (covers ${verification.diagramModels.join(', ')})</p>`;
+          } else {
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
+          }
+          fitmentLines.push(citation);
+        } else {
+          // This model is not verified
+          fitmentLines.push(`<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>`);
+        }
+      });
     }
     
-    if (allModelsVerified && verifiedPairs.length > 0) {
-      // All models verified - show citation
-      const citation = verifiedPairs[0];
-      fitmentHtml = `
+    fitmentHtml = `
         <section class="fitment-info">
-          ${modelLine}
-          <p><strong>Fitment verified:</strong> Listed in <a href="${citation.url}" target="_blank" rel="noopener">${escapeHtml(citation.manual)}, p. ${citation.page}</a></p>
+          ${fitmentLines.join('\n')}
         </section>`;
-    } else {
-      // Not all verified or no verification
-      fitmentHtml = `
-        <section class="fitment-info">
-          ${modelLine}
-          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        </section>`;
-    }
     
     // P2-3: Accurate breadcrumbs
-    let breadcrumbModel = '';
+    let breadcrumbPath = '';
     if (models.length > 0) {
       const firstModel = models[0];
       const modelSlug = firstModel.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      breadcrumbModel = ` › <a href="${BASE_PATH}/models/${modelSlug}.html">${escapeHtml(firstModel)}</a>`;
+      breadcrumbPath = `<a href="${BASE_PATH}/models.html">Parts by Model</a> › <a href="${BASE_PATH}/models/${modelSlug}.html">Sumner ${escapeHtml(firstModel)}</a>`;
+    } else {
+      breadcrumbPath = `<a href="${BASE_PATH}/search.html">Search Parts</a>`;
     }
     
     const html = `${getHeader(cleanTitle)}
         <div class="breadcrumb">
-            <a href="${BASE_PATH}/">Home</a> › 
-            <a href="${BASE_PATH}/models.html">Parts by Model</a>${breadcrumbModel} › 
-            ${escapeHtml(cleanTitle)}
+            <a href="${BASE_PATH}/">Home</a> › ${breadcrumbPath} › ${escapeHtml(cleanTitle)}
         </div>
         
         <article class="product-page">
@@ -448,11 +521,12 @@ function buildProductPages() {
                 
                 <div class="product-info-panel">
                     ${partNumber ? `<p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>` : ''}
+                    ${isAftermarket ? (() => { const m = (product.title || '').match(/\b7[78]\d{4}\b/); return m ? `<p class="replaces-note">Replaces Sumner ${escapeHtml(m[0])}</p>` : ''; })() : ''}
                     <p class="price-display">${price}</p>
                     ${isAftermarket ? '<p class="vendor-badge aftermarket-badge">Aftermarket Part</p>' : '<p class="vendor-badge oem-badge">OEM Part</p>'}
                     
                     <!-- P2-3: Button with www. to avoid redirect -->
-                    <a href="https://www.energizedengines.com/products/${slug}" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
+                    <a href="https://www.energizedengines.com/products/${slug}" class="btn btn-primary">Buy on energizedengines.com</a>
                 </div>
             </div>
             
@@ -478,7 +552,22 @@ ${getFooter()}`;
 
 // Build models index page
 function buildModelsPage() {
-  const models = Object.keys(data.models);
+  // Normalize model names case-insensitively to merge duplicates
+  const normalizedModels = {};
+  Object.keys(data.models).forEach(model => {
+    const normalizedKey = model.trim().toUpperCase();
+    if (!normalizedModels[normalizedKey]) {
+      normalizedModels[normalizedKey] = {
+        canonical: model,
+        products: []
+      };
+    }
+    // Merge products from all case variants
+    normalizedModels[normalizedKey].products.push(...data.models[model]);
+  });
+  
+  // Use normalized data for grouping
+  const models = Object.values(normalizedModels).map(m => m.canonical);
   
   // P2-1: Fixed model grouping with proper series organization
   const modelGroups = {
@@ -495,24 +584,22 @@ function buildModelsPage() {
   };
   
   models.forEach(model => {
-    const modelUpper = model.toUpperCase();
     const modelNorm = model.trim().toUpperCase();
     
-    // Series 2000 - Per Sumner's manual: 2010, 2015, 2020, 2025
-    if (modelNorm === '2010' || modelNorm === '2015' || modelNorm === '2020' || modelNorm === '2025' || 
-        modelNorm === '2010G' || modelNorm === '2015G' || modelNorm === '2020G' || modelNorm === '2025G' || 
-        modelNorm === '2012S') {
+    // Series 2000 - Full 2000 family: 2000, 2001-2018, 2020, 2021, 2024, etc.
+    // Keep 2020 and 2025 in Series 2000 per user instruction
+    if (modelNorm.match(/^20(0\d|1[0-8]|2[01]|24)[A-Z]?$/)) {
       modelGroups['Series 2000'].push(model);
     }
-    // Series 2100
-    else if (modelNorm.match(/^211[0-9][A-Z]?$/) || modelNorm.match(/^2118[A-Z]?$/) || modelNorm.match(/^2124[A-Z]?$/)) {
+    // Series 2100 - Add 2100 exact match
+    else if (modelNorm.match(/^21\d{2}[A-Z]?$/)) {
       modelGroups['Series 2100'].push(model);
     }
     // Series 2200
     else if (modelNorm.match(/^220[0-9][A-Z]?$/) || modelNorm.match(/^2208[A-Z]?$/) || modelNorm.match(/^2210[A-Z]?$/)) {
       modelGroups['Series 2200'].push(model);
     }
-    // Series 2400
+    // Series 2400 - only if data exists
     else if (modelNorm.match(/^241[0-9][A-Z]?$/) || modelNorm.match(/^2412[A-Z]?$/) || modelNorm.match(/^2416[A-Z]?$/)) {
       modelGroups['Series 2400'].push(model);
     }
@@ -525,15 +612,15 @@ function buildModelsPage() {
       modelGroups['Series 2600'].push(model);
     }
     // Roust-A-Bout / R-series
-    else if (modelUpper.includes('ROUST') || modelNorm.match(/^R-[0-9]+/)) {
+    else if (modelNorm.includes('ROUST') || modelNorm.match(/^R-[0-9]+/)) {
       modelGroups['Roust-A-Bout (R-Series)'].push(model);
     }
     // Eventer
-    else if (modelUpper.includes('EVENTER')) {
+    else if (modelNorm.includes('EVENTER')) {
       modelGroups['Eventer Series'].push(model);
     }
     // Gantry
-    else if (modelUpper.includes('GANTRY') || modelUpper.includes('GH')) {
+    else if (modelNorm.includes('GANTRY') || modelNorm.includes('GH')) {
       modelGroups['Gantry'].push(model);
     }
     // Everything else
@@ -561,7 +648,8 @@ function buildModelsPage() {
             <div class="model-grid">`;
       
       groupModels.sort().forEach(model => {
-        const count = data.models[model].length;
+        const modelNorm = model.trim().toUpperCase();
+        const count = normalizedModels[modelNorm] ? normalizedModels[modelNorm].products.length : 0;
         const modelSlug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         modelsHtml += `
                 <a href="${BASE_PATH}/models/${modelSlug}.html" class="model-card">
@@ -606,7 +694,20 @@ function buildModelPages() {
     fs.mkdirSync(modelsDir, { recursive: true });
   }
   
-  Object.entries(data.models).forEach(([model, products]) => {
+  // Normalize model names case-insensitively
+  const normalizedModels = {};
+  Object.keys(data.models).forEach(model => {
+    const normalizedKey = model.trim().toUpperCase();
+    if (!normalizedModels[normalizedKey]) {
+      normalizedModels[normalizedKey] = {
+        canonical: model,
+        products: []
+      };
+    }
+    normalizedModels[normalizedKey].products.push(...data.models[model]);
+  });
+  
+  Object.values(normalizedModels).forEach(({ canonical: model, products }) => {
     const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     
     // Check for parts manual
@@ -624,6 +725,15 @@ function buildModelPages() {
         </section>`;
     }
     
+    // Series mapping for model pages
+    const seriesMap = {
+      '2000': ['2010', '2015', '2020', '2025', '2012S'],
+      '2100': ['2112', '2118', '2124', '2112G', '2118G', '2124G'],
+      '2200': ['2208', '2210'],
+      '2400': ['2412', '2416', '2412G', '2416G'],
+      '2600': ['2615']
+    };
+    
     let productsHtml = '';
     products.forEach(product => {
       const fullProduct = data.products.find(p => p.id === product.id);
@@ -637,12 +747,40 @@ function buildModelPages() {
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
       const cleanTitle = cleanUTF8(product.title);
       
+      // Check if this part is verified for this model
+      let fitmentLine = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+      if (diagramMap && partNumber && diagramMap[partNumber]) {
+        const partDiagrams = diagramMap[partNumber];
+        const match = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
+        
+        if (match) {
+          fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${match.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(match.manualTitle)}, p. ${match.page}</a></p>`;
+        } else {
+          // Check if this model is part of a series and the part is in that series
+          for (const [seriesNum, seriesModels] of Object.entries(seriesMap)) {
+            if (seriesModels.includes(model)) {
+              const seriesMatch = partDiagrams.find(d => 
+                d.manualUrl && d.page && seriesModels.includes(d.model)
+              );
+              if (seriesMatch) {
+                const allMatches = partDiagrams.filter(d => 
+                  d.manualUrl && d.page && seriesModels.includes(d.model)
+                );
+                const coveredModels = [...new Set(allMatches.map(m => m.model))].sort();
+                fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
       productsHtml += `
             <div class="product-card">
                 <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(cleanTitle)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 ${partNumber ? `<p class="part-number">Part #: ${escapeHtml(partNumber)}</p>` : ''}
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                ${fitmentLine}
                 ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
                 <div class="product-footer">
                     <span class="price">${price}</span>
@@ -688,7 +826,7 @@ ${getFooter()}`;
 function buildSearchPage() {
   const searchData = data.products.map(p => ({
     id: p.id,
-    title: p.title,
+    title: cleanUTF8(p.title),
     handle: p.handle,
     part_number: p.extracted_part_number,
     normalized_pn: p.normalized_part_number,
@@ -792,11 +930,12 @@ function buildSearchPage() {
           if (allMatches.length === 0) {
             results.innerHTML = \`
               <div class="search-empty-state">
-                <p class="warning">No parts found for "\${escapeHtml(query)}"</p>
-                <p>Can't find what you need? We're here to help.</p>
+                <p>No parts match "\${escapeHtml(query)}"</p>
+                <p>Double-check spelling, try a different keyword, or <a href="${BASE_PATH}/models.html">browse by model</a>.</p>
                 <div class="empty-state-actions">
                   <a href="tel:+18324445426" class="btn btn-primary">Call 832-444-5426</a>
                   <a href="${BASE_PATH}/models.html" class="btn btn-secondary">Shop by Model</a>
+                  <a href="${BASE_PATH}/about.html" class="btn btn-secondary">Parts Manuals</a>
                 </div>
               </div>
             \`;
@@ -808,7 +947,7 @@ function buildSearchPage() {
           
           let html = '';
           if (!append) {
-            html += '<h2>' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part' : 'parts') + ' found</h2>';
+            html += '<h2 class="search-count">' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part matches' : 'parts match') + ' ' + escapeHtml(query) + '</h2>';
             html += '<div class="products-grid">';
           }
           
@@ -819,8 +958,11 @@ function buildSearchPage() {
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
             let replacesLine = '';
-            if (isAftermarket && product.part_number) {
-              replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(product.part_number)}</p>\`;
+            if (isAftermarket) {
+              const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/);
+              if (sumnerMatch) {
+                replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(sumnerMatch[0])}</p>\`;
+              }
             }
             
             html += \`
@@ -854,8 +996,11 @@ function buildSearchPage() {
               const isAftermarket = product.vendor === 'Energized Engines';
               const slug = product.handle || 'product-' + product.id;
               let replacesLine = '';
-              if (isAftermarket && product.part_number) {
-                replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(product.part_number)}</p>\`;
+              if (isAftermarket) {
+                const sumnerMatch = (product.title || '').match(/\b7[78]\d{4}\b/);
+                if (sumnerMatch) {
+                  replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(sumnerMatch[0])}</p>\`;
+                }
               }
               return \`
                 <div class="product-card">

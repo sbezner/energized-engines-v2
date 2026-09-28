@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -63,9 +63,9 @@
                     <a href="/energized-engines-v2/search.html" >Search Parts</a>
                     <a href="/energized-engines-v2/about.html" >About</a>
                     <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -73,9 +73,7 @@
     </header>
     <main class="container">
         <div class="breadcrumb">
-            <a href="/energized-engines-v2/">Home</a> › 
-            <a href="/energized-engines-v2/models.html">Parts by Model</a> › <a href="/energized-engines-v2/models/eventer-20.html">EVENTER 20</a> › 
-            Sumner 783826-BLK TOP MAST ASSY - HD
+            <a href="/energized-engines-v2/">Home</a> › <a href="/energized-engines-v2/models.html">Parts by Model</a> › <a href="/energized-engines-v2/models/eventer-20.html">Sumner EVENTER 20</a> › Sumner 783826-BLK TOP MAST ASSY - HD
         </div>
         
         <article class="product-page">
@@ -84,24 +82,33 @@
             <div class="product-layout">
                 
         <div class="product-images">
-          <img src="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/Eventer_1900_Higher_Page_2h_20198b30-f9a7-405f-89ad-7faf8148d353.png?v=1702859070" alt="Sumner 783826-BLK TOP MAST ASSY - HD" loading="lazy">
+          <img 
+            src="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/Eventer_1900_Higher_Page_2h_20198b30-f9a7-405f-89ad-7faf8148d353.png?v=1702859070" 
+            srcset="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/Eventer_1900_Higher_Page_2h_20198b30-f9a7-405f-89ad-7faf8148d353.png?width=400 400w, https://cdn.shopify.com/s/files/1/0832/7050/0671/products/Eventer_1900_Higher_Page_2h_20198b30-f9a7-405f-89ad-7faf8148d353.png?width=800 800w, https://cdn.shopify.com/s/files/1/0832/7050/0671/products/Eventer_1900_Higher_Page_2h_20198b30-f9a7-405f-89ad-7faf8148d353.png?width=1200 1200w"
+            sizes="(min-width: 769px) 45vw, 100vw"
+            width="787"
+            height="640"
+            alt="Sumner 783826-BLK TOP MAST ASSY - HD" 
+            loading="eager"
+            fetchpriority="high"
+            onerror="this.closest('.product-images').classList.add('no-img')">
         </div>
                 
                 <div class="product-info-panel">
                     <p class="part-number"><strong>Part Number:</strong> &#039;783826-BLK</p>
+                    
                     <p class="price-display">$1907.00</p>
                     <p class="vendor-badge oem-badge">OEM Part</p>
                     
                     <!-- P2-3: Button with www. to avoid redirect -->
-                    <a href="https://www.energizedengines.com/products/sumner-783826-blk-top-mast-assy-hd-1" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
+                    <a href="https://www.energizedengines.com/products/sumner-783826-blk-top-mast-assy-hd-1" class="btn btn-primary">Buy on energizedengines.com</a>
                 </div>
             </div>
             
             <!-- P2-3: Fitment above description -->
             
         <section class="fitment-info">
-          <p>Fits: EVENTER 20</p>
-          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
+          <p><strong>EVENTER 20:</strong> <span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         </section>
             
             

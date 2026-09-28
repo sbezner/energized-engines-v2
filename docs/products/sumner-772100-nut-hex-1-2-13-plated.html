@@ -19,7 +19,7 @@
         <div class="container">
             <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
             <div class="header-mobile">
-                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" onclick="toggleMobileMenu()">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -63,9 +63,9 @@
                     <a href="/energized-engines-v2/search.html" >Search Parts</a>
                     <a href="/energized-engines-v2/about.html" >About</a>
                     <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-                    <div class="mobile-contact">
-                        <a href="tel:+18324445426">832-444-5426</a>
-                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    <div class="mobile-contact-pills">
+                        <a href="tel:+18324445426" class="contact-pill">Call 832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com" class="contact-pill">Email us</a>
                     </div>
                 </nav>
             </div>
@@ -73,9 +73,7 @@
     </header>
     <main class="container">
         <div class="breadcrumb">
-            <a href="/energized-engines-v2/">Home</a> › 
-            <a href="/energized-engines-v2/models.html">Parts by Model</a> › <a href="/energized-engines-v2/models/2000.html">2000</a> › 
-            Sumner 772100 NUT, HEX 1/2-13 PLATED
+            <a href="/energized-engines-v2/">Home</a> › <a href="/energized-engines-v2/models.html">Parts by Model</a> › <a href="/energized-engines-v2/models/2000.html">Sumner 2000</a> › Sumner 772100 NUT, HEX 1/2-13 PLATED
         </div>
         
         <article class="product-page">
@@ -84,24 +82,34 @@
             <div class="product-layout">
                 
         <div class="product-images">
-          <img src="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2400_Parts_PAGE_17_cff835f0-811a-4121-839b-688a2be509b3.png?v=1702740306" alt="Sumner 772100 NUT, HEX 1/2-13 PLATED" loading="lazy">
+          <img 
+            src="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2400_Parts_PAGE_17_cff835f0-811a-4121-839b-688a2be509b3.png?v=1702740306" 
+            srcset="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2400_Parts_PAGE_17_cff835f0-811a-4121-839b-688a2be509b3.png?width=400 400w, https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2400_Parts_PAGE_17_cff835f0-811a-4121-839b-688a2be509b3.png?width=800 800w, https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2400_Parts_PAGE_17_cff835f0-811a-4121-839b-688a2be509b3.png?width=1200 1200w"
+            sizes="(min-width: 769px) 45vw, 100vw"
+            width="785"
+            height="636"
+            alt="Sumner 772100 NUT, HEX 1/2-13 PLATED" 
+            loading="eager"
+            fetchpriority="high"
+            onerror="this.closest('.product-images').classList.add('no-img')">
         </div>
                 
                 <div class="product-info-panel">
                     <p class="part-number"><strong>Part Number:</strong> 772100</p>
+                    
                     <p class="price-display">$1.00</p>
                     <p class="vendor-badge oem-badge">OEM Part</p>
                     
                     <!-- P2-3: Button with www. to avoid redirect -->
-                    <a href="https://www.energizedengines.com/products/sumner-772100-nut-hex-1-2-13-plated" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
+                    <a href="https://www.energizedengines.com/products/sumner-772100-nut-hex-1-2-13-plated" class="btn btn-primary">Buy on energizedengines.com</a>
                 </div>
             </div>
             
             <!-- P2-3: Fitment above description -->
             
         <section class="fitment-info">
-          <p>Fits: 2000, 2100</p>
-          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
+          <p><strong>2000:</strong> <span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
+<p><strong>2100:</strong> <span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         </section>
             
             

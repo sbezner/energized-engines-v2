@@ -386,20 +386,56 @@ function buildProductPages() {
         </section>`;
     }
     
-    // P2-3: Fitment panel (moved above description)
-    // Hardened verification: only show "verified" when diagram exists with manual_url AND page
+    // P2-3: Fitment panel with series-level matching
+    // Series mapping: series number -> specific models in that series
+    const seriesMap = {
+      '2000': ['2010', '2015', '2020', '2025', '2012S'],
+      '2100': ['2112', '2118', '2124', '2112G', '2118G', '2124G'],
+      '2200': ['2208', '2210'],
+      '2400': ['2412', '2416', '2412G', '2416G'],
+      '2600': ['2615']
+    };
+    
     let fitmentHtml = '';
-    const verifiedPairs = [];
+    const verifications = new Map(); // model -> {manual, url, page, diagramModels[]}
     
     if (diagrams && partNumber) {
-      diagrams.forEach(d => {
-        if (d.manualUrl && d.page && models.includes(d.model)) {
-          verifiedPairs.push({ model: d.model, manual: d.manualTitle, url: d.manualUrl, page: d.page });
+      models.forEach(productModel => {
+        // Check for exact match
+        const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === productModel);
+        if (exactMatch) {
+          verifications.set(productModel, {
+            manual: exactMatch.manualTitle,
+            url: exactMatch.manualUrl,
+            page: exactMatch.page,
+            diagramModels: [exactMatch.model],
+            isSeries: false
+          });
+        }
+        // Check for series-level match
+        else if (seriesMap[productModel]) {
+          const seriesModels = seriesMap[productModel];
+          const seriesMatches = diagrams.filter(d => 
+            d.manualUrl && d.page && seriesModels.includes(d.model)
+          );
+          
+          if (seriesMatches.length > 0) {
+            const match = seriesMatches[0];
+            const coveredModels = [...new Set(seriesMatches.map(m => m.model))].sort();
+            verifications.set(productModel, {
+              manual: match.manualTitle,
+              url: match.manualUrl,
+              page: match.page,
+              diagramModels: coveredModels,
+              isSeries: true,
+              seriesName: productModel
+            });
+          }
         }
       });
     }
     
-    const allModelsVerified = models.length > 0 && verifiedPairs.length === models.length;
+    const allModelsVerified = models.length > 0 && verifications.size === models.length;
     
     let modelLine = '';
     if (models.length > 0) {
@@ -408,13 +444,21 @@ function buildProductPages() {
       modelLine = `<p>Models not listed yet.</p>`;
     }
     
-    if (allModelsVerified && verifiedPairs.length > 0) {
+    if (allModelsVerified && verifications.size > 0) {
       // All models verified - show citation
-      const citation = verifiedPairs[0];
+      const firstVerification = verifications.values().next().value;
+      let citation = '';
+      
+      if (firstVerification.isSeries) {
+        citation = `Listed in <a href="${firstVerification.url}" target="_blank" rel="noopener">${escapeHtml(firstVerification.manual)}, p. ${firstVerification.page}</a> (covers ${firstVerification.diagramModels.join(', ')})`;
+      } else {
+        citation = `Listed in <a href="${firstVerification.url}" target="_blank" rel="noopener">${escapeHtml(firstVerification.manual)}, p. ${firstVerification.page}</a>`;
+      }
+      
       fitmentHtml = `
         <section class="fitment-info">
           ${modelLine}
-          <p><strong>Fitment verified:</strong> Listed in <a href="${citation.url}" target="_blank" rel="noopener">${escapeHtml(citation.manual)}, p. ${citation.page}</a></p>
+          <p><strong>Fitment verified:</strong> ${citation}</p>
         </section>`;
     } else {
       // Not all verified or no verification
@@ -624,6 +668,15 @@ function buildModelPages() {
         </section>`;
     }
     
+    // Series mapping for model pages
+    const seriesMap = {
+      '2000': ['2010', '2015', '2020', '2025', '2012S'],
+      '2100': ['2112', '2118', '2124', '2112G', '2118G', '2124G'],
+      '2200': ['2208', '2210'],
+      '2400': ['2412', '2416', '2412G', '2416G'],
+      '2600': ['2615']
+    };
+    
     let productsHtml = '';
     products.forEach(product => {
       const fullProduct = data.products.find(p => p.id === product.id);
@@ -637,12 +690,40 @@ function buildModelPages() {
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
       const cleanTitle = cleanUTF8(product.title);
       
+      // Check if this part is verified for this model
+      let fitmentLine = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+      if (diagramMap && partNumber && diagramMap[partNumber]) {
+        const partDiagrams = diagramMap[partNumber];
+        const match = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
+        
+        if (match) {
+          fitmentLine = `<p><strong>Fitment verified:</strong> Listed in <a href="${match.manualUrl}" target="_blank" rel="noopener">${escapeHtml(match.manualTitle)}, p. ${match.page}</a></p>`;
+        } else {
+          // Check if this model is part of a series and the part is in that series
+          for (const [seriesNum, seriesModels] of Object.entries(seriesMap)) {
+            if (seriesModels.includes(model)) {
+              const seriesMatch = partDiagrams.find(d => 
+                d.manualUrl && d.page && seriesModels.includes(d.model)
+              );
+              if (seriesMatch) {
+                const allMatches = partDiagrams.filter(d => 
+                  d.manualUrl && d.page && seriesModels.includes(d.model)
+                );
+                const coveredModels = [...new Set(allMatches.map(m => m.model))].sort();
+                fitmentLine = `<p><strong>Fitment verified:</strong> Listed in <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener">${escapeHtml(seriesMatch.manualTitle)}, p. ${seriesMatch.page}</a> (covers ${coveredModels.join(', ')})</p>`;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
       productsHtml += `
             <div class="product-card">
                 <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(cleanTitle)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 ${partNumber ? `<p class="part-number">Part #: ${escapeHtml(partNumber)}</p>` : ''}
-                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                ${fitmentLine}
                 ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
                 <div class="product-footer">
                     <span class="price">${price}</span>

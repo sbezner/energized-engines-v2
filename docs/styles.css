@@ -19,10 +19,12 @@
   padding: 0;
 }
 
+/* P1-3: Load Questrial and Archivo fonts */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Questrial', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
   line-height: 1.6;
-  color: var(--text-primary);
+  color: #4a4970;
   background: var(--background);
 }
 
@@ -64,10 +66,10 @@ body {
   text-decoration: underline;
 }
 
-/* Header */
+/* P1-1: Navy header like live store */
 header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--secondary-color);
+  border-bottom: 1px solid rgba(255,255,255,.12);
   padding: 1rem 0;
   margin-bottom: 2rem;
 }
@@ -92,11 +94,12 @@ header {
   text-align: right;
 }
 
-.contact-info p {
+.contact-info a {
+  display: block;
   margin: 0;
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 1.1rem;
+  font-size: 15px;
+  color: white;
+  text-decoration: none;
 }
 
 nav {
@@ -108,18 +111,22 @@ nav {
 }
 
 nav a {
-  color: var(--text-secondary);
+  color: rgba(255,255,255,.8);
   text-decoration: none;
-  font-weight: 500;
+  font-family: 'Questrial', sans-serif;
+  font-size: 16px;
   padding: 0.5rem 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
   transition: all 0.2s;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 nav a:hover,
 nav a.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
+  color: white;
+  border-bottom-color: var(--accent-color);
 }
 
 /* Main Content */
@@ -128,22 +135,27 @@ main {
   padding: 2rem 0;
 }
 
+/* P1-3: Archivo headings with navy color */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Archivo', sans-serif;
+  font-weight: 700;
+  color: var(--secondary-color);
+  letter-spacing: 0.02em;
+}
+
 h1 {
-  font-size: 2.25rem;
+  font-size: 40px;
   margin-bottom: 1rem;
-  color: var(--text-primary);
 }
 
 h2 {
-  font-size: 1.75rem;
+  font-size: 26px;
   margin-bottom: 1rem;
-  color: var(--text-primary);
 }
 
 h3 {
-  font-size: 1.25rem;
+  font-size: 20px;
   margin: 1.5rem 0 0.75rem;
-  color: var(--text-primary);
 }
 
 p {
@@ -170,16 +182,23 @@ p {
   margin: 3rem 0;
 }
 
+/* P1-4: Cards with 18px radius */
 .service-card {
-  background: var(--surface);
+  background: white;
   padding: 2rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  border: 1px solid #e3e3ee;
+  box-shadow: 0 1px 2px rgba(60,59,110,.06);
+  transition: border-color 0.2s;
+}
+
+.service-card:hover {
+  border-color: var(--secondary-color);
 }
 
 .service-card h3 {
   margin-top: 0;
-  color: var(--primary-color);
+  color: var(--secondary-color);
 }
 
 /* P0-5: Renamed .info to .find-parts to avoid collision with alert styles */
@@ -199,15 +218,20 @@ p {
   margin-top: 1.5rem;
 }
 
-/* Buttons */
+/* P1-4: Pill buttons */
 .btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 28px;
   background: var(--primary-color);
   color: white;
   text-decoration: none;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 40px;
+  font-family: 'Questrial', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   transition: all 0.2s;
   border: none;
   cursor: pointer;
@@ -229,8 +253,9 @@ p {
 }
 
 .btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  min-height: 44px;
+  padding: 0 24px;
+  font-size: 15px;
 }
 
 .btn-primary {
@@ -251,8 +276,8 @@ p {
 
 .model-card {
   background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border: 1px solid #e3e3ee;
+  border-radius: 18px;
   padding: 1.25rem;
   text-decoration: none;
   color: var(--text-primary);
@@ -260,13 +285,14 @@ p {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(60,59,110,.06);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.model-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .model-card:hover {
+    border-color: var(--secondary-color);
+  }
 }
 
 .model-card strong {
@@ -290,11 +316,19 @@ p {
 
 .product-card {
   background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border: 1px solid #e3e3ee;
+  border-radius: 18px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(60,59,110,.06);
+  transition: border-color 0.2s;
+}
+
+@media (hover: hover) {
+  .product-card:hover {
+    border-color: var(--secondary-color);
+  }
 }
 
 .product-card h3 {
@@ -501,32 +535,43 @@ p {
   margin-bottom: 0.5rem;
 }
 
-/* Footer */
+/* P1-5: Navy footer */
 footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border-color);
-  padding: 2rem 0;
+  background: var(--secondary-color);
+  border-top: none;
+  padding: 3rem 0;
   margin-top: 4rem;
   text-align: center;
 }
 
 footer h3 {
   margin: 0.5rem 0;
-  font-size: 1.5rem;
+  font-size: 24px;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 700;
+  color: white;
   overflow-wrap: anywhere;
+}
+
+footer h3 a {
+  color: white;
+  text-decoration: none;
 }
 
 footer p {
   margin: 0.5rem 0;
+  font-size: 15px;
+  color: rgba(255,255,255,.8);
 }
 
 footer a {
-  color: var(--primary-color);
+  color: white;
+  text-decoration: underline;
 }
 
 footer .small {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: rgba(255,255,255,.8);
 }
 
 /* Responsive */

@@ -476,38 +476,29 @@ function buildProductPages() {
     
     if (diagrams && partNumber) {
       models.forEach(productModel => {
-        // Check for exact match
-        const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === productModel);
-        if (exactMatch) {
-          verifications.set(productModel, {
-            manual: exactMatch.manualTitle,
-            url: exactMatch.manualUrl,
-            page: exactMatch.page,
-            diagramModels: [exactMatch.model],
-            isSeries: false
-          });
-        }
-        // Check for series-level match
-        else if (seriesMap[productModel]) {
-          const seriesModels = seriesMap[productModel];
-          const seriesMatches = diagrams.filter(d => 
-            d.manualUrl && d.page && seriesModels.includes(d.model)
-          );
+        // Check diagrams for this product model, respecting badgeType
+        const productModelDiagrams = diagrams.filter(d => d.manualUrl && d.page && d.model === productModel);
+        
+        if (productModelDiagrams.length > 0) {
+          // Use the first diagram's badgeType to determine exact vs series
+          const firstDiagram = productModelDiagrams[0];
           
-          if (seriesMatches.length > 0) {
-            const match = seriesMatches[0];
-            // Filter covered models to only those in the same manual as the match
-            // Also exclude 2012S if citing the standard Series 2000 manual
-            const isStandardSeries2000Manual = match.manualUrl && match.manualUrl.includes('Series-2000') && !match.manualUrl.includes('Short-Stack');
-            const coveredModels = [...new Set(seriesMatches
-              .filter(m => m.manualUrl === match.manualUrl)
-              .filter(m => !(isStandardSeries2000Manual && m.model === '2012S'))
-              .map(m => m.model))].sort();
+          if (firstDiagram.badgeType === 'exact') {
+            // Exact model match
             verifications.set(productModel, {
-              manual: match.manualTitle,
-              url: match.manualUrl,
-              page: match.page,
-              diagramModels: coveredModels,
+              manual: firstDiagram.manualTitle,
+              url: firstDiagram.manualUrl,
+              page: firstDiagram.page,
+              diagramModels: [firstDiagram.model],
+              isSeries: false
+            });
+          } else if (firstDiagram.badgeType === 'series') {
+            // Series-level match
+            verifications.set(productModel, {
+              manual: firstDiagram.manualTitle,
+              url: firstDiagram.manualUrl,
+              page: firstDiagram.page,
+              diagramModels: [firstDiagram.model],
               isSeries: true,
               seriesName: productModel
             });

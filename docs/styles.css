@@ -1,9 +1,9 @@
 /* Energized Engines Store Styles */
 
 :root {
-  --primary-color: #2563eb;
-  --secondary-color: #475569;
-  --accent-color: #f59e0b;
+  --primary-color: #b22234;
+  --secondary-color: #3c3b6e;
+  --accent-color: #f1ef2d;
   --success-color: #10b981;
   --warning-color: #ef4444;
   --background: #ffffff;
@@ -204,7 +204,7 @@ p {
 }
 
 .btn:hover {
-  background: #1d4ed8;
+  background: #9a1c2c;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -214,7 +214,7 @@ p {
 }
 
 .btn-secondary:hover {
-  background: #334155;
+  background: #2e2d56;
 }
 
 .btn-sm {

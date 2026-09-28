@@ -143,6 +143,18 @@ function getHeader(title, activePage = '') {
                     <a href="${BASE_PATH}/" class="logo-link">
                         <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
                     </a>
+                    
+                    <!-- Desktop search pill -->
+                    <form class="desktop-search-form" action="${BASE_PATH}/search.html" method="get">
+                        <input type="search" name="q" placeholder="Search part numbers..." class="desktop-search-input" aria-label="Search part numbers">
+                        <button type="submit" class="desktop-search-button" aria-label="Search">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M7 12.5C10.0376 12.5 12.5 10.0376 12.5 7C12.5 3.96243 10.0376 1.5 7 1.5C3.96243 1.5 1.5 3.96243 1.5 7C1.5 10.0376 3.96243 12.5 7 12.5Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M14.5 14.5L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </form>
+                    
                     <div class="contact-info">
                         <a href="tel:+18324445426">832-444-5426</a>
                         <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
@@ -440,26 +452,8 @@ function buildProductPages() {
         </div>`;
     }
     
-    // Check for diagram references
-    let diagramHtml = '';
+    // Get diagrams for this part (still needed for fitment badges)
     const diagrams = diagramMap[partNumber];
-    if (diagrams && diagrams.length > 0) {
-      const diagramLinks = diagrams.map(d => 
-        `<li>
-          ${escapeHtml(d.model)}: 
-          <a href="${d.manualUrl}" target="_blank" rel="noopener">
-            ${escapeHtml(d.manualTitle)}, p. ${d.page}
-            ${d.diagramRef ? `, Figure ${escapeHtml(d.diagramRef)}` : ''}
-          </a>
-          ${d.note ? `<br><span class="small">${escapeHtml(d.note)}</span>` : ''}
-        </li>`
-      ).join('');
-      diagramHtml = `
-        <section class="diagram-info">
-          <h3>📐 Diagram References</h3>
-          <ul class="diagram-list">${diagramLinks}</ul>
-        </section>`;
-    }
     
     // P2-3: Fitment panel with series-level matching
     // Series mapping: series number -> specific models in that series
@@ -516,9 +510,10 @@ function buildProductPages() {
     if (models.length === 0) {
       if (listedBadges.length > 0) {
         // No models claimed but found in manuals
-        fitmentLines.push(`<p>Models not listed yet.</p>`);
+        fitmentLines.push(`<p><strong>Found in these Sumner parts manuals:</strong></p>`);
         listedBadges.forEach(badge => {
-          fitmentLines.push(`<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Sumner ${escapeHtml(badge.manualTitle)}, p. ${badge.page}</span> <a href="${badge.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">View manual</a></p>`);
+          const manualTitle = badge.manualTitle.replace(/^Sumner\s+/i, '');
+          fitmentLines.push(`<p><span class="fitment-flag fitment-flag--verified fitment-flag--listed">✓ Listed in Sumner ${escapeHtml(manualTitle)}, p. ${badge.page}</span> <a href="${badge.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link" aria-label="View ${escapeHtml(badge.manualTitle)}, page ${badge.page}">View manual</a></p>`);
         });
       } else {
         fitmentLines.push(`<p>Models not listed yet.</p>`);
@@ -534,9 +529,18 @@ function buildProductPages() {
         if (verification) {
           let citation = '';
           if (verification.isSeries) {
-            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${escapeHtml(verification.seriesName)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}</a></p>`;
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified fitment-flag--series">✓ Listed in Series ${escapeHtml(verification.seriesName)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link" aria-label="View ${escapeHtml(verification.manual)}, page ${verification.page}">View manual</a></p>`;
           } else {
-            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ${escapeHtml(model)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}</a></p>`;
+            // Check if exact badge cites a series manual
+            const manualLower = verification.manual.toLowerCase();
+            const isSeriesManual = manualLower.includes('series 2000') || manualLower.includes('series 2100') || 
+                                   manualLower.includes('series 2200') || manualLower.includes('series 2400') ||
+                                   manualLower.includes('series 2500') || manualLower.includes('series 2600');
+            if (isSeriesManual) {
+              citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ${escapeHtml(model)} in ${escapeHtml(verification.manual)}, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link" aria-label="View ${escapeHtml(verification.manual)}, page ${verification.page}">View manual</a></p>`;
+            } else {
+              citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified in Sumner ${escapeHtml(model)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link" aria-label="View ${escapeHtml(verification.manual)}, page ${verification.page}">View manual</a></p>`;
+            }
           }
           fitmentLines.push(citation);
         }
@@ -582,8 +586,6 @@ function buildProductPages() {
             
             <!-- P2-3: Fitment above description -->
             ${fitmentHtml}
-            
-            ${diagramHtml}
             
             <!-- P2-3: Description without repeated "Orders are placed at..." -->
             ${description ? `<section class="description">
@@ -856,19 +858,13 @@ function buildModelPages() {
       if (diagramMap && partNumber && diagramMap[partNumber]) {
         const partDiagrams = diagramMap[partNumber];
         
-        // Check for exact match first
-        const exactMatch = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
-        if (exactMatch) {
-          fitmentLine += `<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ${escapeHtml(model)} parts manual, p. ${exactMatch.page}</span> <a href="${exactMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(exactMatch.manualTitle)}</a></p>`;
-        } 
-        // Check for series-level match (model page IS a series like "2000" or "2100")
-        else if (seriesMap[model]) {
-          const seriesModels = seriesMap[model];
-          const seriesMatch = partDiagrams.find(d => 
-            d.manualUrl && d.page && seriesModels.includes(d.model)
-          );
-          if (seriesMatch) {
-            fitmentLine += `<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${model} parts manual, p. ${seriesMatch.page}</span> <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}</a></p>`;
+        // Find diagram for this model and check badgeType
+        const modelDiagram = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
+        if (modelDiagram) {
+          if (modelDiagram.badgeType === 'exact') {
+            fitmentLine += `<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified in Sumner ${escapeHtml(model)} parts manual, p. ${modelDiagram.page}</span> <a href="${modelDiagram.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link" aria-label="View ${escapeHtml(modelDiagram.manualTitle)}, page ${modelDiagram.page}">${escapeHtml(modelDiagram.manualTitle)}</a></p>`;
+          } else if (modelDiagram.badgeType === 'series') {
+            fitmentLine += `<p><span class="fitment-flag fitment-flag--verified fitment-flag--series">✓ Listed in Series ${model} parts manual, p. ${modelDiagram.page}</span> <a href="${modelDiagram.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link" aria-label="View ${escapeHtml(modelDiagram.manualTitle)}, page ${modelDiagram.page}">${escapeHtml(modelDiagram.manualTitle)}</a></p>`;
           }
         }
       }
@@ -931,7 +927,16 @@ ${getFooter()}`;
       const fullProduct = data.products.find(p => p.id === product.id);
       if (!fullProduct) return;
       
-      const price = formatPrice(product.price);
+      const price = formatPrice(fullProduct.variants?.[0]?.price || product.price);
+      const partNumber = product.part_number;
+      let rawDesc = stripHtml(fullProduct.body_html);
+      
+      // Fix 784778 description
+      if (partNumber === '784778') {
+        rawDesc = 'Roller shaft for Sumner 2400 series lifts';
+      }
+      
+      const description = rawDesc ? cleanUTF8(rawDesc).substring(0, 150) + '...' : null;
       const isAftermarket = product.vendor === 'Energized Engines';
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
       const cleanTitle = cleanUTF8(product.title);
@@ -992,18 +997,12 @@ function buildSearchPage() {
     if (diagramMap && partNumber && diagramMap[partNumber]) {
       const diagrams = diagramMap[partNumber];
       models.forEach(model => {
-        // Check exact match
-        const exactMatch = diagrams.find(d => d.manualUrl && d.page && d.model === model);
-        if (exactMatch) {
-          exactVerified.push(model);
-        }
-        // Check series match
-        else if (seriesMap[model]) {
-          const seriesModels = seriesMap[model];
-          const seriesMatch = diagrams.find(d => 
-            d.manualUrl && d.page && seriesModels.includes(d.model)
-          );
-          if (seriesMatch) {
+        // Check for diagram with this model and respect badgeType
+        const modelDiagram = diagrams.find(d => d.manualUrl && d.page && d.model === model);
+        if (modelDiagram) {
+          if (modelDiagram.badgeType === 'exact') {
+            exactVerified.push(model);
+          } else if (modelDiagram.badgeType === 'series') {
             seriesListed.push(model);
           }
         }

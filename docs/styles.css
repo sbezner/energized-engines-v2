@@ -137,6 +137,7 @@ main {
 .desktop-search-form {
   display: none;
   margin-left: auto;
+  margin-right: 24px;
   gap: 8px;
 }
 
@@ -148,6 +149,7 @@ main {
   font-size: 14px;
   font-family: 'Questrial', sans-serif;
   color: #333;
+  min-height: 44px;
 }
 
 .desktop-search-form button {
@@ -161,6 +163,7 @@ main {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  min-height: 44px;
 }
 
 @media (min-width: 769px) {

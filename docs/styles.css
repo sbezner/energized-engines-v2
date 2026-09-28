@@ -271,6 +271,9 @@ p {
   color: var(--secondary-color);
   text-decoration: none;
   font-size: 16px;
+  min-height: 44px;
+  padding: 8px 0;
+  line-height: 1.4;
 }
 
 .hero-link:hover {
@@ -821,9 +824,33 @@ footer .small {
   color: white;
 }
 
+/* P3: Style exact badges differently (solid green) */
+.fitment-flag--exact {
+  background: #10b981;
+  border: none;
+}
+
+/* P3: Style series/listed badges as outline */
+.fitment-flag--series,
+.fitment-flag--listed {
+  background: white;
+  border: 2px solid var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+/* P2: Multi-line badge styling */
+.fitment-flag {
+  line-height: 1.4;
+  border-radius: 6px;
+}
+
 .fitment-verified-link {
   color: var(--secondary-color);
   text-decoration: underline;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 0;
 }
 
 .fitment-info {

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Search Parts - Energized Engines</title>
+    <link rel="icon" type="image/png" href="/energized-engines-v2/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700&family=Questrial&display=swap" rel="stylesheet">
@@ -229,12 +230,17 @@
             let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
             
             if (product.exact_verified && product.exact_verified.length > 0) {
-              const models = product.exact_verified.join(', ');
-              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
+              // Get diagram info for exact badge wording
+              const firstModel = product.exact_verified[0];
+              const diagrams = diagramMap?.[product.part_number];
+              const modelDiagram = diagrams?.find(d => d.model === firstModel && d.badgeType === 'exact');
+              const manualTitle = modelDiagram?.manualTitle || firstModel + ' parts manual';
+              
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ' + escapeHtml(product.exact_verified.join(', ')) + ' in ' + escapeHtml(manualTitle) + '</span></p>';
             } else if (product.series_listed && product.series_listed.length > 0) {
               const hasBoth = product.series_listed.includes('2000') && product.series_listed.includes('2100');
               const series = hasBoth ? '2000 and 2100' : (product.series_listed.includes('2000') ? '2000' : '2100');
-              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual' + (hasBoth ? 's' : '') + '</span> see details</p>';
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--series">✓ Listed in Series ' + series + ' parts manual' + (hasBoth ? 's' : '') + '</span> see details</p>';
             }
             
             html += `
@@ -281,12 +287,17 @@
               let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
               
               if (product.exact_verified && product.exact_verified.length > 0) {
-                const models = product.exact_verified.join(', ');
-                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
+                // Get diagram info for exact badge wording
+                const firstModel = product.exact_verified[0];
+                const diagrams = diagramMap?.[product.part_number];
+                const modelDiagram = diagrams?.find(d => d.model === firstModel && d.badgeType === 'exact');
+                const manualTitle = modelDiagram?.manualTitle || firstModel + ' parts manual';
+                
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ' + escapeHtml(product.exact_verified.join(', ')) + ' in ' + escapeHtml(manualTitle) + '</span></p>';
               } else if (product.series_listed && product.series_listed.length > 0) {
                 const hasBoth = product.series_listed.includes('2000') && product.series_listed.includes('2100');
                 const series = hasBoth ? '2000 and 2100' : (product.series_listed.includes('2000') ? '2000' : '2100');
-                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual' + (hasBoth ? 's' : '') + '</span> see details</p>';
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--series">✓ Listed in Series ' + series + ' parts manual' + (hasBoth ? 's' : '') + '</span> see details</p>';
               }
               return `
                 <div class="product-card">

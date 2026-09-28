@@ -498,8 +498,10 @@ function buildModelsPage() {
     const modelUpper = model.toUpperCase();
     const modelNorm = model.trim().toUpperCase();
     
-    // Series 2000 (2010, 2015 ONLY - not 2020, 2025)
-    if (modelNorm === '2010' || modelNorm === '2015' || modelNorm === '2010G' || modelNorm === '2015G' || modelNorm === '2012S') {
+    // Series 2000 - Per Sumner's manual: 2010, 2015, 2020, 2025
+    if (modelNorm === '2010' || modelNorm === '2015' || modelNorm === '2020' || modelNorm === '2025' || 
+        modelNorm === '2010G' || modelNorm === '2015G' || modelNorm === '2020G' || modelNorm === '2025G' || 
+        modelNorm === '2012S') {
       modelGroups['Series 2000'].push(model);
     }
     // Series 2100
@@ -510,23 +512,23 @@ function buildModelsPage() {
     else if (modelNorm.match(/^220[0-9][A-Z]?$/) || modelNorm.match(/^2208[A-Z]?$/) || modelNorm.match(/^2210[A-Z]?$/)) {
       modelGroups['Series 2200'].push(model);
     }
-    // Series 2400 (P2-1: Add this group)
+    // Series 2400
     else if (modelNorm.match(/^241[0-9][A-Z]?$/) || modelNorm.match(/^2412[A-Z]?$/) || modelNorm.match(/^2416[A-Z]?$/)) {
       modelGroups['Series 2400'].push(model);
     }
-    // Series 2500 (P2-1: Move 2020, 2025 here as they're actually 2500 series counterbalanced lifts)
-    else if (modelNorm.match(/^25[01][0-9][A-Z]?$/) || modelNorm === '2020' || modelNorm === '2025' || modelNorm === '2020G' || modelNorm === '2025G') {
+    // Series 2500
+    else if (modelNorm.match(/^25[01][0-9][A-Z]?$/)) {
       modelGroups['Series 2500'].push(model);
     }
     // Series 2600
     else if (modelNorm.match(/^26[01][0-9][A-Z]?$/)) {
       modelGroups['Series 2600'].push(model);
     }
-    // Roust-A-Bout / R-series (P2-1: Moved to its own group out of "Other")
+    // Roust-A-Bout / R-series
     else if (modelUpper.includes('ROUST') || modelNorm.match(/^R-[0-9]+/)) {
       modelGroups['Roust-A-Bout (R-Series)'].push(model);
     }
-    // Eventer (P2-1: Fix collision by normalizing all Eventer models)
+    // Eventer
     else if (modelUpper.includes('EVENTER')) {
       modelGroups['Eventer Series'].push(model);
     }

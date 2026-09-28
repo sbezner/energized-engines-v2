@@ -1190,13 +1190,9 @@ function buildSearchPage() {
             let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
             
             if (product.exact_verified && product.exact_verified.length > 0) {
-              // Get diagram info for exact badge wording
-              const firstModel = product.exact_verified[0];
-              const diagrams = diagramMap?.[product.part_number];
-              const modelDiagram = diagrams?.find(d => d.model === firstModel && d.badgeType === 'exact');
-              const manualTitle = modelDiagram?.manualTitle || firstModel + ' parts manual';
-              
-              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ' + escapeHtml(product.exact_verified.join(', ')) + ' in ' + escapeHtml(manualTitle) + '</span></p>';
+              // Simple wording without diagramMap lookup (not available in search page)
+              const models = product.exact_verified.join(', ');
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ' + escapeHtml(models) + '</span></p>';
             } else if (product.series_listed && product.series_listed.length > 0) {
               const hasBoth = product.series_listed.includes('2000') && product.series_listed.includes('2100');
               const series = hasBoth ? '2000 and 2100' : (product.series_listed.includes('2000') ? '2000' : '2100');
@@ -1247,13 +1243,9 @@ function buildSearchPage() {
               let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
               
               if (product.exact_verified && product.exact_verified.length > 0) {
-                // Get diagram info for exact badge wording
-                const firstModel = product.exact_verified[0];
-                const diagrams = diagramMap?.[product.part_number];
-                const modelDiagram = diagrams?.find(d => d.model === firstModel && d.badgeType === 'exact');
-                const manualTitle = modelDiagram?.manualTitle || firstModel + ' parts manual';
-                
-                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ' + escapeHtml(product.exact_verified.join(', ')) + ' in ' + escapeHtml(manualTitle) + '</span></p>';
+                // Simple wording without diagramMap lookup (not available in search page)
+                const models = product.exact_verified.join(', ');
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified fitment-flag--exact">✓ Verified for ' + escapeHtml(models) + '</span></p>';
               } else if (product.series_listed && product.series_listed.length > 0) {
                 const hasBoth = product.series_listed.includes('2000') && product.series_listed.includes('2100');
                 const series = hasBoth ? '2000 and 2100' : (product.series_listed.includes('2000') ? '2000' : '2100');

@@ -17,56 +17,97 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" >Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" >Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
         <div class="breadcrumb">
             <a href="/energized-engines-v2/">Home</a> › 
-            <a href="/energized-engines-v2/search.html">Search</a> › 
+            <a href="/energized-engines-v2/models.html">Parts by Model</a> › <a href="/energized-engines-v2/models/2021.html">2021</a> › 
             2400 SERIES DOLLY WHEEL KIT - T BAR STYLE EE 2021
         </div>
         
         <article class="product-page">
             <h1>2400 SERIES DOLLY WHEEL KIT - T BAR STYLE EE 2021</h1>
             
-            <div class="product-main">
-                <div class="product-info">
-                    <p class="part-number"><strong>Part Number:</strong> No part number</p>
+            <div class="product-layout">
+                
+                
+                <div class="product-info-panel">
+                    
                     <p class="price-display">$309.00</p>
-                    <p class="vendor-badge">Aftermarket Part</p>
-                    <a href="https://energizedengines.com/products/2400-series-dolly-wheel-kit-new-style-ee-2021" class="btn btn-primary" target="_blank" rel="noopener">View on Store →</a>
-                    <p class="order-note">Orders are placed at energizedengines.com</p>
+                    <p class="vendor-badge aftermarket-badge">Aftermarket Part</p>
+                    
+                    <!-- P2-3: Button with www. to avoid redirect -->
+                    <a href="https://www.energizedengines.com/products/2400-series-dolly-wheel-kit-new-style-ee-2021" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
                 </div>
-                
-                <section class="description">
-                    <h3>Description</h3>
-                    <p>KIT INCLUDES: DOLLY WHEELS AXLE AXLE SUPPORT T BAR STYLE WASHERS COTTER PINS ALL PARTS OEM OR COMPATIBLE TO OEM 784907 779031 773060 774053 784585 COMPRABLE OEM COST: $455.00</p>
-                </section>
-                
-                
-                
-                
-      <section class="fitment-info">
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        <p>Fits: 2021</p>
-      </section>
             </div>
+            
+            <!-- P2-3: Fitment above description -->
+            
+        <section class="fitment-info">
+          <p>Fits: 2021</p>
+          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
+        </section>
+            
+            
+            
+            <!-- P2-3: Description without repeated "Orders are placed at..." -->
+            <section class="description">
+                <h3>Description</h3>
+                <p>KIT INCLUDES: DOLLY WHEELS AXLE AXLE SUPPORT T BAR STYLE WASHERS COTTER PINS ALL PARTS OEM OR COMPATIBLE TO OEM 784907 779031 773060 774053 784585 COMPRABLE OEM COST: $455.00</p>
+            </section>
         </article>
     </main>
     <footer>

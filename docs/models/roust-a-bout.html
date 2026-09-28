@@ -17,35 +17,83 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" >Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
         <div class="breadcrumb">
             <a href="/energized-engines-v2/models.html">← Back to all models</a>
         </div>
-        <h1>Roust-A-Bout Parts</h1>
-        <p>187 parts found for Roust-A-Bout.</p>
+        
+        <!-- P2-2: Updated h1 and count line -->
+        <h1>Sumner Roust-A-Bout parts</h1>
+        <p class="parts-count">187 parts</p>
         
         
+        
+        <!-- P2-2: Filter input and OEM/Aftermarket toggle -->
+        <div class="model-page-filters">
+            <input type="text" id="filterPartsInput" placeholder="Filter these parts..." aria-label="Filter parts">
+            <div class="vendor-toggle">
+                <button class="toggle-btn active" data-filter="all">All</button>
+                <button class="toggle-btn" data-filter="oem">OEM</button>
+                <button class="toggle-btn" data-filter="aftermarket">Aftermarket</button>
+            </div>
+        </div>
         
         <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        <div class="products-grid">
+        <div class="products-grid" id="productsGrid">
             
             <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/sumner-780046-sheave-4in-rab-412.html">Sumner 780046 SHEAVE, 4IN, RAB-411</a></h3>
@@ -613,7 +661,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780211</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780211 PLATE, INNER BRAKE DISC WJ-14...</p>
+                <p class="description">Sumner Part Number 780211 PLATE, INNER BRAKE DISC WJ-14...</p>
                 <div class="product-footer">
                     <span class="price">$78.00</span>
                     <a href="/energized-engines-v2/products/plate-inner-brake-disc-wj-14.html" class="btn btn-sm">Details</a>
@@ -635,7 +683,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780214</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780214 BRAKE RATCHET WJ-17...</p>
+                <p class="description">Sumner Part Number 780214 BRAKE RATCHET WJ-17...</p>
                 <div class="product-footer">
                     <span class="price">$72.00</span>
                     <a href="/energized-engines-v2/products/brake-ratchet-wj-17.html" class="btn btn-sm">Details</a>
@@ -646,7 +694,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780216</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780216 HOIST RATCHET DOG WJ-19...</p>
+                <p class="description">Sumner Part Number 780216 HOIST RATCHET DOG WJ-19...</p>
                 <div class="product-footer">
                     <span class="price">$59.00</span>
                     <a href="/energized-engines-v2/products/hoist-ratchet-dog-wj-19.html" class="btn btn-sm">Details</a>
@@ -690,7 +738,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780205</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner PartÂ 780205 SHAFT, HOIST DRUM PINION WJ-7...</p>
+                <p class="description">Sumner Part 780205 SHAFT, HOIST DRUM PINION WJ-7...</p>
                 <div class="product-footer">
                     <span class="price">$322.00</span>
                     <a href="/energized-engines-v2/products/shaft-hoist-drum-pinion-wj-7.html" class="btn btn-sm">Details</a>
@@ -701,7 +749,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 784500</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 784500 Shaft Hoist Drum Pinion SQ End...</p>
+                <p class="description">Sumner Part Number 784500 Shaft Hoist Drum Pinion SQ End...</p>
                 <div class="product-footer">
                     <span class="price">$305.00</span>
                     <a href="/energized-engines-v2/products/shaft-hoist-drum-pinion-sq-end.html" class="btn btn-sm">Details</a>
@@ -712,7 +760,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 771020</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 771020 as indicated in theÂ CENTER MAST ASSEMBLY DIAGRAM. HHCS 1/4-20 X 1/9&quot;...</p>
+                <p class="description">Sumner Part Number 771020 as indicated in the CENTER MAST ASSEMBLY DIAGRAM. HHCS 1/4-20 X 1/9&quot;...</p>
                 <div class="product-footer">
                     <span class="price">$1.00</span>
                     <a href="/energized-engines-v2/products/771020.html" class="btn btn-sm">Details</a>
@@ -734,7 +782,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 785398</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 785398 as indicated in the CS2000 WINCH ASSEMBLY DIAGRAM. WINCH HANDLE ASSEMBLY, 2-SPEED CB LIFT PLEASE NOTE:Â THIS COST IS FOR ONE...</p>
+                <p class="description">Sumner Part Number 785398 as indicated in the CS2000 WINCH ASSEMBLY DIAGRAM. WINCH HANDLE ASSEMBLY, 2-SPEED CB LIFT PLEASE NOTE: THIS COST IS FOR ONE ...</p>
                 <div class="product-footer">
                     <span class="price">$217.00</span>
                     <a href="/energized-engines-v2/products/sumner-785398-winch-handle-assembly-2-speed-cb-lift.html" class="btn btn-sm">Details</a>
@@ -811,7 +859,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780612</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780612 RATCHET STUD CS-49...</p>
+                <p class="description">Sumner Part Number 780612 RATCHET STUD CS-49...</p>
                 <div class="product-footer">
                     <span class="price">$32.00</span>
                     <a href="/energized-engines-v2/products/ratchet-stud-cs-49.html" class="btn btn-sm">Details</a>
@@ -833,7 +881,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780602</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780602 GEAR COVER, SMALL CS-21...</p>
+                <p class="description">Sumner Part Number 780602 GEAR COVER, SMALL CS-21...</p>
                 <div class="product-footer">
                     <span class="price">$38.00</span>
                     <a href="/energized-engines-v2/products/gear-cover-small-cs-21.html" class="btn btn-sm">Details</a>
@@ -844,7 +892,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 781063</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 781063 SHEAR PIN WLDMNT - TEE HEAD EXT...</p>
+                <p class="description">Sumner Part Number 781063 SHEAR PIN WLDMNT - TEE HEAD EXT...</p>
                 <div class="product-footer">
                     <span class="price">$119.00</span>
                     <a href="/energized-engines-v2/products/shear-pin-wldmnt-tee-head-ext.html" class="btn btn-sm">Details</a>
@@ -877,7 +925,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780335</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780335 HANDLE LOCK PIN, R-SERIES RAB...</p>
+                <p class="description">Sumner Part Number 780335 HANDLE LOCK PIN, R-SERIES RAB...</p>
                 <div class="product-footer">
                     <span class="price">$15.00</span>
                     <a href="/energized-engines-v2/products/handle-lock-pin-r-series-rab.html" class="btn btn-sm">Details</a>
@@ -921,7 +969,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780297</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780297 SHEAVE ASSM, 2&quot; R-SERIES RAB...</p>
+                <p class="description">Sumner Part Number 780297 SHEAVE ASSM, 2&quot; R-SERIES RAB...</p>
                 <div class="product-footer">
                     <span class="price">$53.00</span>
                     <a href="/energized-engines-v2/products/sheave-assm-2-r-series-rab.html" class="btn btn-sm">Details</a>
@@ -932,7 +980,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780299</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780299 EQUALIZING PULLEY ASSM, R-100...</p>
+                <p class="description">Sumner Part Number 780299 EQUALIZING PULLEY ASSM, R-100...</p>
                 <div class="product-footer">
                     <span class="price">$53.00</span>
                     <a href="/energized-engines-v2/products/equalizing-pulley-assm-r-100.html" class="btn btn-sm">Details</a>
@@ -943,7 +991,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780251</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780251 RATCHET DOG SPACER WJ-55...</p>
+                <p class="description">Sumner Part Number 780251 RATCHET DOG SPACER WJ-55...</p>
                 <div class="product-footer">
                     <span class="price">$25.00</span>
                     <a href="/energized-engines-v2/products/ratchet-dog-spacer-wj-55.html" class="btn btn-sm">Details</a>
@@ -998,7 +1046,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780248</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780248 SUREEL LEVER ASSY WJ-52...</p>
+                <p class="description">Sumner Part Number 780248 SUREEL LEVER ASSY WJ-52...</p>
                 <div class="product-footer">
                     <span class="price">$116.00</span>
                     <a href="/energized-engines-v2/products/sureel-lever-assy-wj-52.html" class="btn btn-sm">Details</a>
@@ -1031,7 +1079,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780217</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780217 LOAD RATCHET DOG WJ-20...</p>
+                <p class="description">Sumner Part Number 780217 LOAD RATCHET DOG WJ-20...</p>
                 <div class="product-footer">
                     <span class="price">$60.00</span>
                     <a href="/energized-engines-v2/products/load-ratchet-dog-wj-20.html" class="btn btn-sm">Details</a>
@@ -1053,7 +1101,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780213</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780213 LOAD ID BRAKE DISC WJ-16...</p>
+                <p class="description">Sumner Part Number 780213 LOAD ID BRAKE DISC WJ-16...</p>
                 <div class="product-footer">
                     <span class="price">$76.00</span>
                     <a href="/energized-engines-v2/products/load-id-brake-disc-wj-16.html" class="btn btn-sm">Details</a>
@@ -1108,7 +1156,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780204</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780204 LOAD DRUM PINION WJ-5...</p>
+                <p class="description">Sumner Part Number 780204 LOAD DRUM PINION WJ-5...</p>
                 <div class="product-footer">
                     <span class="price">$97.00</span>
                     <a href="/energized-engines-v2/products/load-drum-pinion-wj-5.html" class="btn btn-sm">Details</a>
@@ -1141,7 +1189,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780192</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780192 SHEAR PIN WELDMENT...</p>
+                <p class="description">Sumner Part Number 780192 SHEAR PIN WELDMENT...</p>
                 <div class="product-footer">
                     <span class="price">$113.00</span>
                     <a href="/energized-engines-v2/products/shear-pin-weldment.html" class="btn btn-sm">Details</a>
@@ -1207,7 +1255,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780090</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780090 Bottom Mast Rear Shaft Stay for Sumner Roust-A-Bouts...</p>
+                <p class="description">Sumner Part Number 780090 Bottom Mast Rear Shaft Stay for Sumner Roust-A-Bouts...</p>
                 <div class="product-footer">
                     <span class="price">$16.00</span>
                     <a href="/energized-engines-v2/products/b-m-front-shaft-pl-rab-204.html" class="btn btn-sm">Details</a>
@@ -1218,7 +1266,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780052</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780052 COUNTERWEIGHT, RAB-511...</p>
+                <p class="description">Sumner Part Number 780052 COUNTERWEIGHT, RAB-511...</p>
                 <div class="product-footer">
                     <span class="price">$353.00</span>
                     <a href="/energized-engines-v2/products/counterweight-rab-511.html" class="btn btn-sm">Details</a>
@@ -1229,7 +1277,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780047</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780047 SHAFT STAY RAB-416...</p>
+                <p class="description">Sumner Part Number 780047 SHAFT STAY RAB-416...</p>
                 <div class="product-footer">
                     <span class="price">$50.00</span>
                     <a href="/energized-engines-v2/products/shaft-stay-rab-416.html" class="btn btn-sm">Details</a>
@@ -1548,7 +1596,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780465</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780465 as indicated in the TOP MAST Â ASSEMBLY DIAGRAM. TEE HEAD ASSEMBLY Z&amp;R-100/150...</p>
+                <p class="description">Sumner Part Number 780465 as indicated in the TOP MAST  ASSEMBLY DIAGRAM. TEE HEAD ASSEMBLY Z&amp;R-100/150...</p>
                 <div class="product-footer">
                     <span class="price">$1092.00</span>
                     <a href="/energized-engines-v2/products/sumner-780465-tee-head-assembly-z-r-100-150.html" class="btn btn-sm">Details</a>
@@ -1570,7 +1618,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780449</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780449 as indicated in theÂ CENTER MAST ASSEMBLY DIAGRAM. CENTER MAST WELDMENT R-100/150...</p>
+                <p class="description">Sumner Part Number 780449 as indicated in the CENTER MAST ASSEMBLY DIAGRAM. CENTER MAST WELDMENT R-100/150...</p>
                 <div class="product-footer">
                     <span class="price">$1559.00</span>
                     <a href="/energized-engines-v2/products/sumner-780449-center-mast-weldment-r-100-150.html" class="btn btn-sm">Details</a>
@@ -1592,7 +1640,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780464</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780464 as indicated in the TOP MAST Â ASSEMBLY DIAGRAM. TEE HEAD ASSEMBLY, Z &amp; R-180...</p>
+                <p class="description">Sumner Part Number 780464 as indicated in the TOP MAST  ASSEMBLY DIAGRAM. TEE HEAD ASSEMBLY, Z &amp; R-180...</p>
                 <div class="product-footer">
                     <span class="price">$1271.00</span>
                     <a href="/energized-engines-v2/products/sumner-780464-tee-head-assembly-z-r-180.html" class="btn btn-sm">Details</a>
@@ -1614,7 +1662,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780343</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780343 as indicated in theÂ CENTER MASTÂ ASSEMBLY DIAGRAM. SEPARATOR, CM R-100/150...</p>
+                <p class="description">Sumner Part Number 780343 as indicated in the CENTER MAST ASSEMBLY DIAGRAM. SEPARATOR, CM R-100/150...</p>
                 <div class="product-footer">
                     <span class="price">$10.00</span>
                     <a href="/energized-engines-v2/products/sumner-780343-separator-cm-r-100-150.html" class="btn btn-sm">Details</a>
@@ -1625,7 +1673,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780334</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780334 as indicated in theÂ CENTER MAST ASSEMBLY DIAGRAM. ROLLER SHAFT, CM R-100/150...</p>
+                <p class="description">Sumner Part Number 780334 as indicated in the CENTER MAST ASSEMBLY DIAGRAM. ROLLER SHAFT, CM R-100/150...</p>
                 <div class="product-footer">
                     <span class="price">$24.00</span>
                     <a href="/energized-engines-v2/products/sumner-780334-roller-shaft-cm-r-100-150.html" class="btn btn-sm">Details</a>
@@ -1647,7 +1695,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780329</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780329 as indicated in theÂ CENTER MAST ASEEMBLY DIAGRAM. CENTER MAST WLD R-100/150 GALV...</p>
+                <p class="description">Sumner Part Number 780329 as indicated in the CENTER MAST ASEEMBLY DIAGRAM. CENTER MAST WLD R-100/150 GALV...</p>
                 <div class="product-footer">
                     <span class="price">$1598.00</span>
                     <a href="/energized-engines-v2/products/sumner-780329-center-mast-wld-r-100-150-galv.html" class="btn btn-sm">Details</a>
@@ -1658,7 +1706,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780327</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780327 as indicated in theÂ CENTER MAST ASSEMBLY DIAGRAM. CENTER MAST WLDMNT R-250 GALV...</p>
+                <p class="description">Sumner Part Number 780327 as indicated in the CENTER MAST ASSEMBLY DIAGRAM. CENTER MAST WLDMNT R-250 GALV...</p>
                 <div class="product-footer">
                     <span class="price">$1581.00</span>
                     <a href="/energized-engines-v2/products/sumner-780327-center-mast-wldmnt-r-250-galv.html" class="btn btn-sm">Details</a>
@@ -1669,7 +1717,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780341</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780341 as indicated in theÂ CENTER MAST ASSEMBLY DIAGRAM. CENTER MAST WELDMENT, R-250...</p>
+                <p class="description">Sumner Part Number 780341 as indicated in the CENTER MAST ASSEMBLY DIAGRAM. CENTER MAST WELDMENT, R-250...</p>
                 <div class="product-footer">
                     <span class="price">$1431.00</span>
                     <a href="/energized-engines-v2/products/sumner-780341-center-mast-weldment-r-250.html" class="btn btn-sm">Details</a>
@@ -1702,7 +1750,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780125</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780125 MAST ELEVATION LINE CABLE, R-250 After Market Part availableÂ here .Â...</p>
+                <p class="description">Sumner Part Number 780125 MAST ELEVATION LINE CABLE, R-250 After Market Part available here .Â...</p>
                 <div class="product-footer">
                     <span class="price">$165.00</span>
                     <a href="/energized-engines-v2/products/mast-elevation-line-cable-r-250.html" class="btn btn-sm">Details</a>
@@ -1713,7 +1761,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780122</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 780122 MAST ELEVATION LINE CABLE, R-180 After Market Part availableÂ here .Â...</p>
+                <p class="description">Sumner Part Number 780122 MAST ELEVATION LINE CABLE, R-180 After Market Part available here .Â...</p>
                 <div class="product-footer">
                     <span class="price">$141.00</span>
                     <a href="/energized-engines-v2/products/mast-elevation-line-cable-r-180.html" class="btn btn-sm">Details</a>
@@ -1724,7 +1772,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780123</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner partÂ 780123 EQUALIZING LINE CABLE, R-250 After Market Part availableÂ here .Â...</p>
+                <p class="description">Sumner part 780123 EQUALIZING LINE CABLE, R-250 After Market Part available here .Â...</p>
                 <div class="product-footer">
                     <span class="price">$131.00</span>
                     <a href="/energized-engines-v2/products/equalizing-line-cable-r-250.html" class="btn btn-sm">Details</a>
@@ -1735,7 +1783,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780121</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780121 EQUALIZING LINE CABLE, R-100/150 After Market Part available here .Â...</p>
+                <p class="description">Sumner Part Number 780121 EQUALIZING LINE CABLE, R-100/150 After Market Part available here .Â...</p>
                 <div class="product-footer">
                     <span class="price">$115.00</span>
                     <a href="/energized-engines-v2/products/equalizing-line-cable-r-100-150.html" class="btn btn-sm">Details</a>
@@ -1812,7 +1860,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780035</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780035 WEAR PLATE, CM RAB-304...</p>
+                <p class="description">Sumner Part Number 780035 WEAR PLATE, CM RAB-304...</p>
                 <div class="product-footer">
                     <span class="price">$44.00</span>
                     <a href="/energized-engines-v2/products/wear-plate-cm-rab-304.html" class="btn btn-sm">Details</a>
@@ -1845,7 +1893,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780005</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 780005 as indicated in theÂ TOP MAST ASSEMBLY DIAGRAM. TOP MAST WELDMENT- Z&amp;R 100/150...</p>
+                <p class="description">Sumner Part Number 780005 as indicated in the TOP MAST ASSEMBLY DIAGRAM. TOP MAST WELDMENT- Z&amp;R 100/150...</p>
                 <div class="product-footer">
                     <span class="price">$700.00</span>
                     <a href="/energized-engines-v2/products/sumner-780005-top-mast-weldment-z-r-100-150.html" class="btn btn-sm">Details</a>
@@ -1889,7 +1937,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 779986</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part Number 779986 as indicated in theÂ TOP MAST ASSEMBLY DIAGRAM. TOP MAST WLDMT Z&amp;R-100/150 GALV...</p>
+                <p class="description">Sumner Part Number 779986 as indicated in the TOP MAST ASSEMBLY DIAGRAM. TOP MAST WLDMT Z&amp;R-100/150 GALV...</p>
                 <div class="product-footer">
                     <span class="price">$731.00</span>
                     <a href="/energized-engines-v2/products/sumner-779986-top-mast-wldmt-z-r-100-150-galv.html" class="btn btn-sm">Details</a>
@@ -1988,7 +2036,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 775240</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 775240 WJ-50 SPRING, SUREEL...</p>
+                <p class="description">Sumner Part Number 775240 WJ-50 SPRING, SUREEL...</p>
                 <div class="product-footer">
                     <span class="price">$31.00</span>
                     <a href="/energized-engines-v2/products/wj-50-spring-sureel.html" class="btn btn-sm">Details</a>
@@ -1999,7 +2047,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 775230</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 775230 SPRING, WJ-29 RAT.DOG...</p>
+                <p class="description">Sumner Part Number 775230 SPRING, WJ-29 RAT.DOG...</p>
                 <div class="product-footer">
                     <span class="price">$19.00</span>
                     <a href="/energized-engines-v2/products/spring-wj-29-rat-dog.html" class="btn btn-sm">Details</a>
@@ -2010,7 +2058,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 780124</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">Sumner Part NumberÂ 780124Â MAST ELEVATION LINE CABLE, R-100/150 After Market Part availableÂ here .Â...</p>
+                <p class="description">Sumner Part Number 780124 MAST ELEVATION LINE CABLE, R-100/150 After Market Part available here .Â...</p>
                 <div class="product-footer">
                     <span class="price">$128.00</span>
                     <a href="/energized-engines-v2/products/mast-elevation-line-cable-r-100-150.html" class="btn btn-sm">Details</a>
@@ -2021,7 +2069,7 @@
                 <span class="badge oem">OEM</span>
                 <p class="part-number">Part #: 782527</p>
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">SumnerÂ Part NumberÂ 782527 PLUNGER, RAB BASE...</p>
+                <p class="description">Sumner Part Number 782527 PLUNGER, RAB BASE...</p>
                 <div class="product-footer">
                     <span class="price">$12.23</span>
                     <a href="/energized-engines-v2/products/plunger-rab-base.html" class="btn btn-sm">Details</a>
@@ -2085,7 +2133,7 @@
             <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/ee-2018-roust-a-bout-r-100-150-safety-decal-kit.html">EE 2018 ROUST A BOUT R-100/150 SAFETY DECAL KIT</a></h3>
                 <span class="badge aftermarket">Aftermarket</span>
-                <p class="part-number">Part #: No part number</p>
+                
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <p class="description">Safety Decal Kit for Sumner Roust A Bout R-100/150 Kit Includes all mast and base decals pictured *Other safety decal kits available, please contact u...</p>
                 <div class="product-footer">
@@ -2096,7 +2144,7 @@
             <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/ee-2017-roust-a-bout-r-180-decal-kit.html">EE 2017 Roust A Bout R-180 SAFETY DECAL KIT</a></h3>
                 <span class="badge aftermarket">Aftermarket</span>
-                <p class="part-number">Part #: No part number</p>
+                
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <p class="description">Safety Decal Kit for Sumner Roust A Bout R-180 Kit Includes all mast and base decals pictured *Other safety decal kits available, please contact us fo...</p>
                 <div class="product-footer">

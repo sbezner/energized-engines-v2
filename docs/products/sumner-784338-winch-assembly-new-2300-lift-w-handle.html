@@ -17,56 +17,100 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" >Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" >Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" >Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
         <div class="breadcrumb">
             <a href="/energized-engines-v2/">Home</a> › 
-            <a href="/energized-engines-v2/search.html">Search</a> › 
+            <a href="/energized-engines-v2/models.html">Parts by Model</a> › 
             Sumner 784338 WINCH ASSEMBLY NEW, 2300 LIFT W/ HANDLE
         </div>
         
         <article class="product-page">
             <h1>Sumner 784338 WINCH ASSEMBLY NEW, 2300 LIFT W/ HANDLE</h1>
             
-            <div class="product-main">
-                <div class="product-info">
+            <div class="product-layout">
+                
+        <div class="product-images">
+          <img src="https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2300_Page_9.png?v=1703425638" alt="Sumner 784338 WINCH ASSEMBLY NEW, 2300 LIFT W/ HANDLE" loading="lazy">
+        </div>
+                
+                <div class="product-info-panel">
                     <p class="part-number"><strong>Part Number:</strong> 784338</p>
                     <p class="price-display">$801.00</p>
-                    <p class="vendor-badge">OEM Part</p>
-                    <a href="https://energizedengines.com/products/sumner-784338-winch-assembly-new-2300-lift-w-handle" class="btn btn-primary" target="_blank" rel="noopener">View on Store →</a>
-                    <p class="order-note">Orders are placed at energizedengines.com</p>
+                    <p class="vendor-badge oem-badge">OEM Part</p>
+                    
+                    <!-- P2-3: Button with www. to avoid redirect -->
+                    <a href="https://www.energizedengines.com/products/sumner-784338-winch-assembly-new-2300-lift-w-handle" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
                 </div>
-                
-                <section class="description">
-                    <h3>Description</h3>
-                    <p>Sumner Part Number 784338 as indicated in the WINCH MOUNTING KIT, 2300 LIFTS WITH HANDLES DIAGRAM. WINCH ASSEMBLY NEW, 2300 LIFT W/ HANDLE</p>
-                </section>
-                
-                
-                
-                
-      <section class="fitment-info">
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        <p>Models not listed yet.</p>
-      </section>
             </div>
+            
+            <!-- P2-3: Fitment above description -->
+            
+        <section class="fitment-info">
+          <p>Models not listed yet.</p>
+          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
+        </section>
+            
+            
+            
+            <!-- P2-3: Description without repeated "Orders are placed at..." -->
+            <section class="description">
+                <h3>Description</h3>
+                <p>Sumner Part Number 784338 as indicated in the WINCH MOUNTING KIT, 2300 LIFTS WITH HANDLES DIAGRAM. WINCH ASSEMBLY NEW, 2300 LIFT W/ HANDLE</p>
+            </section>
         </article>
     </main>
     <footer>

@@ -17,40 +17,88 @@
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="/energized-engines-v2/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="/energized-engines-v2/" class="logo-link-mobile">
                     <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="/energized-engines-v2/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="/energized-engines-v2/" >Home</a>
-                <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
-                <a href="/energized-engines-v2/search.html" >Search Parts</a>
-                <a href="/energized-engines-v2/about.html" >About</a>
-                <a href="/energized-engines-v2/return-policy.html" >Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="/energized-engines-v2/" class="logo-link">
+                        <img src="/energized-engines-v2/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="/energized-engines-v2/" >Home</a>
+                    <a href="/energized-engines-v2/models.html" class="active">Parts by Model</a>
+                    <a href="/energized-engines-v2/search.html" >Search Parts</a>
+                    <a href="/energized-engines-v2/about.html" >About</a>
+                    <a href="/energized-engines-v2/return-policy.html" >Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">
         <div class="breadcrumb">
             <a href="/energized-engines-v2/models.html">← Back to all models</a>
         </div>
-        <h1>2004 Parts</h1>
-        <p>1 part found for 2004.</p>
+        
+        <!-- P2-2: Updated h1 and count line -->
+        <h1>Sumner 2004 parts</h1>
+        <p class="parts-count">1 part</p>
         
         
+        
+        <!-- P2-2: Filter input and OEM/Aftermarket toggle -->
+        <div class="model-page-filters">
+            <input type="text" id="filterPartsInput" placeholder="Filter these parts..." aria-label="Filter parts">
+            <div class="vendor-toggle">
+                <button class="toggle-btn active" data-filter="all">All</button>
+                <button class="toggle-btn" data-filter="oem">OEM</button>
+                <button class="toggle-btn" data-filter="aftermarket">Aftermarket</button>
+            </div>
+        </div>
         
         <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        <div class="products-grid">
+        <div class="products-grid" id="productsGrid">
             
             <div class="product-card">
                 <h3><a href="/energized-engines-v2/products/pulley-kit-limited-time.html">Pulley Kit - EE 2004</a></h3>
                 <span class="badge aftermarket">Aftermarket</span>
-                <p class="part-number">Part #: No part number</p>
+                
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <p class="description">783921 Pulley OEM 783536 Pulley Guard OEM 2 AM Pulley Shims EE 2004 $106 Value...</p>
                 <div class="product-footer">

@@ -65,9 +65,23 @@ function stripHtml(html) {
 function formatPrice(price) {
   // P0-6: Handle $0.00 and missing prices
   if (!price || parseFloat(price) === 0) {
-    return '<a href="tel:+18324445426" style="color: #b22234; text-decoration: none;">Call for price</a>';
+    return '<a href="tel:+18324445426" style="color: #b22234; text-decoration: none;" class="call-price">Call for price</a>';
   }
   return `$${parseFloat(price).toFixed(2)}`;
+}
+
+// Fix double-encoded UTF-8/cp1252 sequences
+function cleanUTF8(text) {
+  if (!text) return text;
+  return text
+    .replace(/â€™/g, "'")  // right single quote
+    .replace(/â€œ/g, '"')  // left double quote
+    .replace(/â€/g, '"')   // right double quote
+    .replace(/â€"/g, '—')  // em dash
+    .replace(/â€"/g, '–')  // en dash
+    .replace(/Â°/g, '°')   // degree symbol
+    .replace(/â€¦/g, '…')  // ellipsis
+    .replace(/Â /g, ' ');  // non-breaking space
 }
 
 function getHeader(title, activePage = '') {
@@ -90,22 +104,58 @@ function getHeader(title, activePage = '') {
     </div>
     <header>
         <div class="container">
-            <div class="header-content">
-                <a href="${BASE_PATH}/" class="logo-link">
+            <!-- P1-2: Mobile header with hamburger, centered logo, search icon -->
+            <div class="header-mobile">
+                <button class="hamburger-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="${BASE_PATH}/" class="logo-link-mobile">
                     <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <div class="contact-info">
-                    <a href="tel:+18324445426">832-444-5426</a>
-                    <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
-                </div>
+                <a href="${BASE_PATH}/search.html" class="search-icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
             </div>
-            <nav>
-                <a href="${BASE_PATH}/" ${activePage === 'home' ? 'class="active"' : ''}>Home</a>
-                <a href="${BASE_PATH}/models.html" ${activePage === 'models' ? 'class="active"' : ''}>Parts by Model</a>
-                <a href="${BASE_PATH}/search.html" ${activePage === 'search' ? 'class="active"' : ''}>Search Parts</a>
-                <a href="${BASE_PATH}/about.html" ${activePage === 'about' ? 'class="active"' : ''}>About</a>
-                <a href="${BASE_PATH}/return-policy.html" ${activePage === 'return-policy' ? 'class="active"' : ''}>Returns</a>
-            </nav>
+            
+            <!-- Desktop header (existing) -->
+            <div class="header-desktop">
+                <div class="header-content">
+                    <a href="${BASE_PATH}/" class="logo-link">
+                        <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
+                    </a>
+                    <div class="contact-info">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </div>
+                <nav>
+                    <a href="${BASE_PATH}/" ${activePage === 'home' ? 'class="active"' : ''}>Home</a>
+                    <a href="${BASE_PATH}/models.html" ${activePage === 'models' ? 'class="active"' : ''}>Parts by Model</a>
+                    <a href="${BASE_PATH}/search.html" ${activePage === 'search' ? 'class="active"' : ''}>Search Parts</a>
+                    <a href="${BASE_PATH}/about.html" ${activePage === 'about' ? 'class="active"' : ''}>About</a>
+                    <a href="${BASE_PATH}/return-policy.html" ${activePage === 'return-policy' ? 'class="active"' : ''}>Returns</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile menu drawer -->
+            <div class="mobile-menu" id="mobileMenu">
+                <nav class="mobile-nav">
+                    <a href="${BASE_PATH}/" ${activePage === 'home' ? 'class="active"' : ''}>Home</a>
+                    <a href="${BASE_PATH}/models.html" ${activePage === 'models' ? 'class="active"' : ''}>Parts by Model</a>
+                    <a href="${BASE_PATH}/search.html" ${activePage === 'search' ? 'class="active"' : ''}>Search Parts</a>
+                    <a href="${BASE_PATH}/about.html" ${activePage === 'about' ? 'class="active"' : ''}>About</a>
+                    <a href="${BASE_PATH}/return-policy.html" ${activePage === 'return-policy' ? 'class="active"' : ''}>Returns</a>
+                    <div class="mobile-contact">
+                        <a href="tel:+18324445426">832-444-5426</a>
+                        <a href="mailto:Sales@EnergizedEngines.com">Sales@EnergizedEngines.com</a>
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <main class="container">`;
@@ -133,9 +183,16 @@ function getFooter() {
 // Build home page
 function buildHomePage() {
   const html = `${getHeader('Home', 'home')}
+        <!-- P1-7: Hero with search -->
         <section class="hero">
             <h1>Sumner Lift Parts</h1>
             <p>OEM and aftermarket parts for Sumner material lifts, Roust-A-Bouts, and Eventer lifts.</p>
+            <div class="hero-search">
+                <form action="${BASE_PATH}/search.html" method="get" class="search-form">
+                    <input type="text" name="q" placeholder="Search by part number or keyword..." aria-label="Search parts">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
         </section>
 
         <section class="services">
@@ -145,27 +202,22 @@ function buildHomePage() {
                 <a href="${BASE_PATH}/models.html" class="btn">Shop by Model</a>
             </div>
             
+            <!-- P1-7: Updated rental CTA -->
             <div class="service-card">
                 <h3>Rentals</h3>
                 <p>Sumner 2118, 2124, 2412, and 2416 lifts available for rent. Daily, weekly, or monthly rates.</p>
-                <p>Email us for availability and rates.</p>
+                <a href="mailto:Sales@EnergizedEngines.com?subject=Rental%20Inquiry" class="btn">Email about rentals</a>
             </div>
             
+            <!-- P1-7: Updated winch rebuild CTA -->
             <div class="service-card">
                 <h3>Winch Rebuilds</h3>
                 <p>We offer affordable winch rebuild services for Sumner winches.</p>
-                <p>Contact us for details.</p>
+                <a href="mailto:Sales@EnergizedEngines.com?subject=Winch%20Rebuild%20Inquiry" class="btn">Ask about a rebuild</a>
             </div>
         </section>
 
-        <section class="find-parts">
-            <h2>Find Parts for Your Sumner Lift</h2>
-            <p>Browse by model or search by part number. We stock OEM Sumner parts and aftermarket replacement parts for Series 2000, 2100, 2400, Roust-A-Bout, Eventer, and Gantry lifts.</p>
-            <div class="cta-buttons">
-                <a href="${BASE_PATH}/models.html" class="btn btn-primary">Browse by Model</a>
-                <a href="${BASE_PATH}/search.html" class="btn btn-secondary">Search Part Numbers</a>
-            </div>
-        </section>
+        <!-- P1-7: Removed redundant find-parts section as search is now in hero -->
 ${getFooter()}`;
   
   fs.writeFileSync(path.join(DOCS_DIR, 'index.html'), html);
@@ -203,7 +255,7 @@ function buildAboutPage() {
 
         <section class="model-section">
             <h2>Eventer Lifts</h2>
-            <p>Designed for staging and events, easy transport and setup, safety features for public spaces. Also called an Entertainment Lift.</p>
+            <p>Designed for entertainment venues and live events, easy transport and setup, safety features for public spaces. Also called an Entertainment Lift.</p>
             <p><strong>Models:</strong> Sumner Eventer 16, Sumner Eventer 20, Sumner Eventer 25</p>
         </section>
 ${getFooter()}`;
@@ -296,10 +348,22 @@ function buildProductPages() {
   data.products.forEach(product => {
     const slug = product.handle || `product-${product.id}`;
     const price = formatPrice(product.variants?.[0]?.price);
-    const partNumber = product.extracted_part_number || 'No part number';
-    const description = stripHtml(product.body_html) || 'No description available';
+    const partNumber = product.extracted_part_number;
+    const rawDescription = stripHtml(product.body_html);
+    const description = rawDescription ? cleanUTF8(rawDescription) : null;
     const models = product.models || [];
     const isAftermarket = product.vendor === 'Energized Engines';
+    const cleanTitle = cleanUTF8(product.title);
+    
+    // P2-3: Product images
+    let imageHtml = '';
+    if (product.images && product.images.length > 0) {
+      const primaryImage = product.images[0].src;
+      imageHtml = `
+        <div class="product-images">
+          <img src="${primaryImage}" alt="${escapeHtml(cleanTitle)}" loading="lazy">
+        </div>`;
+    }
     
     // Check for diagram references
     let diagramHtml = '';
@@ -322,10 +386,20 @@ function buildProductPages() {
         </section>`;
     }
     
-    // P0-1: Always render fitment panel with new flag component
+    // P2-3: Fitment panel (moved above description)
+    // Hardened verification: only show "verified" when diagram exists with manual_url AND page
     let fitmentHtml = '';
-    const verifiedModels = diagrams ? diagrams.map(d => d.model) : [];
-    const allVerified = models.length > 0 && verifiedModels.length === models.length;
+    const verifiedPairs = [];
+    
+    if (diagrams && partNumber) {
+      diagrams.forEach(d => {
+        if (d.manualUrl && d.page && models.includes(d.model)) {
+          verifiedPairs.push({ model: d.model, manual: d.manualTitle, url: d.manualUrl, page: d.page });
+        }
+      });
+    }
+    
+    const allModelsVerified = models.length > 0 && verifiedPairs.length === models.length;
     
     let modelLine = '';
     if (models.length > 0) {
@@ -334,48 +408,64 @@ function buildProductPages() {
       modelLine = `<p>Models not listed yet.</p>`;
     }
     
-    fitmentHtml = `
-      <section class="fitment-info">
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        ${modelLine}
-      </section>`;
-    
-    // If all models are verified, show verified status instead
-    if (allVerified && models.length > 0) {
+    if (allModelsVerified && verifiedPairs.length > 0) {
+      // All models verified - show citation
+      const citation = verifiedPairs[0];
       fitmentHtml = `
         <section class="fitment-info">
-          <p class="fitment-verified"><strong>Fitment verified</strong> for ${models.map(m => escapeHtml(m)).join(', ')}: Listed in official Sumner parts manual.</p>
+          ${modelLine}
+          <p><strong>Fitment verified:</strong> Listed in <a href="${citation.url}" target="_blank" rel="noopener">${escapeHtml(citation.manual)}, p. ${citation.page}</a></p>
+        </section>`;
+    } else {
+      // Not all verified or no verification
+      fitmentHtml = `
+        <section class="fitment-info">
+          ${modelLine}
+          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         </section>`;
     }
     
-    const html = `${getHeader(product.title)}
+    // P2-3: Accurate breadcrumbs
+    let breadcrumbModel = '';
+    if (models.length > 0) {
+      const firstModel = models[0];
+      const modelSlug = firstModel.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      breadcrumbModel = ` › <a href="${BASE_PATH}/models/${modelSlug}.html">${escapeHtml(firstModel)}</a>`;
+    }
+    
+    const html = `${getHeader(cleanTitle)}
         <div class="breadcrumb">
             <a href="${BASE_PATH}/">Home</a> › 
-            <a href="${BASE_PATH}/search.html">Search</a> › 
-            ${escapeHtml(product.title)}
+            <a href="${BASE_PATH}/models.html">Parts by Model</a>${breadcrumbModel} › 
+            ${escapeHtml(cleanTitle)}
         </div>
         
         <article class="product-page">
-            <h1>${escapeHtml(product.title)}</h1>
+            <h1>${escapeHtml(cleanTitle)}</h1>
             
-            <div class="product-main">
-                <div class="product-info">
-                    <p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>
+            <div class="product-layout">
+                ${imageHtml}
+                
+                <div class="product-info-panel">
+                    ${partNumber ? `<p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>` : ''}
                     <p class="price-display">${price}</p>
-                    ${isAftermarket ? '<p class="vendor-badge">Aftermarket Part</p>' : '<p class="vendor-badge">OEM Part</p>'}
-                    <a href="${product.url}" class="btn btn-primary" target="_blank" rel="noopener">View on Store →</a>
-                    <p class="order-note">Orders are placed at energizedengines.com</p>
+                    ${isAftermarket ? '<p class="vendor-badge aftermarket-badge">Aftermarket Part</p>' : '<p class="vendor-badge oem-badge">OEM Part</p>'}
+                    
+                    <!-- P2-3: Button with www. to avoid redirect -->
+                    <a href="https://www.energizedengines.com/products/${slug}" class="btn btn-primary" target="_blank" rel="noopener">Buy on energizedengines.com</a>
                 </div>
-                
-                <section class="description">
-                    <h3>Description</h3>
-                    <p>${escapeHtml(description)}</p>
-                </section>
-                
-                ${diagramHtml}
-                
-                ${fitmentHtml}
             </div>
+            
+            <!-- P2-3: Fitment above description -->
+            ${fitmentHtml}
+            
+            ${diagramHtml}
+            
+            <!-- P2-3: Description without repeated "Orders are placed at..." -->
+            ${description ? `<section class="description">
+                <h3>Description</h3>
+                <p>${escapeHtml(description)}</p>
+            </section>` : ''}
         </article>
 ${getFooter()}`;
     
@@ -388,50 +478,91 @@ ${getFooter()}`;
 
 // Build models index page
 function buildModelsPage() {
-  const models = Object.keys(data.models).sort();
+  const models = Object.keys(data.models);
   
+  // P2-1: Fixed model grouping with proper series organization
   const modelGroups = {
     'Series 2000': [],
     'Series 2100': [],
+    'Series 2200': [],
     'Series 2400': [],
-    'Roust-A-Bout': [],
-    'Eventer': [],
+    'Series 2500': [],
+    'Series 2600': [],
+    'Roust-A-Bout (R-Series)': [],
+    'Eventer Series': [],
     'Gantry': [],
     'Other': []
   };
   
   models.forEach(model => {
     const modelUpper = model.toUpperCase();
-    if (modelUpper.includes('2000') || modelUpper.match(/^20[01][0-8]$/)) {
+    const modelNorm = model.trim().toUpperCase();
+    
+    // Series 2000 (2010, 2015 ONLY - not 2020, 2025)
+    if (modelNorm === '2010' || modelNorm === '2015' || modelNorm === '2010G' || modelNorm === '2015G' || modelNorm === '2012S') {
       modelGroups['Series 2000'].push(model);
-    } else if (modelUpper.includes('2100') || modelUpper.match(/^211[0-8]$/) || modelUpper === '2124' || modelUpper === '2118') {
+    }
+    // Series 2100
+    else if (modelNorm.match(/^211[0-9][A-Z]?$/) || modelNorm.match(/^2118[A-Z]?$/) || modelNorm.match(/^2124[A-Z]?$/)) {
       modelGroups['Series 2100'].push(model);
-    } else if (modelUpper.includes('2400') || modelUpper.match(/^241[0-6]$/)) {
+    }
+    // Series 2200
+    else if (modelNorm.match(/^220[0-9][A-Z]?$/) || modelNorm.match(/^2208[A-Z]?$/) || modelNorm.match(/^2210[A-Z]?$/)) {
+      modelGroups['Series 2200'].push(model);
+    }
+    // Series 2400 (P2-1: Add this group)
+    else if (modelNorm.match(/^241[0-9][A-Z]?$/) || modelNorm.match(/^2412[A-Z]?$/) || modelNorm.match(/^2416[A-Z]?$/)) {
       modelGroups['Series 2400'].push(model);
-    } else if (modelUpper.includes('ROUST')) {
-      modelGroups['Roust-A-Bout'].push(model);
-    } else if (modelUpper.includes('EVENTER')) {
-      modelGroups['Eventer'].push(model);
-    } else if (modelUpper.includes('GANTRY') || modelUpper.includes('GH')) {
+    }
+    // Series 2500 (P2-1: Move 2020, 2025 here as they're actually 2500 series counterbalanced lifts)
+    else if (modelNorm.match(/^25[01][0-9][A-Z]?$/) || modelNorm === '2020' || modelNorm === '2025' || modelNorm === '2020G' || modelNorm === '2025G') {
+      modelGroups['Series 2500'].push(model);
+    }
+    // Series 2600
+    else if (modelNorm.match(/^26[01][0-9][A-Z]?$/)) {
+      modelGroups['Series 2600'].push(model);
+    }
+    // Roust-A-Bout / R-series (P2-1: Moved to its own group out of "Other")
+    else if (modelUpper.includes('ROUST') || modelNorm.match(/^R-[0-9]+/)) {
+      modelGroups['Roust-A-Bout (R-Series)'].push(model);
+    }
+    // Eventer (P2-1: Fix collision by normalizing all Eventer models)
+    else if (modelUpper.includes('EVENTER')) {
+      modelGroups['Eventer Series'].push(model);
+    }
+    // Gantry
+    else if (modelUpper.includes('GANTRY') || modelUpper.includes('GH')) {
       modelGroups['Gantry'].push(model);
-    } else {
+    }
+    // Everything else
+    else {
       modelGroups['Other'].push(model);
     }
   });
   
+  // P2-1: Build series jump chips
+  const seriesChips = Object.entries(modelGroups)
+    .filter(([group, models]) => models.length > 0)
+    .map(([group]) => {
+      const slug = group.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      return `<a href="#${slug}" class="series-chip">${group}</a>`;
+    })
+    .join('');
+  
   let modelsHtml = '';
   Object.entries(modelGroups).forEach(([group, groupModels]) => {
     if (groupModels.length > 0) {
+      const slug = group.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       modelsHtml += `
-        <section class="model-group">
+        <section class="model-group" id="${slug}">
             <h2>${group}</h2>
             <div class="model-grid">`;
       
       groupModels.sort().forEach(model => {
         const count = data.models[model].length;
-        const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const modelSlug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         modelsHtml += `
-                <a href="${BASE_PATH}/models/${slug}.html" class="model-card">
+                <a href="${BASE_PATH}/models/${modelSlug}.html" class="model-card">
                     <strong>${escapeHtml(model)}</strong>
                     <span>${count} ${count === 1 ? 'part' : 'parts'}</span>
                 </a>`;
@@ -445,8 +576,21 @@ function buildModelsPage() {
   
   const html = `${getHeader('Parts by Model', 'models')}
         <h1>Parts by Model</h1>
+        
+        <!-- P2-1: Series jump chips (sticky) -->
+        <div class="series-chips">
+            ${seriesChips}
+        </div>
+        
+        <!-- P2-1: Inline model search -->
+        <div class="model-search">
+            <input type="text" id="modelSearchInput" placeholder="Search models..." aria-label="Search models">
+        </div>
+        
         <p>Select your Sumner lift model to browse parts.</p>
-        ${modelsHtml}
+        <div id="modelGroupsContainer">
+            ${modelsHtml}
+        </div>
 ${getFooter()}`;
   
   fs.writeFileSync(path.join(DOCS_DIR, 'models.html'), html);
@@ -484,18 +628,20 @@ function buildModelPages() {
       if (!fullProduct) return;
       
       const price = formatPrice(product.price);
-      const partNumber = product.part_number || 'No part number';
-      const description = stripHtml(fullProduct.body_html).substring(0, 150) + '...';
+      const partNumber = product.part_number;
+      const rawDesc = stripHtml(fullProduct.body_html);
+      const description = rawDesc ? cleanUTF8(rawDesc).substring(0, 150) + '...' : null;
       const isAftermarket = product.vendor === 'Energized Engines';
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
+      const cleanTitle = cleanUTF8(product.title);
       
       productsHtml += `
             <div class="product-card">
-                <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(product.title)}</a></h3>
+                <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(cleanTitle)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                <p class="part-number">Part #: ${escapeHtml(partNumber)}</p>
+                ${partNumber ? `<p class="part-number">Part #: ${escapeHtml(partNumber)}</p>` : ''}
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
-                <p class="description">${escapeHtml(description)}</p>
+                ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
                 <div class="product-footer">
                     <span class="price">${price}</span>
                     <a href="${BASE_PATH}/products/${productSlug}.html" class="btn btn-sm">Details</a>
@@ -507,13 +653,25 @@ function buildModelPages() {
         <div class="breadcrumb">
             <a href="${BASE_PATH}/models.html">← Back to all models</a>
         </div>
-        <h1>${escapeHtml(model)} Parts</h1>
-        <p>${products.length} ${products.length === 1 ? 'part' : 'parts'} found for ${escapeHtml(model)}.</p>
+        
+        <!-- P2-2: Updated h1 and count line -->
+        <h1>Sumner ${escapeHtml(model)} parts</h1>
+        <p class="parts-count">${products.length} ${products.length === 1 ? 'part' : 'parts'}</p>
         
         ${manualHtml}
         
+        <!-- P2-2: Filter input and OEM/Aftermarket toggle -->
+        <div class="model-page-filters">
+            <input type="text" id="filterPartsInput" placeholder="Filter these parts..." aria-label="Filter parts">
+            <div class="vendor-toggle">
+                <button class="toggle-btn active" data-filter="all">All</button>
+                <button class="toggle-btn" data-filter="oem">OEM</button>
+                <button class="toggle-btn" data-filter="aftermarket">Aftermarket</button>
+            </div>
+        </div>
+        
         <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        <div class="products-grid">
+        <div class="products-grid" id="productsGrid">
             ${productsHtml}
         </div>
 ${getFooter()}`;
@@ -554,11 +712,20 @@ function buildSearchPage() {
         
         <script>
         let productsData = [];
+        let allMatches = [];
+        let displayedCount = 0;
+        const PAGE_SIZE = 24;
         
         fetch('${BASE_PATH}/search-data.json')
           .then(response => response.json())
           .then(data => {
             productsData = data;
+            const urlParams = new URLSearchParams(window.location.search);
+            const q = urlParams.get('q');
+            if (q) {
+              document.getElementById('search-input').value = q;
+              performSearch();
+            }
           })
           .catch(err => {
             console.error('Failed to load search data:', err);
@@ -570,9 +737,19 @@ function buildSearchPage() {
           return pn.toString().replace(/[\\s\\-_]/g, '').toUpperCase();
         }
         
-        function performSearch() {
+        function performSearch(append = false) {
           const query = document.getElementById('search-input').value.trim();
           const results = document.getElementById('search-results');
+          
+          if (!append) {
+            const url = new URL(window.location);
+            if (query) {
+              url.searchParams.set('q', query);
+            } else {
+              url.searchParams.delete('q');
+            }
+            history.replaceState({}, '', url);
+          }
           
           if (!query) {
             results.innerHTML = '<p class="info">Enter a part number to search.</p>';
@@ -584,32 +761,72 @@ function buildSearchPage() {
             return;
           }
           
-          const normalizedQuery = normalizePN(query);
-          const matches = productsData.filter(p => {
-            if (!p.normalized_pn) return false;
-            if (p.normalized_pn === normalizedQuery) return true;
-            if (p.normalized_pn.includes(normalizedQuery)) return true;
-            if (normalizePN(p.title).includes(normalizedQuery)) return true;
-            return false;
-          });
+          if (!append) {
+            const normalizedQuery = normalizePN(query);
+            const exact = [];
+            const startsWith = [];
+            const contains = [];
+            const titleMatch = [];
+            
+            productsData.forEach(p => {
+              if (!p.normalized_pn) return;
+              const normalizedPN = p.normalized_pn;
+              const normalizedTitle = normalizePN(p.title);
+              if (normalizedPN === normalizedQuery) {
+                exact.push(p);
+              } else if (normalizedPN.startsWith(normalizedQuery)) {
+                startsWith.push(p);
+              } else if (normalizedPN.includes(normalizedQuery)) {
+                contains.push(p);
+              } else if (normalizedTitle.includes(normalizedQuery)) {
+                titleMatch.push(p);
+              }
+            });
+            
+            allMatches = [...exact, ...startsWith, ...contains, ...titleMatch];
+            displayedCount = 0;
+          }
           
-          if (matches.length === 0) {
-            results.innerHTML = '<p class="warning">No parts found for "' + escapeHtml(query) + '"</p>';
+          if (allMatches.length === 0) {
+            results.innerHTML = \`
+              <div class="search-empty-state">
+                <p class="warning">No parts found for "\${escapeHtml(query)}"</p>
+                <p>Can't find what you need? We're here to help.</p>
+                <div class="empty-state-actions">
+                  <a href="tel:+18324445426" class="btn btn-primary">Call 832-444-5426</a>
+                  <a href="${BASE_PATH}/models.html" class="btn btn-secondary">Shop by Model</a>
+                </div>
+              </div>
+            \`;
             return;
           }
           
-          let html = '<h2>' + matches.length + ' ' + (matches.length === 1 ? 'part' : 'parts') + ' found</h2><div class="products-grid">';
+          const nextBatch = allMatches.slice(displayedCount, displayedCount + PAGE_SIZE);
+          displayedCount += nextBatch.length;
           
-          matches.forEach(product => {
-            const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+          let html = '';
+          if (!append) {
+            html += '<h2>' + allMatches.length + ' ' + (allMatches.length === 1 ? 'part' : 'parts') + ' found</h2>';
+            html += '<div class="products-grid">';
+          }
+          
+          nextBatch.forEach(product => {
+            const price = (product.price && parseFloat(product.price) !== 0) 
+              ? '$' + parseFloat(product.price).toFixed(2) 
+              : '<a href="tel:+18324445426" class="call-price">Call for price</a>';
             const isAftermarket = product.vendor === 'Energized Engines';
             const slug = product.handle || 'product-' + product.id;
+            let replacesLine = '';
+            if (isAftermarket && product.part_number) {
+              replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(product.part_number)}</p>\`;
+            }
             
             html += \`
               <div class="product-card">
                 <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
                 \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
-                <p class="part-number">Part #: \${escapeHtml(product.part_number || 'N/A')}</p>
+                \${product.part_number ? \`<p class="part-number">Part #: \${escapeHtml(product.part_number)}</p>\` : ''}
+                \${replacesLine}
                 <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <div class="product-footer">
                   <span class="price">\${price}</span>
@@ -619,8 +836,45 @@ function buildSearchPage() {
             \`;
           });
           
-          html += '</div>';
-          results.innerHTML = html;
+          if (displayedCount < allMatches.length) {
+            html += '</div><button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>';
+          } else {
+            html += '</div>';
+          }
+          
+          if (append) {
+            const showMoreBtn = results.querySelector('.show-more-btn');
+            if (showMoreBtn) showMoreBtn.remove();
+            results.querySelector('.products-grid').insertAdjacentHTML('beforeend', nextBatch.map(product => {
+              const price = (product.price && parseFloat(product.price) !== 0)
+                ? '$' + parseFloat(product.price).toFixed(2)
+                : '<a href="tel:+18324445426" class="call-price">Call for price</a>';
+              const isAftermarket = product.vendor === 'Energized Engines';
+              const slug = product.handle || 'product-' + product.id;
+              let replacesLine = '';
+              if (isAftermarket && product.part_number) {
+                replacesLine = \`<p class="replaces-note">Replaces Sumner \${escapeHtml(product.part_number)}</p>\`;
+              }
+              return \`
+                <div class="product-card">
+                  <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
+                  \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
+                  \${product.part_number ? \`<p class="part-number">Part #: \${escapeHtml(product.part_number)}</p>\` : ''}
+                  \${replacesLine}
+                  <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
+                  <div class="product-footer">
+                    <span class="price">\${price}</span>
+                    <a href="${BASE_PATH}/products/\${slug}.html" class="btn btn-sm">Details</a>
+                  </div>
+                </div>
+              \`;
+            }).join(''));
+            if (displayedCount < allMatches.length) {
+              results.insertAdjacentHTML('beforeend', '<button class="btn btn-secondary show-more-btn" onclick="performSearch(true)">Show more parts (' + (allMatches.length - displayedCount) + ' remaining)</button>');
+            }
+          } else {
+            results.innerHTML = html;
+          }
         }
         
         function escapeHtml(text) {
@@ -629,12 +883,6 @@ function buildSearchPage() {
           div.textContent = text;
           return div.innerHTML;
         }
-        
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-            performSearch();
-          }
-        });
         </script>
 ${getFooter()}`;
   

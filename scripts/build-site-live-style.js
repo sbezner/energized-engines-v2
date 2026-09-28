@@ -52,11 +52,21 @@ function escapeHtml(text) {
 
 function stripHtml(html) {
   if (!html) return '';
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  // P0-6: Decode entities before processing to avoid double-escaping
+  const decoded = html
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'");
+  return decoded.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function formatPrice(price) {
-  if (!price) return 'Price not available';
+  // P0-6: Handle $0.00 and missing prices
+  if (!price || parseFloat(price) === 0) {
+    return '<a href="tel:+18324445426" style="color: #b22234; text-decoration: none;">Call for price</a>';
+  }
   return `$${parseFloat(price).toFixed(2)}`;
 }
 
@@ -71,8 +81,9 @@ function getHeader(title, activePage = '') {
     <link rel="stylesheet" href="${BASE_PATH}/styles.css">
 </head>
 <body>
-    <div class="preview-banner" role="alert">
-        ⚠️ Preview only. This is not the official Energized Engines store. Orders are placed at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a>
+    <div class="preview-banner" role="note">
+        <span class="banner-desktop">⚠️ Preview only. This is not the official Energized Engines store. Orders are placed at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a></span>
+        <span class="banner-mobile">⚠️ Preview only. Order at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a></span>
     </div>
     <header>
         <div class="container">
@@ -144,7 +155,7 @@ function buildHomePage() {
             </div>
         </section>
 
-        <section class="info">
+        <section class="find-parts">
             <h2>Find Parts for Your Sumner Lift</h2>
             <p>Browse by model or search by part number. We stock OEM Sumner parts and aftermarket replacement parts for Series 2000, 2100, 2400, Roust-A-Bout, Eventer, and Gantry lifts.</p>
             <div class="cta-buttons">
@@ -308,25 +319,29 @@ function buildProductPages() {
         </section>`;
     }
     
+    // P0-1: Always render fitment panel with new flag component
     let fitmentHtml = '';
+    const verifiedModels = diagrams ? diagrams.map(d => d.model) : [];
+    const allVerified = models.length > 0 && verifiedModels.length === models.length;
+    
+    let modelLine = '';
     if (models.length > 0) {
-      // Check if any fitment is verified via diagram map
-      const verifiedModels = diagrams ? diagrams.map(d => d.model) : [];
-      const unverifiedModels = models.filter(m => !verifiedModels.includes(m));
-      
-      let fitmentStatus = '';
-      if (verifiedModels.length > 0) {
-        fitmentStatus = `<p class="fitment-verified"><strong>Fitment verified</strong> for ${verifiedModels.map(m => escapeHtml(m)).join(', ')}: Listed in official Sumner parts manual.</p>`;
-      }
-      if (unverifiedModels.length > 0) {
-        fitmentStatus += `<p class="fitment-notice">Fitment not yet verified for ${unverifiedModels.map(m => escapeHtml(m)).join(', ')}. Check your model and serial number before ordering.</p>`;
-      }
-      
+      modelLine = `<p>Fits: ${models.map(m => escapeHtml(m)).join(', ')}</p>`;
+    } else {
+      modelLine = `<p>Models not listed yet.</p>`;
+    }
+    
+    fitmentHtml = `
+      <section class="fitment-info">
+        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
+        ${modelLine}
+      </section>`;
+    
+    // If all models are verified, show verified status instead
+    if (allVerified && models.length > 0) {
       fitmentHtml = `
         <section class="fitment-info">
-          <h3>Fitment Information</h3>
-          <p><strong>Models:</strong> ${models.map(m => escapeHtml(m)).join(', ')}</p>
-          ${fitmentStatus}
+          <p class="fitment-verified"><strong>Fitment verified</strong> for ${models.map(m => escapeHtml(m)).join(', ')}: Listed in official Sumner parts manual.</p>
         </section>`;
     }
     
@@ -476,12 +491,12 @@ function buildModelPages() {
                 <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(product.title)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 <p class="part-number">Part #: ${escapeHtml(partNumber)}</p>
+                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <p class="description">${escapeHtml(description)}</p>
                 <div class="product-footer">
                     <span class="price">${price}</span>
                     <a href="${BASE_PATH}/products/${productSlug}.html" class="btn btn-sm">Details</a>
                 </div>
-                <p class="fitment-note">Fitment not yet verified. Check your model before ordering.</p>
             </div>`;
     });
     
@@ -494,7 +509,7 @@ function buildModelPages() {
         
         ${manualHtml}
         
-        <p class="model-notice">Fitment information comes from product titles and has not been verified. Check your specific model and serial number before ordering.</p>
+        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         <div class="products-grid">
             ${productsHtml}
         </div>
@@ -525,12 +540,12 @@ function buildSearchPage() {
   
   const html = `${getHeader('Search Parts', 'search')}
         <h1>Search Part Numbers</h1>
-        <p>Enter a part number to search. Spaces and dashes are ignored.</p>
+        <p>Type a Sumner or EE part number.</p>
         
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Enter part number (e.g. 783540)" autofocus>
-            <button id="search-btn" onclick="performSearch()">Search</button>
-        </div>
+        <form role="search" class="search-box" onsubmit="performSearch(); return false;">
+            <input type="search" id="search-input" placeholder="Enter part number (e.g. 783540)" aria-label="Part number">
+            <button type="submit" id="search-btn" class="btn btn-primary">Search</button>
+        </form>
         
         <div id="search-results"></div>
         
@@ -592,6 +607,7 @@ function buildSearchPage() {
                 <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
                 \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 <p class="part-number">Part #: \${escapeHtml(product.part_number || 'N/A')}</p>
+                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <div class="product-footer">
                   <span class="price">\${price}</span>
                   <a href="${BASE_PATH}/products/\${slug}.html" class="btn btn-sm">Details</a>

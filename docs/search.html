@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="/energized-engines-v2/styles.css">
 </head>
 <body>
-    <div class="preview-banner" role="alert">
-        ⚠️ Preview only. This is not the official Energized Engines store. Orders are placed at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a>
+    <div class="preview-banner" role="note">
+        <span class="banner-desktop">⚠️ Preview only. This is not the official Energized Engines store. Orders are placed at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a></span>
+        <span class="banner-mobile">⚠️ Preview only. Order at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a></span>
     </div>
     <header>
         <div class="container">
@@ -33,12 +34,12 @@
     </header>
     <main class="container">
         <h1>Search Part Numbers</h1>
-        <p>Enter a part number to search. Spaces and dashes are ignored.</p>
+        <p>Type a Sumner or EE part number.</p>
         
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Enter part number (e.g. 783540)" autofocus>
-            <button id="search-btn" onclick="performSearch()">Search</button>
-        </div>
+        <form role="search" class="search-box" onsubmit="performSearch(); return false;">
+            <input type="search" id="search-input" placeholder="Enter part number (e.g. 783540)" aria-label="Part number">
+            <button type="submit" id="search-btn" class="btn btn-primary">Search</button>
+        </form>
         
         <div id="search-results"></div>
         
@@ -100,6 +101,7 @@
                 <h3><a href="/energized-engines-v2/products/${slug}.html">${escapeHtml(product.title)}</a></h3>
                 ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
                 <p class="part-number">Part #: ${escapeHtml(product.part_number || 'N/A')}</p>
+                <p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>
                 <div class="product-footer">
                   <span class="price">${price}</span>
                   <a href="/energized-engines-v2/products/${slug}.html" class="btn btn-sm">Details</a>

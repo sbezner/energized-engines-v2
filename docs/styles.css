@@ -24,7 +24,6 @@ body {
   line-height: 1.6;
   color: var(--text-primary);
   background: var(--background);
-  padding-top: 3rem;
 }
 
 .container {
@@ -35,17 +34,29 @@ body {
 
 /* Preview Banner */
 .preview-banner {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  background: var(--warning-color);
+  background: var(--primary-color);
   color: white;
-  padding: 0.75rem 1rem;
+  min-height: 36px;
+  padding: 8px 16px;
   text-align: center;
-  font-weight: 500;
-  z-index: 1000;
+  font-size: 14px;
+  z-index: 100;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.banner-mobile {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .banner-desktop {
+    display: none;
+  }
+  .banner-mobile {
+    display: inline;
+  }
 }
 
 .preview-banner a {
@@ -171,12 +182,12 @@ p {
   color: var(--primary-color);
 }
 
-/* Info Section */
-.info {
+/* P0-5: Renamed .info to .find-parts to avoid collision with alert styles */
+.find-parts {
   text-align: center;
-  padding: 3rem 0;
-  background: var(--surface);
-  border-radius: 12px;
+  padding: 40px 24px;
+  background: #eff0f5;
+  border-radius: 18px;
   margin: 3rem 0;
 }
 
@@ -329,20 +340,22 @@ p {
   color: var(--text-primary);
 }
 
+/* P0-2: Fixed badge styles */
 .badge {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
   white-space: nowrap;
   margin-bottom: 0.5rem;
 }
 
 .badge.aftermarket {
   background: var(--accent-color);
-  color: white;
+  color: var(--secondary-color);
 }
 
 .badge.oem {
@@ -350,14 +363,7 @@ p {
   color: white;
 }
 
-.fitment-note,
-.model-notice {
-  font-size: 0.85rem;
-  color: var(--accent-color);
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed var(--border-color);
-}
+/* Removed old fitment-note and model-notice styles - replaced with fitment-flag */
 
 /* Product Page */
 .product-page {
@@ -397,33 +403,25 @@ p {
   margin-top: 1rem;
 }
 
-.fitment-info {
-  background: #fffbeb;
-  padding: 1rem;
-  border-left: 4px solid var(--accent-color);
-  border-radius: 4px;
-  margin: 2rem 0;
-}
-
-.fitment-notice {
-  font-size: 0.9rem;
-  color: var(--accent-color);
-  margin-top: 0.5rem;
-  font-weight: 500;
-}
+/* Removed old fitment-info and fitment-notice - replaced with new fitment component */
 
 /* Search */
+/* P0-4: Search form styling */
 .search-box {
   display: flex;
-  gap: 0.5rem;
-  max-width: 600px;
-  margin: 2rem 0;
+  gap: 8px;
+  max-width: 640px;
+  margin: 2rem auto;
+  align-items: stretch;
 }
 
 #search-input {
+  height: 48px;
+  padding: 0 20px;
+  border: 1px solid #c9c9d9;
+  border-radius: 40px;
+  font-size: 17px;
   flex: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 1rem;
   font-family: 'Courier New', monospace;
@@ -439,6 +437,7 @@ p {
   margin-top: 2rem;
 }
 
+/* Alert styles */
 .info,
 .warning {
   padding: 1rem;
@@ -514,6 +513,7 @@ footer {
 footer h3 {
   margin: 0.5rem 0;
   font-size: 1.5rem;
+  overflow-wrap: anywhere;
 }
 
 footer p {
@@ -531,10 +531,6 @@ footer .small {
 
 /* Responsive */
 @media (max-width: 768px) {
-  body {
-    padding-top: 5rem;
-  }
-  
   .preview-banner {
     padding: 0.5rem;
     font-size: 0.9rem;
@@ -575,6 +571,10 @@ footer .small {
   
   .search-box {
     flex-direction: column;
+  }
+  
+  .search-box button {
+    width: 100%;
   }
   
   .cta-buttons {
@@ -622,6 +622,31 @@ footer .small {
 
 .diagram-list li:last-child {
   border-bottom: none;
+}
+
+/* P0-1: New fitment flag component */
+.fitment-flag {
+  display: inline-block;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 40px;
+}
+
+.fitment-info {
+  background: #f5f5fa;
+  border-left: 4px solid var(--secondary-color);
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+}
+
+.fitment-info p {
+  margin: 0.5rem 0;
+  font-size: 15px;
+  color: var(--secondary-color);
 }
 
 .fitment-verified {

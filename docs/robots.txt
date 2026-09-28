@@ -1,5 +1,2 @@
 User-agent: *
 Disallow: /
-
-# This is a preview/demo site, not the official store
-# Official site: https://energizedengines.com

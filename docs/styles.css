@@ -581,3 +581,54 @@ footer .small {
     flex-direction: column;
   }
 }
+
+/* Manual and Diagram Sections */
+.manual-section {
+  background: #fffbeb;
+  border: 2px solid #fbbf24;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.manual-section h3 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.diagram-info {
+  background: var(--surface);
+  border-left: 4px solid var(--secondary-color);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+}
+
+.diagram-info h3 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.diagram-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.diagram-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.diagram-list li:last-child {
+  border-bottom: none;
+}
+
+.fitment-verified {
+  background: #d1fae5;
+  border: 1px solid #10b981;
+  padding: 1rem;
+  border-radius: 6px;
+  color: #065f46;
+  font-weight: 500;
+}

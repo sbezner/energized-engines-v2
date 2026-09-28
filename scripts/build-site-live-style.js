@@ -10,8 +10,39 @@ const path = require('path');
 const DATA_FILE = path.join(__dirname, '..', 'data', 'processed-products.json');
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 const BASE_PATH = '/energized-engines-v2';
+const MANUAL_SOURCES_FILE = path.join(__dirname, '..', 'notes', 'manual-sources.csv');
+const DIAGRAM_MAP_FILE = path.join(__dirname, '..', 'notes', 'diagram-map.csv');
 
 const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+
+// Load manual sources
+let manualSources = {};
+if (fs.existsSync(MANUAL_SOURCES_FILE)) {
+  const manualCsv = fs.readFileSync(MANUAL_SOURCES_FILE, 'utf8');
+  manualCsv.split('\n').slice(1).forEach(line => {
+    if (!line.trim()) return;
+    const match = line.match(/^"([^"]+)","([^"]+)","([^"]+)"/);
+    if (match) {
+      const [, model, title, url] = match;
+      manualSources[model] = { title, url };
+    }
+  });
+}
+
+// Load diagram map
+let diagramMap = {};
+if (fs.existsSync(DIAGRAM_MAP_FILE)) {
+  const diagramCsv = fs.readFileSync(DIAGRAM_MAP_FILE, 'utf8');
+  diagramCsv.split('\n').slice(1).forEach(line => {
+    if (!line.trim()) return;
+    const match = line.match(/^"([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/);
+    if (match) {
+      const [, partNum, model, manualTitle, manualUrl, page, diagramRef, note] = match;
+      if (!diagramMap[partNum]) diagramMap[partNum] = [];
+      diagramMap[partNum].push({ model, manualTitle, manualUrl, page, diagramRef, note });
+    }
+  });
+}
 
 function escapeHtml(text) {
   if (!text) return '';
@@ -256,13 +287,46 @@ function buildProductPages() {
     const models = product.models || [];
     const isAftermarket = product.vendor === 'Energized Engines';
     
+    // Check for diagram references
+    let diagramHtml = '';
+    const diagrams = diagramMap[partNumber];
+    if (diagrams && diagrams.length > 0) {
+      const diagramLinks = diagrams.map(d => 
+        `<li>
+          ${escapeHtml(d.model)}: 
+          <a href="${d.manualUrl}" target="_blank" rel="noopener">
+            ${escapeHtml(d.manualTitle)}, p. ${d.page}
+            ${d.diagramRef ? `, Figure ${escapeHtml(d.diagramRef)}` : ''}
+          </a>
+          ${d.note ? `<br><span class="small">${escapeHtml(d.note)}</span>` : ''}
+        </li>`
+      ).join('');
+      diagramHtml = `
+        <section class="diagram-info">
+          <h3>📐 Diagram References</h3>
+          <ul class="diagram-list">${diagramLinks}</ul>
+        </section>`;
+    }
+    
     let fitmentHtml = '';
     if (models.length > 0) {
+      // Check if any fitment is verified via diagram map
+      const verifiedModels = diagrams ? diagrams.map(d => d.model) : [];
+      const unverifiedModels = models.filter(m => !verifiedModels.includes(m));
+      
+      let fitmentStatus = '';
+      if (verifiedModels.length > 0) {
+        fitmentStatus = `<p class="fitment-verified"><strong>Fitment verified</strong> for ${verifiedModels.map(m => escapeHtml(m)).join(', ')}: Listed in official Sumner parts manual.</p>`;
+      }
+      if (unverifiedModels.length > 0) {
+        fitmentStatus += `<p class="fitment-notice">Fitment not yet verified for ${unverifiedModels.map(m => escapeHtml(m)).join(', ')}. Check your model and serial number before ordering.</p>`;
+      }
+      
       fitmentHtml = `
         <section class="fitment-info">
           <h3>Fitment Information</h3>
           <p><strong>Models:</strong> ${models.map(m => escapeHtml(m)).join(', ')}</p>
-          <p class="fitment-notice">Fitment not yet verified. Check your model and serial number before ordering.</p>
+          ${fitmentStatus}
         </section>`;
     }
     
@@ -289,6 +353,8 @@ function buildProductPages() {
                     <h3>Description</h3>
                     <p>${escapeHtml(description)}</p>
                 </section>
+                
+                ${diagramHtml}
                 
                 ${fitmentHtml}
             </div>
@@ -379,6 +445,21 @@ function buildModelPages() {
   Object.entries(data.models).forEach(([model, products]) => {
     const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     
+    // Check for parts manual
+    let manualHtml = '';
+    const manual = manualSources[model] || manualSources[model.toUpperCase()] || 
+                   manualSources[model.toLowerCase()];
+    if (manual) {
+      manualHtml = `
+        <section class="manual-section">
+          <h3>📘 Parts Manual</h3>
+          <p><a href="${manual.url}" target="_blank" rel="noopener" class="btn btn-secondary">
+            ${escapeHtml(manual.title)} (PDF)
+          </a></p>
+          <p class="small">Official Sumner parts manual and exploded diagrams</p>
+        </section>`;
+    }
+    
     let productsHtml = '';
     products.forEach(product => {
       const fullProduct = data.products.find(p => p.id === product.id);
@@ -410,6 +491,9 @@ function buildModelPages() {
         </div>
         <h1>${escapeHtml(model)} Parts</h1>
         <p>${products.length} ${products.length === 1 ? 'part' : 'parts'} found for ${escapeHtml(model)}.</p>
+        
+        ${manualHtml}
+        
         <p class="model-notice">Fitment information comes from product titles and has not been verified. Check your specific model and serial number before ordering.</p>
         <div class="products-grid">
             ${productsHtml}

@@ -512,26 +512,22 @@ function buildProductPages() {
     
     if (models.length === 0) {
       fitmentLines.push(`<p>Models not listed yet.</p>`);
-      fitmentLines.push(`<p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>`);
     } else {
-      // Show status for each model
+      // Show plain "Fits:" line with models
+      fitmentLines.push(`<p><strong>Fits:</strong> ${models.map(m => escapeHtml(m)).join(', ')}</p>`);
+      
+      // Show verification badges only where verified
       models.forEach(model => {
         const verification = verifications.get(model);
         
         if (verification) {
-          // This model is verified
           let citation = '';
           if (verification.isSeries) {
-            // Series-level: don't claim fit for each individual model
             citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${escapeHtml(verification.seriesName)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}</a></p>`;
           } else {
-            // Exact model match
-            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Verified for ${escapeHtml(model)}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ${escapeHtml(model)} parts manual, p. ${verification.page}</span> <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}</a></p>`;
           }
           fitmentLines.push(citation);
-        } else {
-          // This model is not verified
-          fitmentLines.push(`<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>`);
         }
       });
     }
@@ -817,15 +813,19 @@ function buildModelPages() {
       const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
       const cleanTitle = cleanUTF8(product.title);
       
-      // Check if this part is verified for this model (must match product page logic)
-      let fitmentLine = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+      // Extract models from title for "Fits:" line
+      const modelMatches = cleanTitle.match(/\b(20\d{2}[A-Z]?|Eventer[- ]?\d+|R-?\d+|Roust[- ]?A[- ]?Bout|GH2T|Gantry|SLC[- ]?\d+)\b/gi);
+      const fitsModels = modelMatches ? [...new Set(modelMatches)].join(', ') : model;
+      let fitmentLine = `<p><strong>Fits:</strong> ${escapeHtml(fitsModels)}</p>`;
+      
+      // Check if this part is verified for this model
       if (diagramMap && partNumber && diagramMap[partNumber]) {
         const partDiagrams = diagramMap[partNumber];
         
         // Check for exact match first
         const exactMatch = partDiagrams.find(d => d.manualUrl && d.page && d.model === model);
         if (exactMatch) {
-          fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${exactMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(exactMatch.manualTitle)}, p. ${exactMatch.page}</a></p>`;
+          fitmentLine += `<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ${escapeHtml(model)} parts manual, p. ${exactMatch.page}</span> <a href="${exactMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(exactMatch.manualTitle)}</a></p>`;
         } 
         // Check for series-level match (model page IS a series like "2000" or "2100")
         else if (seriesMap[model]) {
@@ -834,7 +834,7 @@ function buildModelPages() {
             d.manualUrl && d.page && seriesModels.includes(d.model)
           );
           if (seriesMatch) {
-            fitmentLine = `<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${model} parts manual, p. ${seriesMatch.page}</span> <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}</a></p>`;
+            fitmentLine += `<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ${model} parts manual, p. ${seriesMatch.page}</span> <a href="${seriesMatch.manualUrl}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(seriesMatch.manualTitle)}</a></p>`;
           }
         }
       }
@@ -876,7 +876,6 @@ function buildModelPages() {
             </div>
         </div>
         
-        <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
         <div class="products-grid" id="productsGrid">
             ${productsHtml}
         </div>
@@ -1080,15 +1079,15 @@ function buildSearchPage() {
               }
             }
             
-            let fitmentLabel;
+            const fitsModels = product.models ? product.models.join(', ') : '';
+            let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
+            
             if (product.exact_verified && product.exact_verified.length > 0) {
               const models = product.exact_verified.join(', ');
-              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
             } else if (product.series_listed && product.series_listed.length > 0) {
               const series = product.series_listed.includes('2000') ? '2000' : '2100';
-              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
-            } else {
-              fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
             }
             
             html += \`
@@ -1131,15 +1130,15 @@ function buildSearchPage() {
                   replacesLine = \`<p class="replaces-note">Replaces Sumner \${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>\`;
                 }
               }
-              let fitmentLabel;
+              const fitsModels = product.models ? product.models.join(', ') : '';
+              let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
+              
               if (product.exact_verified && product.exact_verified.length > 0) {
                 const models = product.exact_verified.join(', ');
-                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
               } else if (product.series_listed && product.series_listed.length > 0) {
                 const series = product.series_listed.includes('2000') ? '2000' : '2100';
-                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
-              } else {
-                fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
               }
               return \`
                 <div class="product-card">

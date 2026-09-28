@@ -213,15 +213,15 @@
               }
             }
             
-            let fitmentLabel;
+            const fitsModels = product.models ? product.models.join(', ') : '';
+            let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
+            
             if (product.exact_verified && product.exact_verified.length > 0) {
               const models = product.exact_verified.join(', ');
-              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
             } else if (product.series_listed && product.series_listed.length > 0) {
               const series = product.series_listed.includes('2000') ? '2000' : '2100';
-              fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
-            } else {
-              fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
             }
             
             html += `
@@ -264,15 +264,15 @@
                   replacesLine = `<p class="replaces-note">Replaces Sumner ${sumnerMatch.map(n => escapeHtml(n)).join(', ')}</p>`;
                 }
               }
-              let fitmentLabel;
+              const fitsModels = product.models ? product.models.join(', ') : '';
+              let fitmentLabel = fitsModels ? '<p><strong>Fits:</strong> ' + escapeHtml(fitsModels) + '</p>' : '';
+              
               if (product.exact_verified && product.exact_verified.length > 0) {
                 const models = product.exact_verified.join(', ');
-                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Verified for ' + escapeHtml(models) + '</span></p>';
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
               } else if (product.series_listed && product.series_listed.length > 0) {
                 const series = product.series_listed.includes('2000') ? '2000' : '2100';
-                fitmentLabel = '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
-              } else {
-                fitmentLabel = '<p><span class="fitment-flag">Fitment not yet verified</span> Check your model before ordering.</p>';
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
               }
               return `
                 <div class="product-card">

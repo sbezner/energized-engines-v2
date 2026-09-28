@@ -84,7 +84,9 @@ function cleanUTF8(text) {
     .replace(/Â°/g, '°')   // degree symbol
     .replace(/Â(?=[\s\u00a0.,])/g, '')  // stray Â before space/punctuation
     .replace(/[\x80-\x9f]/g, '')  // control characters
-    .replace(/Â /g, ' ');  // non-breaking space
+    .replace(/Â /g, ' ')  // non-breaking space
+    .replace(/Â+/g, ' ')  // any remaining Â sequences
+    .trim();  // trim whitespace
 }
 
 function getHeader(title, activePage = '') {
@@ -464,41 +466,37 @@ function buildProductPages() {
       });
     }
     
-    const allModelsVerified = models.length > 0 && verifications.size === models.length;
+    // Build per-model fitment display
+    let fitmentLines = [];
     
-    let modelLine = '';
-    if (models.length > 0) {
-      modelLine = `<p>Fits: ${models.map(m => escapeHtml(m)).join(', ')}</p>`;
+    if (models.length === 0) {
+      fitmentLines.push(`<p>Models not listed yet.</p>`);
+      fitmentLines.push(`<p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>`);
     } else {
-      modelLine = `<p>Models not listed yet.</p>`;
-    }
-    
-    if (allModelsVerified && verifications.size > 0) {
-      // All models verified - show citations per model
-      const citationList = [];
-      verifications.forEach((verification, model) => {
-        let citation = '';
-        if (verification.isSeries) {
-          citation = `<span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a> (covers ${verification.diagramModels.join(', ')})`;
+      // Show status for each model
+      models.forEach(model => {
+        const verification = verifications.get(model);
+        
+        if (verification) {
+          // This model is verified
+          let citation = '';
+          if (verification.isSeries) {
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a> (covers ${verification.diagramModels.join(', ')})</p>`;
+          } else {
+            citation = `<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a></p>`;
+          }
+          fitmentLines.push(citation);
         } else {
-          citation = `<span class="fitment-flag fitment-flag--verified">✓ Fitment verified</span> Listed in <a href="${verification.url}" target="_blank" rel="noopener" class="fitment-verified-link">${escapeHtml(verification.manual)}, p. ${verification.page}</a>`;
+          // This model is not verified
+          fitmentLines.push(`<p><strong>${escapeHtml(model)}:</strong> <span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>`);
         }
-        citationList.push(`<p>${citation}</p>`);
       });
-      
-      fitmentHtml = `
-        <section class="fitment-info">
-          ${modelLine}
-          ${citationList.join('\n')}
-        </section>`;
-    } else {
-      // Not all verified or no verification
-      fitmentHtml = `
-        <section class="fitment-info">
-          ${modelLine}
-          <p><span class="fitment-flag">Fitment not yet verified</span> Check your model and serial number before ordering.</p>
-        </section>`;
     }
+    
+    fitmentHtml = `
+        <section class="fitment-info">
+          ${fitmentLines.join('\n')}
+        </section>`;
     
     // P2-3: Accurate breadcrumbs
     let breadcrumbPath = '';
@@ -523,7 +521,7 @@ function buildProductPages() {
                 
                 <div class="product-info-panel">
                     ${partNumber ? `<p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>` : ''}
-                    ${isAftermarket && (() => { const m = (product.title || '').match(/\b7[78]\d{4}\b/); return m ? `<p class="replaces-note">Replaces Sumner ${escapeHtml(m[0])}</p>` : ''; })()}
+                    ${isAftermarket ? (() => { const m = (product.title || '').match(/\b7[78]\d{4}\b/); return m ? `<p class="replaces-note">Replaces Sumner ${escapeHtml(m[0])}</p>` : ''; })() : ''}
                     <p class="price-display">${price}</p>
                     ${isAftermarket ? '<p class="vendor-badge aftermarket-badge">Aftermarket Part</p>' : '<p class="vendor-badge oem-badge">OEM Part</p>'}
                     

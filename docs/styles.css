@@ -186,6 +186,7 @@ main {
 
 .mobile-search-row input {
   flex: 1;
+  min-width: 0;
   min-height: 44px;
   border: 2px solid var(--secondary-color);
   border-radius: 40px;
@@ -569,12 +570,6 @@ p {
   font-family: 'Courier New', monospace;
 }
 
-@media (max-width: 768px) {
-  .search-box #search-input {
-    flex: 0 0 48px;
-    width: 100%;
-  }
-}
 
 #search-input:focus {
   outline: none;
@@ -733,7 +728,7 @@ footer .small {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .model-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }

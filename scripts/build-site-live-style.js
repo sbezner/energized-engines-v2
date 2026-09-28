@@ -121,7 +121,7 @@ function getHeader(title, activePage = '') {
                 <a href="${BASE_PATH}/" class="logo-link-mobile">
                     <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
                 </a>
-                <button class="search-icon-btn" aria-label="Search">
+                <button class="search-icon-btn" aria-label="Search" aria-expanded="false" aria-controls="mobileSearchRow">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
                         <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -166,7 +166,7 @@ function getHeader(title, activePage = '') {
             </div>
         </div>
     </header>
-    <div class="mobile-search-row">
+    <div class="mobile-search-row" id="mobileSearchRow">
         <form action="${BASE_PATH}/search.html" method="get">
             <input type="search" name="q" placeholder="Search parts..." aria-label="Search parts">
             <button type="submit">Search</button>
@@ -206,6 +206,7 @@ function buildHomePage() {
                     <input type="text" name="q" placeholder="Search by part number or keyword..." aria-label="Search parts">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </form>
+                <a href="${BASE_PATH}/models.html" class="hero-link">or shop by model</a>
             </div>
         </section>
 
@@ -1048,8 +1049,8 @@ function buildSearchPage() {
                 <p>Double-check spelling, try a different keyword, or <a href="${BASE_PATH}/models.html">browse by model</a>.</p>
                 <div class="empty-state-actions">
                   <a href="tel:+18324445426" class="btn btn-primary">Call 832-444-5426</a>
-                  <a href="${BASE_PATH}/models.html" class="btn btn-secondary">Shop by Model</a>
-                  <a href="${BASE_PATH}/about.html" class="btn btn-secondary">Parts Manuals</a>
+                  <a href="${BASE_PATH}/models.html" class="btn btn-secondary">Shop by model</a>
+                  <a href="https://www.energizedengines.com/pages/parts-manuals" class="btn btn-secondary">Parts Manuals</a>
                 </div>
               </div>
             \`;
@@ -1086,8 +1087,9 @@ function buildSearchPage() {
               const models = product.exact_verified.join(', ');
               fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
             } else if (product.series_listed && product.series_listed.length > 0) {
-              const series = product.series_listed.includes('2000') ? '2000' : '2100';
-              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
+              const hasBoth = product.series_listed.includes('2000') && product.series_listed.includes('2100');
+              const series = hasBoth ? '2000 and 2100' : (product.series_listed.includes('2000') ? '2000' : '2100');
+              fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual' + (hasBoth ? 's' : '') + '</span> see details</p>';
             }
             
             html += \`
@@ -1137,8 +1139,9 @@ function buildSearchPage() {
                 const models = product.exact_verified.join(', ');
                 fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Verified in Sumner ' + escapeHtml(models) + ' parts manual</span></p>';
               } else if (product.series_listed && product.series_listed.length > 0) {
-                const series = product.series_listed.includes('2000') ? '2000' : '2100';
-                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual</span> see details</p>';
+                const hasBoth = product.series_listed.includes('2000') && product.series_listed.includes('2100');
+                const series = hasBoth ? '2000 and 2100' : (product.series_listed.includes('2000') ? '2000' : '2100');
+                fitmentLabel += '<p><span class="fitment-flag fitment-flag--verified">✓ Listed in Series ' + series + ' parts manual' + (hasBoth ? 's' : '') + '</span> see details</p>';
               }
               return \`
                 <div class="product-card">

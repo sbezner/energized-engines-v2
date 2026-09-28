@@ -1,0 +1,548 @@
+#!/usr/bin/env node
+
+/**
+ * Build static site matching live energizedengines.com style
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const DATA_FILE = path.join(__dirname, '..', 'data', 'processed-products.json');
+const DOCS_DIR = path.join(__dirname, '..', 'docs');
+const BASE_PATH = '/energized-engines-v2';
+
+const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function stripHtml(html) {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function formatPrice(price) {
+  if (!price) return 'Price not available';
+  return `$${parseFloat(price).toFixed(2)}`;
+}
+
+function getHeader(title, activePage = '') {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>${escapeHtml(title)} - Energized Engines</title>
+    <link rel="stylesheet" href="${BASE_PATH}/styles.css">
+</head>
+<body>
+    <div class="preview-banner" role="alert">
+        ⚠️ Preview only. This is not the official Energized Engines store. Orders are placed at <a href="https://energizedengines.com" target="_blank" rel="noopener">energizedengines.com</a>
+    </div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="${BASE_PATH}/" class="logo-link">
+                    <img src="${BASE_PATH}/logo.png" alt="Energized Engines" class="logo">
+                </a>
+                <div class="contact-info">
+                    <p>832-444-5426</p>
+                    <p>Sales@EnergizedEngines.com</p>
+                </div>
+            </div>
+            <nav>
+                <a href="${BASE_PATH}/" ${activePage === 'home' ? 'class="active"' : ''}>Home</a>
+                <a href="${BASE_PATH}/models.html" ${activePage === 'models' ? 'class="active"' : ''}>Parts by Model</a>
+                <a href="${BASE_PATH}/search.html" ${activePage === 'search' ? 'class="active"' : ''}>Search Parts</a>
+                <a href="${BASE_PATH}/about.html" ${activePage === 'about' ? 'class="active"' : ''}>About</a>
+                <a href="${BASE_PATH}/return-policy.html" ${activePage === 'return-policy' ? 'class="active"' : ''}>Returns</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">`;
+}
+
+function getFooter() {
+  return `    </main>
+    <footer>
+        <div class="container">
+            <h3>832-444-5426</h3>
+            <h3>Sales@EnergizedEngines.com</h3>
+            <p>Call, Text or Email</p>
+            <p>We offer free standard ground shipping on parts orders over $150 shipped within the contiguous U.S. (Lower 48 states).</p>
+            <p>Free delivery on in-stock items to locations within 10 miles of Jersey Village, TX.</p>
+            <p>20% restocking fee on eligible returns. See our <a href="${BASE_PATH}/return-policy.html">Return Policy</a> for details.</p>
+            <p class="small">PLEASE NOTE: Not all parts are kept in stock. If you need expedited service, contact us to confirm availability.</p>
+            <p class="small">Prices may adjust occasionally due to supplier increases. We work hard to keep our listings current - thank you for rolling with us!</p>
+        </div>
+    </footer>
+    <script src="${BASE_PATH}/script.js"></script>
+</body>
+</html>`;
+}
+
+// Build home page
+function buildHomePage() {
+  const html = `${getHeader('Home', 'home')}
+        <section class="hero">
+            <h1>Sumner Lift Parts</h1>
+            <p>OEM and aftermarket parts for Sumner material lifts, Roust-A-Bouts, and Eventer lifts.</p>
+        </section>
+
+        <section class="services">
+            <div class="service-card">
+                <h3>Parts</h3>
+                <p>OEM Sumner parts and house-brand aftermarket replacement parts for all major models.</p>
+                <a href="${BASE_PATH}/models.html" class="btn">Shop by Model</a>
+            </div>
+            
+            <div class="service-card">
+                <h3>Rentals</h3>
+                <p>Sumner 2118, 2124, 2412, and 2416 lifts available for rent. Daily, weekly, or monthly rates.</p>
+                <p>Email us for availability and rates.</p>
+            </div>
+            
+            <div class="service-card">
+                <h3>Winch Rebuilds</h3>
+                <p>We offer affordable winch rebuild services for Sumner winches.</p>
+                <p>Contact us for details.</p>
+            </div>
+        </section>
+
+        <section class="info">
+            <h2>Find Parts for Your Sumner Lift</h2>
+            <p>Browse by model or search by part number. We stock OEM Sumner parts and aftermarket replacement parts for Series 2000, 2100, 2400, Roust-A-Bout, Eventer, and Gantry lifts.</p>
+            <div class="cta-buttons">
+                <a href="${BASE_PATH}/models.html" class="btn btn-primary">Browse by Model</a>
+                <a href="${BASE_PATH}/search.html" class="btn btn-secondary">Search Part Numbers</a>
+            </div>
+        </section>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'index.html'), html);
+  console.log('Built: index.html');
+}
+
+// Build About page
+function buildAboutPage() {
+  const html = `${getHeader('About', 'about')}
+        <h1>About Sumner Lifts and Parts</h1>
+        
+        <section class="model-section">
+            <h2>Sumner Roust-A-Bout Lifts</h2>
+            <p>Heavy-duty, high load capacity and reach, used in industrial material handling and portable pipe lifting.</p>
+            <p><strong>Models:</strong> Sumner R-100, Sumner R-150, Sumner R-180, Sumner R-250</p>
+        </section>
+
+        <section class="model-section">
+            <h2>Sumner Series 2000 Material Lifts</h2>
+            <p>General-purpose, various lift heights and load capacities, different base and wheel options. Also called a Duct Jack.</p>
+            <p><strong>Models:</strong> Sumner 2010, Sumner 2015, Sumner 2020, Sumner 2025</p>
+        </section>
+
+        <section class="model-section">
+            <h2>Series 2100 Contractor Lifts</h2>
+            <p>Similar to 2400 series, various load capacities and heights, robust construction for heavy-duty use. Also called a Duct Jack.</p>
+            <p><strong>Models:</strong> Sumner 2112, Sumner 2118, Sumner 2124</p>
+        </section>
+
+        <section class="model-section">
+            <h2>Series 2400 Contractor Lifts</h2>
+            <p>Versatile for construction, adjustable masts, durable and maneuverable. Also called a Duct Jack.</p>
+            <p><strong>Models:</strong> Sumner 2412, Sumner 2416, Sumner 2420, Sumner 2424</p>
+        </section>
+
+        <section class="model-section">
+            <h2>Eventer Lifts</h2>
+            <p>Designed for staging and events, easy transport and setup, safety features for public spaces. Also called an Entertainment Lift.</p>
+            <p><strong>Models:</strong> Sumner Eventer 16, Sumner Eventer 20, Sumner Eventer 25</p>
+        </section>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'about.html'), html);
+  console.log('Built: about.html');
+}
+
+console.log('Building site in live store style...\n');
+buildHomePage();
+buildAboutPage();
+console.log('\nBasic pages built!');
+
+// Build Return Policy page
+function buildReturnPolicyPage() {
+  const html = `${getHeader('Return Policy', 'return-policy')}
+        <div class="draft-notice">
+            ⚠️ <strong>Draft Policy - Pending Owner Review</strong><br>
+            This return policy is a draft. It must be reviewed and approved by the owner before use.
+        </div>
+
+        <h1>Return Policy</h1>
+        
+        <section class="policy-content">
+            <h2>Return Window</h2>
+            <p>You have 30 days from delivery to return eligible items for a refund or exchange.</p>
+            
+            <h2>Eligible Returns</h2>
+            <p>To be eligible for return, items must be:</p>
+            <ul>
+                <li>Unused and uninstalled in original condition</li>
+                <li>In original packaging with all included documentation</li>
+                <li>Not damaged, modified, or altered</li>
+                <li>Accompanied by proof of purchase</li>
+            </ul>
+            
+            <h2>Non-Returnable Items</h2>
+            <p>The following items cannot be returned:</p>
+            <ul>
+                <li>Electrical parts and components</li>
+                <li>Special orders and custom parts</li>
+                <li>Installed or used parts</li>
+                <li>Consumables (cables, safety decals, hardware kits opened or partially used)</li>
+                <li>Items marked as final sale at time of purchase</li>
+            </ul>
+            
+            <h2>Restocking Fee</h2>
+            <p>A 20% restocking fee applies to all eligible returns. This covers inspection, repackaging, and return to inventory.</p>
+            
+            <h2>Return Shipping</h2>
+            <p>Customer pays return shipping costs unless the return is due to our error (wrong item shipped, defective item). We recommend using a trackable shipping method.</p>
+            
+            <p>For heavy or oversized items (lifts, large assemblies), contact us before returning to arrange freight pickup or return authorization.</p>
+            
+            <h2>Refunds</h2>
+            <p>Once your return is received and inspected, we will notify you of approval or rejection. Approved refunds are processed to your original payment method within 5-7 business days.</p>
+            
+            <p>Refund amount equals purchase price minus restocking fee minus original shipping cost (if applicable).</p>
+            
+            <h2>Defective or Damaged Items</h2>
+            <p>If you receive a defective or damaged item, contact us within 48 hours of delivery. We will arrange for replacement or full refund at no cost to you. Photos of damage may be required.</p>
+            
+            <h2>How to Initiate a Return</h2>
+            <p>Contact us before returning any item:</p>
+            <ul>
+                <li>Email: sales@energizedengines.com</li>
+                <li>Phone: 832-444-5426</li>
+            </ul>
+            <p>Provide your order number, items to return, and reason for return. We will issue a Return Authorization (RA) number and instructions.</p>
+            
+            <p><strong>Do not return items without an RA number.</strong> Unauthorized returns may be refused or subject to additional fees.</p>
+            
+            <h2>Questions</h2>
+            <p>For questions about returns, contact us at sales@energizedengines.com or 832-444-5426.</p>
+        </section>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'return-policy.html'), html);
+  console.log('Built: return-policy.html');
+}
+
+// Build individual product pages
+function buildProductPages() {
+  const productsDir = path.join(DOCS_DIR, 'products');
+  if (!fs.existsSync(productsDir)) {
+    fs.mkdirSync(productsDir, { recursive: true });
+  }
+  
+  let count = 0;
+  data.products.forEach(product => {
+    const slug = product.handle || `product-${product.id}`;
+    const price = formatPrice(product.variants?.[0]?.price);
+    const partNumber = product.extracted_part_number || 'No part number';
+    const description = stripHtml(product.body_html) || 'No description available';
+    const models = product.models || [];
+    const isAftermarket = product.vendor === 'Energized Engines';
+    
+    let fitmentHtml = '';
+    if (models.length > 0) {
+      fitmentHtml = `
+        <section class="fitment-info">
+          <h3>Fitment Information</h3>
+          <p><strong>Models:</strong> ${models.map(m => escapeHtml(m)).join(', ')}</p>
+          <p class="fitment-notice">Fitment not yet verified. Check your model and serial number before ordering.</p>
+        </section>`;
+    }
+    
+    const html = `${getHeader(product.title)}
+        <div class="breadcrumb">
+            <a href="${BASE_PATH}/">Home</a> › 
+            <a href="${BASE_PATH}/search.html">Search</a> › 
+            ${escapeHtml(product.title)}
+        </div>
+        
+        <article class="product-page">
+            <h1>${escapeHtml(product.title)}</h1>
+            
+            <div class="product-main">
+                <div class="product-info">
+                    <p class="part-number"><strong>Part Number:</strong> ${escapeHtml(partNumber)}</p>
+                    <p class="price-display">${price}</p>
+                    ${isAftermarket ? '<p class="vendor-badge">Aftermarket Part</p>' : '<p class="vendor-badge">OEM Part</p>'}
+                    <a href="${product.url}" class="btn btn-primary" target="_blank" rel="noopener">View on Store →</a>
+                    <p class="order-note">Orders are placed at energizedengines.com</p>
+                </div>
+                
+                <section class="description">
+                    <h3>Description</h3>
+                    <p>${escapeHtml(description)}</p>
+                </section>
+                
+                ${fitmentHtml}
+            </div>
+        </article>
+${getFooter()}`;
+    
+    fs.writeFileSync(path.join(productsDir, `${slug}.html`), html);
+    count++;
+  });
+  
+  console.log(`Built: ${count} product pages`);
+}
+
+// Build models index page
+function buildModelsPage() {
+  const models = Object.keys(data.models).sort();
+  
+  const modelGroups = {
+    'Series 2000': [],
+    'Series 2100': [],
+    'Series 2400': [],
+    'Roust-A-Bout': [],
+    'Eventer': [],
+    'Gantry': [],
+    'Other': []
+  };
+  
+  models.forEach(model => {
+    const modelUpper = model.toUpperCase();
+    if (modelUpper.includes('2000') || modelUpper.match(/^20[01][0-8]$/)) {
+      modelGroups['Series 2000'].push(model);
+    } else if (modelUpper.includes('2100') || modelUpper.match(/^211[0-8]$/) || modelUpper === '2124' || modelUpper === '2118') {
+      modelGroups['Series 2100'].push(model);
+    } else if (modelUpper.includes('2400') || modelUpper.match(/^241[0-6]$/)) {
+      modelGroups['Series 2400'].push(model);
+    } else if (modelUpper.includes('ROUST')) {
+      modelGroups['Roust-A-Bout'].push(model);
+    } else if (modelUpper.includes('EVENTER')) {
+      modelGroups['Eventer'].push(model);
+    } else if (modelUpper.includes('GANTRY') || modelUpper.includes('GH')) {
+      modelGroups['Gantry'].push(model);
+    } else {
+      modelGroups['Other'].push(model);
+    }
+  });
+  
+  let modelsHtml = '';
+  Object.entries(modelGroups).forEach(([group, groupModels]) => {
+    if (groupModels.length > 0) {
+      modelsHtml += `
+        <section class="model-group">
+            <h2>${group}</h2>
+            <div class="model-grid">`;
+      
+      groupModels.sort().forEach(model => {
+        const count = data.models[model].length;
+        const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        modelsHtml += `
+                <a href="${BASE_PATH}/models/${slug}.html" class="model-card">
+                    <strong>${escapeHtml(model)}</strong>
+                    <span>${count} ${count === 1 ? 'part' : 'parts'}</span>
+                </a>`;
+      });
+      
+      modelsHtml += `
+            </div>
+        </section>`;
+    }
+  });
+  
+  const html = `${getHeader('Parts by Model', 'models')}
+        <h1>Parts by Model</h1>
+        <p>Select your Sumner lift model to browse parts.</p>
+        ${modelsHtml}
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'models.html'), html);
+  console.log('Built: models.html');
+}
+
+// Build individual model pages
+function buildModelPages() {
+  const modelsDir = path.join(DOCS_DIR, 'models');
+  if (!fs.existsSync(modelsDir)) {
+    fs.mkdirSync(modelsDir, { recursive: true });
+  }
+  
+  Object.entries(data.models).forEach(([model, products]) => {
+    const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    
+    let productsHtml = '';
+    products.forEach(product => {
+      const fullProduct = data.products.find(p => p.id === product.id);
+      if (!fullProduct) return;
+      
+      const price = formatPrice(product.price);
+      const partNumber = product.part_number || 'No part number';
+      const description = stripHtml(fullProduct.body_html).substring(0, 150) + '...';
+      const isAftermarket = product.vendor === 'Energized Engines';
+      const productSlug = fullProduct.handle || `product-${fullProduct.id}`;
+      
+      productsHtml += `
+            <div class="product-card">
+                <h3><a href="${BASE_PATH}/products/${productSlug}.html">${escapeHtml(product.title)}</a></h3>
+                ${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
+                <p class="part-number">Part #: ${escapeHtml(partNumber)}</p>
+                <p class="description">${escapeHtml(description)}</p>
+                <div class="product-footer">
+                    <span class="price">${price}</span>
+                    <a href="${BASE_PATH}/products/${productSlug}.html" class="btn btn-sm">Details</a>
+                </div>
+                <p class="fitment-note">Fitment not yet verified. Check your model before ordering.</p>
+            </div>`;
+    });
+    
+    const html = `${getHeader(`${model} Parts`, 'models')}
+        <div class="breadcrumb">
+            <a href="${BASE_PATH}/models.html">← Back to all models</a>
+        </div>
+        <h1>${escapeHtml(model)} Parts</h1>
+        <p>${products.length} ${products.length === 1 ? 'part' : 'parts'} found for ${escapeHtml(model)}.</p>
+        <p class="model-notice">Fitment information comes from product titles and has not been verified. Check your specific model and serial number before ordering.</p>
+        <div class="products-grid">
+            ${productsHtml}
+        </div>
+${getFooter()}`;
+    
+    fs.writeFileSync(path.join(modelsDir, `${slug}.html`), html);
+  });
+  
+  console.log(`Built: ${Object.keys(data.models).length} model pages`);
+}
+
+// Build search page
+function buildSearchPage() {
+  const searchData = data.products.map(p => ({
+    id: p.id,
+    title: p.title,
+    handle: p.handle,
+    part_number: p.extracted_part_number,
+    normalized_pn: p.normalized_part_number,
+    price: p.variants?.[0]?.price,
+    vendor: p.vendor,
+    models: p.models,
+    url: p.url
+  }));
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'search-data.json'), JSON.stringify(searchData));
+  console.log('Wrote: search-data.json');
+  
+  const html = `${getHeader('Search Parts', 'search')}
+        <h1>Search Part Numbers</h1>
+        <p>Enter a part number to search. Spaces and dashes are ignored.</p>
+        
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Enter part number (e.g. 783540)" autofocus>
+            <button id="search-btn" onclick="performSearch()">Search</button>
+        </div>
+        
+        <div id="search-results"></div>
+        
+        <script>
+        let productsData = [];
+        
+        fetch('${BASE_PATH}/search-data.json')
+          .then(response => response.json())
+          .then(data => {
+            productsData = data;
+          })
+          .catch(err => {
+            console.error('Failed to load search data:', err);
+            document.getElementById('search-results').innerHTML = '<p class="warning">Failed to load product data. Please refresh the page.</p>';
+          });
+        
+        function normalizePN(pn) {
+          if (!pn) return '';
+          return pn.toString().replace(/[\\s\\-_]/g, '').toUpperCase();
+        }
+        
+        function performSearch() {
+          const query = document.getElementById('search-input').value.trim();
+          const results = document.getElementById('search-results');
+          
+          if (!query) {
+            results.innerHTML = '<p class="info">Enter a part number to search.</p>';
+            return;
+          }
+          
+          if (productsData.length === 0) {
+            results.innerHTML = '<p class="warning">Loading product data. Please wait and try again.</p>';
+            return;
+          }
+          
+          const normalizedQuery = normalizePN(query);
+          const matches = productsData.filter(p => {
+            if (!p.normalized_pn) return false;
+            if (p.normalized_pn === normalizedQuery) return true;
+            if (p.normalized_pn.includes(normalizedQuery)) return true;
+            if (normalizePN(p.title).includes(normalizedQuery)) return true;
+            return false;
+          });
+          
+          if (matches.length === 0) {
+            results.innerHTML = '<p class="warning">No parts found for "' + escapeHtml(query) + '"</p>';
+            return;
+          }
+          
+          let html = '<h2>' + matches.length + ' ' + (matches.length === 1 ? 'part' : 'parts') + ' found</h2><div class="products-grid">';
+          
+          matches.forEach(product => {
+            const price = product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available';
+            const isAftermarket = product.vendor === 'Energized Engines';
+            const slug = product.handle || 'product-' + product.id;
+            
+            html += \`
+              <div class="product-card">
+                <h3><a href="${BASE_PATH}/products/\${slug}.html">\${escapeHtml(product.title)}</a></h3>
+                \${isAftermarket ? '<span class="badge aftermarket">Aftermarket</span>' : '<span class="badge oem">OEM</span>'}
+                <p class="part-number">Part #: \${escapeHtml(product.part_number || 'N/A')}</p>
+                <div class="product-footer">
+                  <span class="price">\${price}</span>
+                  <a href="${BASE_PATH}/products/\${slug}.html" class="btn btn-sm">Details</a>
+                </div>
+              </div>
+            \`;
+          });
+          
+          html += '</div>';
+          results.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+          if (!text) return '';
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        }
+        
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            performSearch();
+          }
+        });
+        </script>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'search.html'), html);
+  console.log('Built: search.html');
+}
+
+// Build all pages
+buildReturnPolicyPage();
+buildProductPages();
+buildModelsPage();
+buildModelPages();
+buildSearchPage();
+console.log('\nSite built successfully in live store style!');

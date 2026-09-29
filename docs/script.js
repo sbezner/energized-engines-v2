@@ -210,3 +210,11 @@ document.addEventListener('click', function(event) {
     }
   }
 });
+
+// Delegated image error handler for photo-coming-soon placeholders
+document.addEventListener('error', function(e) {
+  if (e.target.tagName === 'IMG' && e.target.closest('.product-images')) {
+    const container = e.target.parentElement;
+    container.innerHTML = '<div class="photo-coming-soon">Photo coming soon</div>';
+  }
+}, true);

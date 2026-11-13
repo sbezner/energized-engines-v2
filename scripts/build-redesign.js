@@ -684,7 +684,7 @@ ${fitsHtml}
 <div class="pdp-help"><p style="margin:0 0 var(--s-2);color:var(--muted);font-size:var(--fs-14)">Not sure this fits your lift? Call or text us at <b style="color:var(--ink)">832-444-5426</b> with your model and serial number.</p></div>
 <div class="mini-trust" style="display:flex;gap:var(--s-4);margin-top:var(--s-4);padding:var(--s-4);background:var(--bg-2);border-radius:var(--r-2);font-size:var(--fs-13)">
 <div style="display:flex;align-items:center;gap:6px">${icons.truck}<span>Free shipping over $250</span></div>
-<div style="display:flex;align-items:center;gap:6px">${icons.returns}<span>14-day returns</span></div>
+<div style="display:flex;align-items:center;gap:6px">${icons.returns}<span><a href="${BASE_PATH}/return-policy.html" style="color:inherit;text-decoration:underline">14-day returns</a>. Customer pays return shipping plus a 20% restocking fee. See return policy.</span></div>
 </div>
 </div></div>
 <div class="sticky-atc"><div><b class="num">${formatPrice(price) || 'Call for price'}</b><span class="stock st-ok">In stock</span></div>

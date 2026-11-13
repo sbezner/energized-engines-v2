@@ -67,7 +67,7 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 /* chips & badges */
 .chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r-pill);font-size:var(--fs-13);font-weight:500;background:#fff;color:var(--ink)}
 .chip.sm{height:22px;padding:0 8px;font-size:var(--fs-12)}
-.badge{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:var(--r-sm);font-size:var(--fs-12);font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;min-height:22px;padding:4px 8px;border-radius:var(--r-sm);font-size:var(--fs-12);font-weight:600;letter-spacing:.02em;line-height:1.3;white-space:normal;word-break:break-word}
 .b-ee{background:var(--ink);color:#fff}
 .b-ee svg{width:10px;height:12px;fill:var(--red-500)}
 .b-oem{background:#fff;color:var(--ink);border:1px solid var(--line-strong)}
@@ -171,3 +171,6 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .search input{font-size:var(--fs-14)}
   .search input::placeholder{content:"Search parts"}
 }
+
+/* Fix cart qty display */
+.qty:empty{display:none}

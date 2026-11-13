@@ -53,30 +53,3 @@
 <script src="/energized-engines-v2/cart.js"></script>
 <script src="/energized-engines-v2/search.js"></script>
 </body></html>
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const query = urlParams.get('q');
-if (query) {
-  document.querySelector('input[name="q"]').value = query;
-  fetch('/energized-engines-v2/search-data.json')
-    .then(r => r.json())
-    .then(data => {
-      const lq = query.toLowerCase();
-      const matches = data.parts.filter(p => 
-        p.partNumber.toLowerCase().includes(lq) ||
-        p.name.toLowerCase().includes(lq)
-      );
-      const resultsDiv = document.getElementById('searchResults');
-      if (matches.length === 0) {
-        resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + query + '"</p>';
-      } else {
-        resultsDiv.innerHTML = '<h2>' + matches.length + ' results for "' + query + '"</h2><div class="grid-cards" style="margin-top:var(--s-6)">' +
-          matches.slice(0, 100).map(p => 
-            '<a class="card" href="/energized-engines-v2/products/' + p.handle + '.html"><div class="im"><img src="' + p.image + '" alt="" loading="lazy"></div>' +
-            '<div class="bd"><div class="pn">' + p.partNumber + '</div><div class="nm">' + p.name + '</div>' +
-            '<div class="pr"><b>$' + parseFloat(p.price).toFixed(2) + '</b></div></div></a>'
-          ).join('') + '</div>';
-      }
-    });
-}
-</script>

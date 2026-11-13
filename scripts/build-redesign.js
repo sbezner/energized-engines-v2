@@ -268,23 +268,10 @@ module.exports = {
 
 // Continue with build functions in next section...
 
-// Get live refund policy text
-const REFUND_POLICY_TEXT = `You have 30 days from delivery to return eligible items for a refund or exchange.
+// Return policy text from live site
+const REFUND_POLICY_TEXT = `Energized Engines will accept returns on any unused items within 15 days of the customer receiving the item. The item must be in the original package and have not been used or opened. A 20% restocking fee will be charged on all accepted returns. All returns must be approved by Energized Engines. Electrical items are not eligible for return.
 
-To be eligible for return, items must be:
-- Unused and uninstalled in original condition
-- In original packaging with all included documentation
-- Not damaged, modified, or altered
-- Accompanied by proof of purchase
-
-The following items cannot be returned:
-- Electrical parts and components
-- Special orders and custom parts
-- Installed or used parts
-- Consumables (cables, safety decals, hardware kits opened or partially used)
-- Items marked as final sale at time of purchase
-
-A 20% restocking fee applies to all eligible returns.`;
+To request a return authorization, please contact us at Sales@EnergizedEngines.com or call 832-444-5426.`;
 
 // Build all pages
 function buildAll() {
@@ -334,8 +321,8 @@ function buildAll() {
   
   // Build extra pages
   buildEEBrandPage();
-  buildSeriesPage('2400', ['2412', '2416', '24']);
-  buildSeriesPage('Eventer', ['EVENTER', 'EVENT']);
+  buildSeriesPage('2400', []);
+  buildSeriesPage('Eventer', ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25']);
   
   console.log('\n✅ Build complete!');
   console.log(`   - ${productCount} product pages`);
@@ -351,15 +338,13 @@ function buildHomePage() {
     eeParts: data.products.filter(p => p.vendor === 'Energized Engines').length
   };
   
-  // Calculate series counts by grouping models
-  const getSeriesCount = (seriesModels) => {
+  // Calculate series counts using exact model matches (same as buildSeriesPage)
+  const getSeriesCount = (exactModels) => {
     const partIds = new Set();
-    seriesModels.forEach(modelNum => {
-      Object.entries(data.models).forEach(([model, products]) => {
-        if (model.toUpperCase().includes(modelNum.toUpperCase()) || model === modelNum) {
-          products.forEach(p => partIds.add(p.id));
-        }
-      });
+    exactModels.forEach(modelName => {
+      if (data.models[modelName]) {
+        data.models[modelName].forEach(p => partIds.add(p.id));
+      }
     });
     return partIds.size;
   };
@@ -367,7 +352,7 @@ function buildHomePage() {
   const html = `${getHeader('Sumner lift parts', 'home')}
 <section class="hero"><div class="wrap hero-g"><div class="hero-l"><div class="eyebrow">Sumner lift parts · OEM and EE brand</div><h1>Find parts for your lift</h1>
 <p class="lede">Search by part number or browse our full catalog.</p>
-<div class="finder"><div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button class="btn btn-dark">Search</button></div></div>
+<div class="finder"><form action="${BASE_PATH}/search.html" method="get" style="width:100%"><div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" name="q" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button type="submit" class="btn btn-dark">Search</button></div></form></div>
 <div class="hero-stats"><div><b class="num">${stats.parts.toLocaleString()}</b><span>parts listed</span></div><div><b class="num">${stats.models}</b><span>Sumner models</span></div><div><b class="num">${stats.eeParts}</b><span>EE brand parts</span></div></div></div>
 <div class="hero-r d-only"><div class="plate-card"><div class="eyebrow" style="color:var(--ink-2)">Not sure of your model?</div><h3 style="margin:6px 0 4px">It's on the plate on the mast</h3>
 <p>The model number is stamped on the ID plate near the base of the mast. Have the serial number too if you call us.</p></div></div></div></section>
@@ -375,17 +360,16 @@ function buildHomePage() {
 <section class="sec"><div class="wrap"><div class="sec-h"><div><h2>Shop by lift model</h2><p>Every part we list, sorted by the Sumner lift it fits.</p></div><a href="${BASE_PATH}/models.html">All ${stats.models} models</a></div>
 <div class="mgrid">
 ${[
-  { series: '2000', models: ['2010', '2015', '2020', '2025', '20'] },
-  { series: '2100', models: ['2112', '2118', '2124', '21'] },
-  { series: '2400', models: ['2412', '2416', '24'] },
-  { series: 'Roust-A-Bout', models: ['R-100', 'R-150', 'R-180', 'R-250', 'ROUST'] },
-  { series: 'Eventer', models: ['EVENTER', '16', '20', '25'] },
-  { series: 'Gantry', models: ['GANTRY', 'GH2T'] }
-].map(({ series, models }) => {
+  { series: '2000', exactModels: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'], display: '2010 2015 2020 2025' },
+  { series: '2100', exactModels: ['2100', '2112', '2118', '2124'], display: '2112 2118 2124' },
+  { series: '2400', exactModels: [], display: '2412 2416' },
+  { series: 'Roust-A-Bout', exactModels: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'], display: 'R-100 R-150 R-180 R-250' },
+  { series: 'Eventer', exactModels: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25'], display: '16 20 25' },
+  { series: 'Gantry', exactModels: ['Gantry', 'GH2T'], display: '2 Ton Gantry GH2T' }
+].map(({ series, exactModels, display }) => {
   const seriesKey = series.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const count = getSeriesCount(models);
-  const displayModels = models.filter(m => m.length > 2).slice(0, 4).join(' ') || series;
-  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${series}</h3><div class="mono models">${displayModels}</div></div><div class="mt-f"><span class="num">${count} parts</span>${icons.chevronRight}</div></a>`;
+  const count = getSeriesCount(exactModels);
+  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${series}</h3><div class="mono models">${display}</div></div><div class="mt-f"><span class="num">${count} parts</span>${icons.chevronRight}</div></a>`;
 }).join('')}
 </div></div></section>
 
@@ -524,9 +508,6 @@ ${getFooter()}`;
 function buildReturnPolicyPage() {
   const html = `${getHeader('Return Policy', 'return-policy')}
 <div class="wrap" style="padding:var(--s-12) 0;max-width:800px">
-<div style="background:var(--low-bg);color:var(--low);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-6)">
-⚠️ <b>Draft Policy - Pending Owner Review</b><br>This return policy is a draft. It must be reviewed and approved by the owner before use.
-</div>
 <h1>Return Policy</h1>
 <div style="line-height:1.8;color:var(--ink-2)">
 ${REFUND_POLICY_TEXT.split('\n\n').map(p => `<p style="margin:var(--s-4) 0">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')}
@@ -612,34 +593,7 @@ function buildSearchPage() {
 </form></div>
 <div id="searchResults"></div>
 </div>
-${getFooter()}
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const query = urlParams.get('q');
-if (query) {
-  document.querySelector('input[name="q"]').value = query;
-  fetch('${BASE_PATH}/search-data.json')
-    .then(r => r.json())
-    .then(data => {
-      const lq = query.toLowerCase();
-      const matches = data.parts.filter(p => 
-        p.partNumber.toLowerCase().includes(lq) ||
-        p.name.toLowerCase().includes(lq)
-      );
-      const resultsDiv = document.getElementById('searchResults');
-      if (matches.length === 0) {
-        resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + query + '"</p>';
-      } else {
-        resultsDiv.innerHTML = '<h2>' + matches.length + ' results for "' + query + '"</h2><div class="grid-cards" style="margin-top:var(--s-6)">' +
-          matches.slice(0, 100).map(p => 
-            '<a class="card" href="${BASE_PATH}/products/' + p.handle + '.html"><div class="im"><img src="' + p.image + '" alt="" loading="lazy"></div>' +
-            '<div class="bd"><div class="pn">' + p.partNumber + '</div><div class="nm">' + p.name + '</div>' +
-            '<div class="pr"><b>$' + parseFloat(p.price).toFixed(2) + '</b></div></div></a>'
-          ).join('') + '</div>';
-      }
-    });
-}
-</script>`;
+${getFooter()}`;
   
   fs.writeFileSync(path.join(DOCS_DIR, 'search.html'), html);
   console.log('✓ Built search.html');
@@ -703,17 +657,15 @@ ${getFooter()}`;
   console.log('✓ Built ee-brand.html');
 }
 
-function buildSeriesPage(seriesName, seriesModels) {
+function buildSeriesPage(seriesName, exactModels) {
   const seriesKey = seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   
-  // Collect all products for this series
+  // Collect all products for this series using exact model names
   const seriesProducts = new Map();
-  seriesModels.forEach(modelPattern => {
-    Object.entries(data.models).forEach(([model, products]) => {
-      if (model.toUpperCase().includes(modelPattern.toUpperCase())) {
-        products.forEach(p => seriesProducts.set(p.id, p));
-      }
-    });
+  exactModels.forEach(modelName => {
+    if (data.models[modelName]) {
+      data.models[modelName].forEach(p => seriesProducts.set(p.id, p));
+    }
   });
   
   const products = Array.from(seriesProducts.values());

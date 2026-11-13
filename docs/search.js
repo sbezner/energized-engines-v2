@@ -71,7 +71,7 @@
       matchedParts.forEach(part => {
         const highlightedPN = highlightMatch(part.partNumber, query);
         const highlightedName = highlightMatch(part.name, query);
-        const price = part.price ? `$${parseFloat(part.price).toFixed(2)}` : 'Call';
+        const price = part.price && parseFloat(part.price) > 0 ? `$${parseFloat(part.price).toFixed(2)}` : 'Call for price';
         
         html += `<a class="it" href="${BASE_PATH}/products/${part.handle}.html">
           <img src="${part.image || BASE_PATH + '/images/placeholder.jpg'}" alt="" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
@@ -98,7 +98,7 @@
   function searchParts(query) {
     if (!searchData || !query) return [];
     
-    const normalizedQuery = query.replace(/[^a-z0-9]/gi, '').toLowerCase();
+    const normalizedQuery = query.replace(/[^A-Z0-9]/gi, '').toUpperCase();
     const lowerQuery = query.toLowerCase();
     
     // Ranking: exact PN → starts-with PN → contains PN → title match
@@ -130,9 +130,18 @@
     const query = urlParams.get('q');
     const resultsDiv = document.getElementById('searchResults');
     
-    if (!query || !resultsDiv) return;
+    if (!query || !resultsDiv) {
+      console.log('initSearch: missing query or results div', { query, hasDiv: !!resultsDiv });
+      return;
+    }
     
-    document.querySelector('input[name="q"]').value = query;
+    if (!searchData) {
+      console.log('initSearch: searchData not loaded yet');
+      return;
+    }
+    
+    const searchInput = document.querySelector('input[name="q"]');
+    if (searchInput) searchInput.value = query;
     
     currentResults = searchParts(query);
     displayedCount = 0;
@@ -204,4 +213,7 @@
     div.textContent = text;
     return div.innerHTML;
   }
+  
+  // Expose showMoreResults for button onclick
+  window.EESearchShowMore = showMoreResults;
 })();

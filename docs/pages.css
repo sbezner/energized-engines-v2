@@ -279,6 +279,7 @@
   .cmpt .btn-sm{white-space:normal;height:auto;min-height:44px;padding:6px 8px;font-size:var(--fs-13);width:100%}
   .cmpt .badge.b-save{display:none}
   .pdp-sec{margin-top:var(--s-8)}
+  /* Sticky ATC padding only on product pages */
   body.pdp-page{padding-bottom:80px}
   .sticky-atc{display:flex}
   .drawer{width:100%}

@@ -93,7 +93,10 @@ console.log('\n3. Cart flow test (Playwright)...');
       }
       if (url === '' || url === '/') url = '/index.html';
       
-      let filePath = path.join(DOCS_DIR, url.slice(1));
+      // Strip query string
+      const urlPath = url.split('?')[0];
+      
+      let filePath = path.join(DOCS_DIR, urlPath.slice(1));
       const extname = path.extname(filePath);
       const contentTypes = {
         '.html': 'text/html',

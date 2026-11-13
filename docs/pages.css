@@ -237,9 +237,11 @@
 }
 @media (max-width:639px){
   .hero-g{padding-top:var(--s-6);padding-bottom:var(--s-8);gap:var(--s-6)}
-  .hero h1{font-size:2.5rem}
+  .hero h1{font-size:2rem}
   .lede{font-size:var(--fs-16)}
-  .finder{padding:var(--s-4)}
+  .finder{padding:var(--s-3)}
+  .finder .sel{min-width:0}
+  .finder .selbox{overflow:hidden;text-overflow:ellipsis}
   .f-row{flex-wrap:wrap}
   .f-row .sel{flex:1 1 calc(50% - 6px)}
   .f-go{flex:1 1 100%}
@@ -261,8 +263,8 @@
   .thumbs button{width:56px;height:56px}
   .pdp-t{font-size:var(--fs-32)}
   .pdp-price>b{font-size:var(--fs-32)}
-  .atc .btn{display:none}
-  .atc::after{content:"Add to cart is in the bar at the bottom";font-size:var(--fs-13);color:var(--muted);align-self:center}
+  .atc{flex-direction:column;gap:var(--s-3)}
+  .atc .btn{width:100%}
   .cmpt{font-size:var(--fs-13);table-layout:fixed}
   .cmpt th,.cmpt td{padding:8px;word-wrap:break-word}
   .cmpt td:first-child{width:26%}
@@ -273,4 +275,12 @@
   .sticky-atc{display:flex}
   .drawer{width:100%}
   .lrow{grid-template-columns:56px 1fr}
+}
+
+@media (max-width:359px){
+  .btn{white-space:normal;text-align:center}
+  .hero h1{font-size:1.75rem}
+  .hero-l{max-width:100%;overflow:hidden}
+  .wrap{padding-left:12px;padding-right:12px}
+  .eyebrow,.hero h1,.lede,.finder{max-width:100%}
 }

@@ -92,6 +92,12 @@
         elem.style.display = 'none';
       }
     });
+    
+    // Update cart count text in drawer
+    const countText = document.getElementById('cartCountText');
+    if (countText) {
+      countText.textContent = `(${count})`;
+    }
   }
   
   function openCartDrawer(productName, quantity) {
@@ -143,9 +149,13 @@
     const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
     
     // Render items
-    itemsContainer.innerHTML = cart.map(item => `
+    itemsContainer.innerHTML = cart.map(item => {
+      const imgSrc = item.image && (item.image.startsWith('http://') || item.image.startsWith('https://')) 
+        ? item.image 
+        : `${BASE_PATH}/${item.image || 'images/placeholder.jpg'}`;
+      return `
       <div class="li">
-        <img src="${BASE_PATH}/${item.image || 'images/placeholder.jpg'}" alt="${escapeHtml(item.name)}" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
+        <img src="${imgSrc}" alt="${escapeHtml(item.name)}" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
         <div>
           <div class="pn">${escapeHtml(item.partNumber)}</div>
           <div class="li-n">${escapeHtml(item.name)}</div>
@@ -161,7 +171,8 @@
           <button onclick="EECart.removeFromCart('${item.id}')" style="color:var(--red-700);font-size:var(--fs-13);background:none;border:0;cursor:pointer;margin-top:4px">Remove</button>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
     
     // Update subtotal
     if (subtotalElem) {
@@ -195,28 +206,30 @@
     
     const subtotal = getCartTotal();
     
-    container.innerHTML = cart.map(item => `
-      <div class="li" style="border-bottom:1px solid var(--line)">
-        <img src="${BASE_PATH}/${item.image || 'images/placeholder.jpg'}" alt="${escapeHtml(item.name)}" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
-        <div style="flex:1">
+    container.innerHTML = cart.map(item => {
+      const imgSrc = item.image && (item.image.startsWith('http://') || item.image.startsWith('https://')) 
+        ? item.image 
+        : `${BASE_PATH}/${item.image || 'images/placeholder.jpg'}`;
+      return `
+      <div class="li" style="border-bottom:1px solid var(--line);padding:var(--s-4) 0">
+        <img src="${imgSrc}" alt="${escapeHtml(item.name)}" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
+        <div style="flex:1;min-width:0">
           <div class="pn">${escapeHtml(item.partNumber)}</div>
           <div style="font-weight:600;font-size:var(--fs-16);margin:4px 0">${escapeHtml(item.name)}</div>
           <div class="stock st-ok">${item.stock || 'In stock'}</div>
+          <div class="qty" style="margin-top:var(--s-2)">
+            <button onclick="EECart.updateQuantity('${item.id}', ${item.quantity - 1})">−</button>
+            <span class="num">${item.quantity}</span>
+            <button onclick="EECart.updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+          </div>
         </div>
-        <div class="qty">
-          <button onclick="EECart.updateQuantity('${item.id}', ${item.quantity - 1})">−</button>
-          <span class="num">${item.quantity}</span>
-          <button onclick="EECart.updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+        <div style="text-align:right;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end">
+          <div style="font-size:var(--fs-18);font-weight:700">$${(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
+          <button onclick="EECart.removeFromCart('${item.id}')" style="font-size:var(--fs-13);color:var(--muted);background:none;border:none;cursor:pointer;padding:4px">Remove</button>
         </div>
-        <div style="text-align:right;font-weight:700;font-size:var(--fs-20);min-width:100px">$${(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
-        <button onclick="EECart.removeFromCart('${item.id}')" class="btn-sec btn-sm">Remove</button>
       </div>
-    `).join('');
-    
-    if (subtotalElem) {
-      subtotalElem.textContent = `$${subtotal.toFixed(2)}`;
-    }
-    
+    `;
+    }).join('');
     if (cart.length === 0) {
       container.innerHTML = '<div style="padding:var(--s-12);text-align:center"><h2>Your cart is empty</h2><p style="color:var(--muted);margin:var(--s-4) 0">Add some parts to get started.</p><a href="' + BASE_PATH + '/" class="btn btn-pri">Shop Parts</a></div>';
     }

@@ -80,7 +80,7 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 .fit-ok{background:var(--ok-bg);color:var(--ok)}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 var(--s-6);border-radius:var(--r-md);font:600 var(--fs-16)/1 var(--font-ui);border:0;cursor:pointer;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px var(--s-6);border-radius:var(--r-md);font:600 var(--fs-16)/1.2 var(--font-ui);border:0;cursor:pointer;white-space:nowrap}
 .btn-pri{background:var(--red-600);color:#fff}
 .btn-pri:hover{background:var(--red-700)}
 .btn-dark{background:var(--ink);color:#fff}
@@ -158,4 +158,16 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .util{display:none}
   .stock .l{display:none}
   .search input{font-size:15px;padding:0 12px}
+}
+
+/* Utility bar icon sizing */
+.util svg{width:14px;height:14px;flex:0 0 14px}
+.util{overflow:hidden}
+
+@media (max-width:639px){
+  .search input::placeholder{font-size:var(--fs-14)}
+}
+@media (max-width:390px){
+  .search input{font-size:var(--fs-14)}
+  .search input::placeholder{content:"Search parts"}
 }

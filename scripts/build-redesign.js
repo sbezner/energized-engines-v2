@@ -136,7 +136,7 @@ function getHeader(title, activePage = '', bodyClass = '') {
 <div class="test-banner m-only" style="justify-content:center">Test site. Order at&nbsp;<a href="https://www.energizedengines.com">energizedengines.com</a></div>
 <div class="util d-only"><div class="wrap"><span>${icons.truck}<b>Free ground shipping</b> on orders over $150, Lower 48</span>
 <span>${icons.location}Free local delivery within 10 miles of Jersey Village, TX</span><span class="sp"></span>
-<span>${icons.returns}30-day returns on unused parts</span><span>${icons.phone}Call or text <b>832-444-5426</b></span></div></div>
+<span>${icons.phone}Call or text <b>832-444-5426</b></span></div></div>
 <header class="hdr"><div class="wrap"><div class="row">
 <button class="icon-btn m-only" aria-label="Menu">${icons.menu}</button>
 <a class="logo" href="${BASE_PATH}/"><img src="${BASE_PATH}/logo.png" alt="Energized Engines"></a>
@@ -332,10 +332,15 @@ function buildAll() {
   // Build search data
   buildSearchData();
   
+  // Build extra pages
+  buildEEBrandPage();
+  buildSeriesPage('2400', ['2412', '2416', '24']);
+  buildSeriesPage('Eventer', ['EVENTER', 'EVENT']);
+  
   console.log('\n✅ Build complete!');
   console.log(`   - ${productCount} product pages`);
   console.log(`   - ${seriesCount} series pages`);
-  console.log(`   - 8 static pages`);
+  console.log(`   - 11 static pages`);
 }
 
 // Build functions
@@ -346,32 +351,41 @@ function buildHomePage() {
     eeParts: data.products.filter(p => p.vendor === 'Energized Engines').length
   };
   
+  // Calculate series counts by grouping models
+  const getSeriesCount = (seriesModels) => {
+    const partIds = new Set();
+    seriesModels.forEach(modelNum => {
+      Object.entries(data.models).forEach(([model, products]) => {
+        if (model.toUpperCase().includes(modelNum.toUpperCase()) || model === modelNum) {
+          products.forEach(p => partIds.add(p.id));
+        }
+      });
+    });
+    return partIds.size;
+  };
+  
   const html = `${getHeader('Sumner lift parts', 'home')}
 <section class="hero"><div class="wrap hero-g"><div class="hero-l"><div class="eyebrow">Sumner lift parts · OEM and EE brand</div><h1>Find parts for your lift</h1>
-<p class="lede">Pick your Sumner series and model to see every part that fits it, or search by part number.</p>
-<div class="finder"><div class="f-row">
-<label class="sel"><span>Series</span><div class="selbox">Select series${icons.chevronDown}</div></label>
-<label class="sel"><span>Model</span><div class="selbox">Select model${icons.chevronDown}</div></label>
-<button class="btn btn-pri f-go">Show parts</button></div>
-<div class="f-or"><span>or</span></div>
-<div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button class="btn btn-dark">Search</button></div></div>
+<p class="lede">Search by part number or browse our full catalog.</p>
+<div class="finder"><div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button class="btn btn-dark">Search</button></div></div>
 <div class="hero-stats"><div><b class="num">${stats.parts.toLocaleString()}</b><span>parts listed</span></div><div><b class="num">${stats.models}</b><span>Sumner models</span></div><div><b class="num">${stats.eeParts}</b><span>EE brand parts</span></div></div></div>
 <div class="hero-r d-only"><div class="plate-card"><div class="eyebrow" style="color:var(--ink-2)">Not sure of your model?</div><h3 style="margin:6px 0 4px">It's on the plate on the mast</h3>
 <p>The model number is stamped on the ID plate near the base of the mast. Have the serial number too if you call us.</p></div></div></div></section>
 
 <section class="sec"><div class="wrap"><div class="sec-h"><div><h2>Shop by lift model</h2><p>Every part we list, sorted by the Sumner lift it fits.</p></div><a href="${BASE_PATH}/models.html">All ${stats.models} models</a></div>
 <div class="mgrid">
-${Object.entries({
-  '2000': ['2010', '2015', '2020', '2025'],
-  '2100': ['2112', '2118', '2124'],
-  '2400': ['2412', '2416'],
-  'Roust-A-Bout': ['R-100', 'R-150', 'R-180', 'R-250'],
-  'Eventer': ['16', '20', '25'],
-  'Gantry': ['2 Ton Gantry', 'GH2T']
-}).map(([series, models]) => {
+${[
+  { series: '2000', models: ['2010', '2015', '2020', '2025', '20'] },
+  { series: '2100', models: ['2112', '2118', '2124', '21'] },
+  { series: '2400', models: ['2412', '2416', '24'] },
+  { series: 'Roust-A-Bout', models: ['R-100', 'R-150', 'R-180', 'R-250', 'ROUST'] },
+  { series: 'Eventer', models: ['EVENTER', '16', '20', '25'] },
+  { series: 'Gantry', models: ['GANTRY', 'GH2T'] }
+].map(({ series, models }) => {
   const seriesKey = series.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const count = (data.models[series] || data.models[seriesKey] || []).length || 0;
-  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${series}</h3><div class="mono models">${models.join(' ')}</div></div><div class="mt-f"><span class="num">${count} parts</span>${icons.chevronRight}</div></a>`;
+  const count = getSeriesCount(models);
+  const displayModels = models.filter(m => m.length > 2).slice(0, 4).join(' ') || series;
+  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${series}</h3><div class="mono models">${displayModels}</div></div><div class="mt-f"><span class="num">${count} parts</span>${icons.chevronRight}</div></a>`;
 }).join('')}
 </div></div></section>
 
@@ -431,8 +445,9 @@ function buildProductPage(product) {
           // series: "Listed in Series X parts manual, p. N"
           badgeText = `Listed in Series ${diagram.model} parts manual, p. ${diagram.page}`;
         } else {
-          // listed: "Listed in Sumner <manual>, p. N"
-          badgeText = `Listed in Sumner ${diagram.manualTitle}, p. ${diagram.page}`;
+          // listed: "Listed in <manual>, p. N" (manual title may already include "Sumner")
+          const prefix = diagram.manualTitle.match(/^(Sumner|Series)/i) ? '' : 'Sumner ';
+          badgeText = `Listed in ${prefix}${diagram.manualTitle}, p. ${diagram.page}`;
         }
         fitsHtml += `<span class="badge b-man">${badgeText}</span>`;
       });
@@ -669,3 +684,53 @@ function buildSearchData() {
 
 // Run build
 buildAll();
+
+function buildEEBrandPage() {
+  const eeProducts = data.products.filter(p => p.vendor === 'Energized Engines');
+  
+  const html = `${getHeader('EE Brand Parts', 'ee-brand')}
+<div class="wrap" style="padding:var(--s-8) 0">
+<h1>EE Brand Replacement Parts</h1>
+<p style="margin:var(--s-4) 0">Energized Engines aftermarket replacement parts for Sumner lifts. ${eeProducts.length} parts available.</p>
+<div class="grid-cards" style="margin-top:var(--s-6)">
+${eeProducts.slice(0, 100).map(p => renderProductCard(p)).join('')}
+</div>
+${eeProducts.length > 100 ? `<p style="text-align:center;margin:var(--s-6) 0;color:var(--muted)">Showing first 100 of ${eeProducts.length} EE parts. <a href="${BASE_PATH}/search.html?q=energized">Search all</a></p>` : ''}
+</div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'ee-brand.html'), html);
+  console.log('✓ Built ee-brand.html');
+}
+
+function buildSeriesPage(seriesName, seriesModels) {
+  const seriesKey = seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  
+  // Collect all products for this series
+  const seriesProducts = new Map();
+  seriesModels.forEach(modelPattern => {
+    Object.entries(data.models).forEach(([model, products]) => {
+      if (model.toUpperCase().includes(modelPattern.toUpperCase())) {
+        products.forEach(p => seriesProducts.set(p.id, p));
+      }
+    });
+  });
+  
+  const products = Array.from(seriesProducts.values());
+  
+  const html = `${getHeader(seriesName + ' Parts', 'models')}
+<div class="wrap" style="padding-top:var(--s-8)">
+<h1>${seriesName.toUpperCase()} PARTS</h1>
+<p style="margin:var(--s-4) 0">Parts for ${seriesName} Sumner lifts. ${products.length} parts shown.</p>
+${products.length === 0 ? '<p style="margin:var(--s-6) 0;color:var(--muted)">No parts cataloged for this series yet. <a href="mailto:Sales@EnergizedEngines.com">Contact us</a> for availability.</p>' : ''}
+${products.length > 0 ? `<div class="grid-cards" style="margin-top:var(--s-6)">
+${products.slice(0, 100).map(p => renderProductCard(p)).join('')}
+</div>` : ''}
+${products.length > 100 ? `<p style="text-align:center;margin:var(--s-6) 0;color:var(--muted)">Showing first 100 of ${products.length} parts</p>` : ''}
+</div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'series', `${seriesKey}.html`), html);
+  console.log(`✓ Built series/${seriesKey}.html (${products.length} parts)`);
+}
+

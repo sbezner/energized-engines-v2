@@ -268,10 +268,19 @@ module.exports = {
 
 // Continue with build functions in next section...
 
-// Return policy text from live site
-const REFUND_POLICY_TEXT = `Energized Engines will accept returns on any unused items within 15 days of the customer receiving the item. The item must be in the original package and have not been used or opened. A 20% restocking fee will be charged on all accepted returns. All returns must be approved by Energized Engines. Electrical items are not eligible for return.
+// Return policy text from live site (14-day window)
+const REFUND_POLICY_TEXT = `Returns are accepted within 14 days of ship date. Customer pays return shipping fees plus a 20% restocking fee.
 
-To request a return authorization, please contact us at Sales@EnergizedEngines.com or call 832-444-5426.`;
+We have a 14-day return policy on eligible items, which means you have 14 days after receiving your item to request a return.
+
+To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.
+
+The following items cannot be returned:
+- Electrical parts and components
+- Special orders and custom parts
+- Installed or used parts
+
+To request a return, please contact us at Sales@EnergizedEngines.com or call 832-444-5426. All returns must be approved by Energized Engines before shipping.`;
 
 // Build all pages
 function buildAll() {
@@ -312,7 +321,7 @@ function buildAll() {
   const seriesConfig = [
     { name: '2000', models: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'] },
     { name: '2100', models: ['2100', '2112', '2118', '2124'] },
-    { name: '2400', models: [] },
+    { name: '2400', models: ['2400', '2412', '2416'] },
     { name: 'Roust-A-Bout', models: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'] },
     { name: 'Eventer', models: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25'] },
     { name: 'Gantry', models: ['Gantry', 'GH2T'] }
@@ -378,7 +387,7 @@ function buildHomePage() {
 ${[
   { series: '2000', exactModels: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'], display: '2010 2015 2020 2025' },
   { series: '2100', exactModels: ['2100', '2112', '2118', '2124'], display: '2112 2118 2124' },
-  { series: '2400', exactModels: [], display: '2412 2416' },
+  { series: '2400', exactModels: ['2400', '2412', '2416'], display: '2412 2416' },
   { series: 'Roust-A-Bout', exactModels: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'], display: 'R-100 R-150 R-180 R-250' },
   { series: 'Eventer', exactModels: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25'], display: '16 20 25' },
   { series: 'Gantry', exactModels: ['Gantry', 'GH2T'], display: '2 Ton Gantry GH2T' }

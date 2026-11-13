@@ -342,7 +342,7 @@ function buildAll() {
   
   console.log('\n✅ Build complete!');
   console.log(`   - ${productCount} product pages`);
-  console.log(`   - ${seriesCount} series pages`);
+  console.log(`   - ${seriesConfig.length} series + ${modelCount} model pages`);
   console.log(`   - 11 static pages`);
 }
 

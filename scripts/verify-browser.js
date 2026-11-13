@@ -310,6 +310,37 @@ console.log('\n3. Cart flow test (Playwright)...');
     await homePage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-home-sections.png'), fullPage: true });
     await homePage.close();
     
+    // Check product image sizing at 320 and 390
+    console.log('\n📏 Testing product image constraints (P0-3)...\n');
+    const testProducts = [
+      { handle: 'ee-1021-rubber-foot-tube-for-series-2000-and-2100', name: 'EE 1021' },
+      { handle: 'ee-1046-caster-assembly-for-series-2000', name: 'EE 1046' },
+      { handle: 'mast-roller-7-14-x-1-516-with-5-8-id-bearing', name: 'Sumner 783540' }
+    ];
+    
+    const imgPage = await browser.newPage();
+    for (const product of testProducts) {
+      for (const width of [320, 390]) {
+        await imgPage.setViewportSize({ width, height: 844 });
+        await imgPage.goto(`http://localhost:${port}/products/${product.handle}.html`, { waitUntil: 'networkidle' });
+        await imgPage.waitForSelector('.gal-main img', { timeout: 5000 }).catch(() => null);
+        
+        const galMain = await imgPage.locator('.gal-main').first();
+        const img = await imgPage.locator('.gal-main img').first();
+        
+        const frameBox = await galMain.boundingBox().catch(() => null);
+        const imgBox = await img.boundingBox().catch(() => null);
+        
+        if (imgBox && frameBox && imgBox.height > frameBox.height + 1) {
+          errors.push(`${product.name} at ${width}px: img ${Math.round(imgBox.height)}px > frame ${Math.round(frameBox.height)}px`);
+          console.log(`   ✗ ${width}px: ${product.name} img too tall (${Math.round(imgBox.height)}px > ${Math.round(frameBox.height)}px)`);
+        } else if (imgBox && frameBox) {
+          console.log(`   ✓ ${width}px: ${product.name} img ${Math.round(imgBox.height)}px ≤ frame ${Math.round(frameBox.height)}px`);
+        }
+      }
+    }
+    await imgPage.close();
+    
     await browser.close();
     server.close();
     

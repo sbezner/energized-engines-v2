@@ -226,16 +226,16 @@
     const searchInput = document.querySelector('input[name="q"]');
     if (searchInput) searchInput.value = query;
     
-    // Initialize filters
-    initFilters();
-    
     currentResults = searchParts(query);
-    currentResults = applyFilters(currentResults);
-    currentResults = applySort(currentResults);
-    displayedCount = Math.min(PAGE_SIZE, currentResults.length);
+    displayedCount = 0;
     
     renderResults();
   }
+  
+  // Placeholder functions for future filter/sort implementation
+  window.clearFilters = function() {
+    console.log('Filters cleared');
+  };
   
   function renderResults() {
     const query = new URLSearchParams(window.location.search).get('q');

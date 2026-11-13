@@ -610,23 +610,82 @@ function buildProductPage(product) {
   // Format part number for display: "EE 1021" for EE products, plain for others
   const displayPartNumber = (isEE && partNumber) ? `EE ${partNumber}` : partNumber;
   
+  // Get Sumner comparison data for EE parts
+  let sumnerPartNum = null;
+  let sumnerPrice = null;
+  let savings = 0;
+  let savingPercent = 0;
+  
+  if (isEE && product.title) {
+    const sumnerMatch = product.title.match(/After Market Sumner (\d+)/i);
+    if (sumnerMatch) {
+      sumnerPartNum = sumnerMatch[1];
+      const sumnerProduct = data.products?.find(p => 
+        p.extracted_part_number === sumnerPartNum && p.vendor === 'Sumner'
+      );
+      if (sumnerProduct) {
+        sumnerPrice = getPrice(sumnerProduct);
+        if (sumnerPrice && price && sumnerPrice > price) {
+          savings = sumnerPrice - price;
+          savingPercent = Math.round((savings / sumnerPrice) * 100);
+        }
+      }
+    }
+  }
+  
+  const hasPositiveSavings = savingPercent > 0;
+  
+  // Build breadcrumb
+  const breadcrumb = isEE 
+    ? `<nav class="crumbs"><a href="${BASE_PATH}/">Home</a>${icons.chevronRight}<a href="${BASE_PATH}/ee-brand.html">EE house brand</a>${icons.chevronRight}<span>${displayPartNumber}</span></nav>`
+    : `<nav class="crumbs"><a href="${BASE_PATH}/">Home</a>${icons.chevronRight}<span>${displayPartNumber || 'Product'}</span></nav>`;
+  
+  // Build EE comparison section
+  let eeCompareHtml = '';
+  if (isEE && sumnerPartNum) {
+    eeCompareHtml = `<div class="ee-compare">
+<div class="ee-chip"><span class="chip">Replacement for Sumner ${sumnerPartNum}</span></div>`;
+    
+    if (hasPositiveSavings && sumnerPrice) {
+      eeCompareHtml += `<div class="ee-save-info">
+<div><span class="muted-s">Sumner ${sumnerPartNum} is</span> <b>${formatPrice(sumnerPrice)}</b></div>
+<div style="color:var(--green);font-weight:600;font-size:var(--fs-15)">You save $${savings.toFixed(2)} (${savingPercent}%)</div>
+</div>
+<table class="compare-table">
+<thead><tr><th></th><th>Part number</th><th>Price</th></tr></thead>
+<tbody>
+<tr><td><b>EE brand</b></td><td class="mono">${partNumber}</td><td><b>${formatPrice(price)}</b></td></tr>
+<tr><td>Sumner OEM</td><td class="mono">${sumnerPartNum}</td><td>${formatPrice(sumnerPrice)}</td></tr>
+</tbody>
+</table>`;
+    }
+    
+    eeCompareHtml += `</div>`;
+  }
+  
   // Only show part number row if we have a part number
   const partNumberRow = partNumber ? 
     `<div class="pdp-pn"><span>Part number</span><b class="mono">${escapeHtml(displayPartNumber)}</b></div>` : '';
   
   const html = `${getHeader(title, '', 'pdp-page')}
-<div class="wrap"><nav class="crumbs"><a href="${BASE_PATH}/">Home</a>${icons.chevronRight}<span>${displayPartNumber || 'Product'}</span></nav>
+<div class="wrap">${breadcrumb}
 <div class="pdp-g">
 ${galleryHtml}
 <div class="buy">
 ${hasDiagram ? `<div class="buy-tags"><span class="badge b-man">Diagram</span></div>` : ''}
 <h1 class="pdp-t">${escapeHtml(title)}</h1>
 ${partNumberRow}
+${eeCompareHtml}
 <div class="pdp-price"><b class="num">${formatPrice(price) || 'Call for price'}</b></div>
 <div class="stockbox"><div><span class="stock st-ok">In stock</span> <span class="muted-s">Ships from Jersey Village, TX</span></div></div>
 <div class="atc"><div class="qty"><button onclick="const q=document.getElementById('productQty');q.textContent=Math.max(1,parseInt(q.textContent)-1)">−</button><span class="num" id="productQty">1</span><button onclick="const q=document.getElementById('productQty');q.textContent=parseInt(q.textContent)+1">+</button></div>
 <button class="btn btn-pri" id="addToCartBtn" data-id="${product.id}" data-part-number="${escapeHtml(partNumber)}" data-name="${escapeHtml(title)}" data-price="${price}" data-image="${images[0]?.src || ''}">${icons.cart}Add to cart</button></div>
 ${fitsHtml}
+<div class="pdp-help"><p style="margin:0 0 var(--s-2);color:var(--muted);font-size:var(--fs-14)">Not sure this fits your lift? Call or text us at <b style="color:var(--ink)">832-444-5426</b> with your model and serial number.</p></div>
+<div class="mini-trust" style="display:flex;gap:var(--s-4);margin-top:var(--s-4);padding:var(--s-4);background:var(--bg-2);border-radius:var(--r-2);font-size:var(--fs-13)">
+<div style="display:flex;align-items:center;gap:6px">${icons.truck}<span>Free shipping over $250</span></div>
+<div style="display:flex;align-items:center;gap:6px">${icons.returns}<span>14-day returns</span></div>
+</div>
 </div></div>
 <div class="sticky-atc"><div><b class="num">${formatPrice(price) || 'Call for price'}</b><span class="stock st-ok">In stock</span></div>
 <button class="btn btn-pri" onclick="document.getElementById('addToCartBtn').click()">Add to cart</button></div></div>

@@ -201,10 +201,15 @@
   function renderCartPage() {
     const container = document.getElementById('cartPageItems');
     const subtotalElem = document.getElementById('cartPageSubtotal');
+    const totalElem = document.getElementById('cartPageTotal');
     
     if (!container) return;
     
     const subtotal = getCartTotal();
+    
+    // Update totals
+    if (subtotalElem) subtotalElem.textContent = `$${subtotal.toFixed(2)}`;
+    if (totalElem) totalElem.textContent = `$${subtotal.toFixed(2)}`;
     
     container.innerHTML = cart.map(item => {
       const imgSrc = item.image && (item.image.startsWith('http://') || item.image.startsWith('https://')) 

@@ -23,11 +23,16 @@
 <a href="/energized-engines-v2/series/roust-a-bout.html">Roust-A-Bout</a><a href="/energized-engines-v2/series/eventer.html">Eventer</a><a href="/energized-engines-v2/series/gantry.html">Gantry</a>
 <span class="sp"></span><a href="/energized-engines-v2/manuals.html">Manuals and diagrams</a><a class="ee" href="/energized-engines-v2/ee-brand.html">EE brand parts</a></div></nav>
 <main>
+<style>
+@media (min-width: 768px) {
+  .cart-layout { display: grid; grid-template-columns: 1fr 400px; gap: var(--s-10); }
+}
+</style>
 <div class="wrap" style="padding-top:var(--s-8);padding-bottom:var(--s-12)">
 <h1>Shopping Cart</h1>
-<div style="display:grid;grid-template-columns:1fr 400px;gap:var(--s-10);margin-top:var(--s-6)" class="d-only">
+<div class="cart-layout" style="margin-top:var(--s-6)">
 <div id="cartPageItems"></div>
-<div style="align-self:start;position:sticky;top:24px">
+<div style="align-self:start;position:sticky;top:24px" class="d-only">
 <div style="background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-5) var(--s-6)">
 <h3>Order Summary</h3>
 <div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;border-bottom:1px solid var(--line)">
@@ -36,8 +41,7 @@
 <span>Total</span><span id="cartPageTotal" class="num">$0.00</span></div>
 <a href="/energized-engines-v2/checkout.html" class="btn btn-pri btn-block">Proceed to Checkout</a>
 <a href="/energized-engines-v2/" class="btn btn-sec btn-block" style="margin-top:var(--s-2)">Continue Shopping</a>
-</div></div></div>
-<div id="cartPageItems" class="m-only"></div>
+</div></div>
 </div>
 </main>
 <div class="scrim" id="cartScrim"></div>
@@ -60,9 +64,3 @@
 <script src="/energized-engines-v2/cart.js"></script>
 <script src="/energized-engines-v2/search.js"></script>
 </body></html>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  EECart.renderCartPage();
-  document.getElementById('cartPageTotal').textContent = document.getElementById('cartPageSubtotal').textContent;
-});
-</script>

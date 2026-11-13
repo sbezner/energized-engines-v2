@@ -82,7 +82,7 @@ const tests = [
   { query: '783540', expected: 2 },
   { query: '7835', expectedFirst: 24, expectedMin: 24 },
   { query: 'plunger', expected: 21 },
-  { query: 'pin', expectedFirst: 24 }
+  { query: 'pin', expectedFirst: 24, expectedMin: 24 }
 ];
 
 tests.forEach(test => {
@@ -97,12 +97,18 @@ tests.forEach(test => {
       console.log(`   ✗ ${test.query}: ${results.length} results (expected ${test.expected})`);
     }
   } else if (test.expectedFirst !== undefined) {
-    const firstPageOk = firstPage === test.expectedFirst || (firstPage >= test.expectedFirst && results.length >= test.expectedFirst);
-    if (firstPageOk && results.length >= test.expectedMin) {
+    const firstPageOk = firstPage === test.expectedFirst;
+    const totalOk = test.expectedTotal === undefined || results.length === test.expectedTotal;
+    const minOk = test.expectedMin === undefined || results.length >= test.expectedMin;
+    
+    if (firstPageOk && totalOk && minOk) {
       console.log(`   ✓ ${test.query}: ${firstPage} first page (${results.length} total)`);
     } else if (!firstPageOk) {
       errors.push(`Search "${test.query}" first page ${firstPage}, expected ${test.expectedFirst}`);
       console.log(`   ✗ ${test.query}: ${firstPage} first page (expected ${test.expectedFirst})`);
+    } else if (!totalOk) {
+      errors.push(`Search "${test.query}" total ${results.length}, expected ${test.expectedTotal}`);
+      console.log(`   ✗ ${test.query}: ${results.length} total (expected ${test.expectedTotal})`);
     }
   }
 });
@@ -284,20 +290,180 @@ else errors.push('Return policy incorrectly contains "RA number"');
 
 console.log(`   ${policyChecks.join(', ')}`);
 
-// Summary
-console.log('\n' + '='.repeat(70));
-if (errors.length === 0 && warnings.length === 0) {
-  console.log('\n✅ ALL CHECKS PASSED\n');
-  process.exit(0);
+// 12. Check for duplicate IDs across all HTML pages
+console.log('\n12. Duplicate IDs check...');
+let duplicateIdErrors = [];
+allHtmlFiles.forEach(file => {
+  const html = fs.readFileSync(file, 'utf8');
+  const ids = [];
+  const idMatches = html.matchAll(/\bid="([^"]+)"/g);
+  for (const match of idMatches) {
+    ids.push(match[1]);
+  }
+  const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+  const uniqueDuplicates = [...new Set(duplicates)];
+  if (uniqueDuplicates.length > 0) {
+    duplicateIdErrors.push(`${path.relative(DOCS_DIR, file)}: duplicate IDs ${uniqueDuplicates.join(', ')}`);
+  }
+});
+
+if (duplicateIdErrors.length === 0) {
+  console.log(`   ✓ No duplicate IDs found in ${allHtmlFiles.length} pages`);
 } else {
-  if (errors.length > 0) {
-    console.log(`\n❌ ${errors.length} ERROR(S):`);
-    errors.forEach(e => console.log(`   - ${e}`));
-  }
-  if (warnings.length > 0) {
-    console.log(`\n⚠️  ${warnings.length} WARNING(S):`);
-    warnings.forEach(w => console.log(`   - ${w}`));
-  }
-  console.log('');
-  process.exit(errors.length > 0 ? 1 : 0);
+  duplicateIdErrors.forEach(err => {
+    errors.push(err);
+    console.log(`   ✗ ${err}`);
+  });
 }
+
+// 13. Playwright cart flow test
+console.log('\n13. Cart flow test (Playwright)...');
+(async function testCartFlow() {
+  try {
+    const http = require('http');
+    const { chromium } = require('playwright');
+    
+    // Start a simple HTTP server - strip /energized-engines-v2 prefix from URL
+    const server = http.createServer((req, res) => {
+      let url = req.url;
+      if (url.startsWith('/energized-engines-v2')) {
+        url = url.slice('/energized-engines-v2'.length);
+      }
+      if (url === '' || url === '/') url = '/index.html';
+      
+      let filePath = path.join(DOCS_DIR, url.slice(1));
+      const extname = path.extname(filePath);
+      const contentTypes = {
+        '.html': 'text/html',
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.svg': 'image/svg+xml'
+      };
+      const contentType = contentTypes[extname] || 'text/plain';
+      
+      fs.readFile(filePath, (error, content) => {
+        if (error) {
+          res.writeHead(404);
+          res.end(`Not found: ${filePath}`);
+        } else {
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(content, 'utf-8');
+        }
+      });
+    });
+    
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    const port = server.address().port;
+    const baseUrl = `http://127.0.0.1:${port}/energized-engines-v2`;
+    
+    const browser = await chromium.launch({ headless: true });
+    
+    // Test at 1280px
+    const page1280 = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    await page1280.goto(`${baseUrl}/products/sumner-783540-mast-roller-1.html`);
+    await page1280.click('.btn.btn-pri');
+    await page1280.waitForTimeout(1000);
+    await page1280.goto(`${baseUrl}/cart.html`);
+    await page1280.waitForLoadState('domcontentloaded');
+    await page1280.waitForTimeout(1000);
+    
+    const hasItem1280 = await page1280.locator('.li').count() > 0;
+    let itemPrice1280 = null;
+    if (hasItem1280) {
+      const priceDiv = page1280.locator('.li').first().locator('div[style*="text-align:right"]').first().locator('div[style*="font-weight:700"]');
+      itemPrice1280 = await priceDiv.textContent({ timeout: 5000 }).catch(() => null);
+    }
+    const subtotal1280 = await page1280.locator('#cartPageSubtotal').textContent({ timeout: 5000 }).catch(() => null);
+    const total1280 = await page1280.locator('#cartPageTotal').textContent({ timeout: 5000 }).catch(() => null);
+    
+    await page1280.goto(`${baseUrl}/checkout.html`);
+    await page1280.waitForLoadState('domcontentloaded');
+    await page1280.waitForTimeout(1000);
+    const checkoutTotal1280 = await page1280.locator('#checkoutTotal').textContent({ timeout: 5000 }).catch(() => null);
+    
+    await page1280.close();
+    
+    // Test at 390px
+    const page390 = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await page390.goto(`${baseUrl}/products/sumner-783540-mast-roller-1.html`);
+    await page390.click('.btn.btn-pri');
+    await page390.waitForTimeout(1000);
+    await page390.goto(`${baseUrl}/cart.html`);
+    await page390.waitForLoadState('domcontentloaded');
+    await page390.waitForTimeout(1000);
+    
+    const hasItem390 = await page390.locator('.li').count() > 0;
+    let itemPrice390 = null;
+    if (hasItem390) {
+      const priceDiv = page390.locator('.li').first().locator('div[style*="text-align:right"]').first().locator('div[style*="font-weight:700"]');
+      itemPrice390 = await priceDiv.textContent({ timeout: 5000 }).catch(() => null);
+    }
+    const subtotal390 = await page390.locator('#cartPageSubtotal').textContent({ timeout: 5000 }).catch(() => null);
+    const total390 = await page390.locator('#cartPageTotal').textContent({ timeout: 5000 }).catch(() => null);
+    
+    await page390.goto(`${baseUrl}/checkout.html`);
+    await page390.waitForLoadState('domcontentloaded');
+    await page390.waitForTimeout(1000);
+    const checkoutTotal390 = await page390.locator('#checkoutTotal').textContent({ timeout: 5000 }).catch(() => null);
+    
+    await page390.close();
+    await browser.close();
+    server.close();
+    
+    // Verify all values
+    const checks = [
+      { name: '1280px item visible', actual: hasItem1280, expected: true },
+      { name: '1280px item price', actual: itemPrice1280?.trim(), expected: '$33.00' },
+      { name: '1280px cart subtotal', actual: subtotal1280?.trim(), expected: '$33.00' },
+      { name: '1280px cart total', actual: total1280?.trim(), expected: '$33.00' },
+      { name: '1280px checkout total', actual: checkoutTotal1280?.trim(), expected: '$33.00' },
+      { name: '390px item visible', actual: hasItem390, expected: true },
+      { name: '390px item price', actual: itemPrice390?.trim(), expected: '$33.00' },
+      { name: '390px cart subtotal', actual: subtotal390?.trim(), expected: '$33.00' },
+      { name: '390px cart total', actual: total390?.trim(), expected: '$33.00' },
+      { name: '390px checkout total', actual: checkoutTotal390?.trim(), expected: '$33.00' }
+    ];
+    
+    let allPass = true;
+    checks.forEach(check => {
+      if (check.actual === check.expected) {
+        console.log(`   ✓ ${check.name}: ${check.actual}`);
+      } else {
+        allPass = false;
+        errors.push(`${check.name}: expected ${check.expected}, got ${check.actual}`);
+        console.log(`   ✗ ${check.name}: expected ${check.expected}, got ${check.actual}`);
+      }
+    });
+    
+    if (allPass) {
+      console.log(`   ✓ All cart flow checks passed`);
+    }
+  } catch (e) {
+    errors.push(`Playwright test failed: ${e.message}`);
+    console.log(`   ✗ Playwright test failed: ${e.message}`);
+  }
+})().then(() => {
+  // Summary after async test completes
+  console.log('\n' + '='.repeat(70));
+  if (errors.length === 0 && warnings.length === 0) {
+    console.log('\n✅ ALL CHECKS PASSED\n');
+    process.exit(0);
+  } else {
+    if (errors.length > 0) {
+      console.log(`\n❌ ${errors.length} ERROR(S):`);
+      errors.forEach(e => console.log(`   - ${e}`));
+    }
+    if (warnings.length > 0) {
+      console.log(`\n⚠️  ${warnings.length} WARNING(S):`);
+      warnings.forEach(w => console.log(`   - ${w}`));
+    }
+    console.log('');
+    process.exit(errors.length > 0 ? 1 : 0);
+  }
+}).catch(err => {
+  console.error('\n💥 UNEXPECTED ERROR:', err);
+  process.exit(1);
+});

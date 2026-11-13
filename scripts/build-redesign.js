@@ -851,14 +851,19 @@ function buildConfirmationPage() {
 
 function buildSearchPage() {
   const html = `${getHeader('Search', 'search')}
-<div class="wrap" style="padding:var(--s-8) 0">
-<h1>Search Parts</h1>
-<div class="search" style="max-width:600px;margin:var(--s-6) 0">
-<form role="search" action="${BASE_PATH}/search.html" method="get">
-<input type="search" name="q" placeholder="Search part number, model or keyword" aria-label="Search">
-<button aria-label="Search">${icons.search}</button>
-</form></div>
+<div class="wrap srp-wrap">
+<div class="srp-side"><h3>Filters</h3>
+<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Brand</b>${icons.chevronDown}</div>
+<div class="fg-b"><label class="chk"><input type="checkbox" id="filterEE" value="ee"><span>EE brand</span></label>
+<label class="chk"><input type="checkbox" id="filterSumner" value="sumner"><span>Sumner OEM</span></label></div></div>
+<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Photo</b>${icons.chevronDown}</div>
+<div class="fg-b"><label class="chk"><input type="checkbox" id="filterPhoto" value="photo"><span>Has photo</span></label></div></div>
+<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Series</b>${icons.chevronDown}</div>
+<div class="fg-b" id="seriesFilters"></div></div>
+<button class="btn btn-sec btn-sm" onclick="clearFilters()" style="margin-top:var(--s-4);width:100%">Clear filters</button></div>
+<div class="srp-main"><div class="srp-bar"><div id="searchCount"></div><div class="srp-sort"><label class="sel sel-sm"><span>Sort</span><select id="sortSelect" class="selbox sm"><option value="relevance">Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="part-number">Part Number</option></select></label></div></div>
 <div id="searchResults"></div>
+<button id="showMoreBtn" class="btn btn-sec" style="display:none;margin:var(--s-6) auto">Show more</button></div>
 </div>
 ${getFooter()}`;
   

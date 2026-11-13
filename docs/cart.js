@@ -81,13 +81,13 @@
   }
   
   function calculateShipping(subtotal) {
-    const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
-    return subtotal >= threshold ? 0 : null; // null means "not yet calculated" or "TBD"
+    const threshold = window.EEConfig?.FREE_SHIP_MIN || 250;
+    return subtotal > threshold ? 0 : null; // null means "not yet calculated" or "TBD"
   }
   
   function getShippingText(subtotal) {
-    const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
-    if (subtotal >= threshold) {
+    const threshold = window.EEConfig?.FREE_SHIP_MIN || 250;
+    if (subtotal > threshold) {
       return 'FREE';
     }
     return 'Calculated at checkout';
@@ -204,7 +204,7 @@
     if (!itemsContainer) return;
     
     const subtotal = getCartTotal();
-    const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
+    const threshold = window.EEConfig?.FREE_SHIP_MIN || 250;
     
     // Render items
     itemsContainer.innerHTML = cart.map(item => {
@@ -240,13 +240,13 @@
     // Update shipping meter
     if (meterElem && meterBar && meterText) {
       const remaining = threshold - subtotal;
-      if (remaining > 0) {
+      if (subtotal > threshold) {
+        meterBar.style.width = '100%';
+        meterText.textContent = 'You qualify for free ground shipping!';
+      } else {
         const percent = Math.min((subtotal / threshold) * 100, 100);
         meterBar.style.width = `${percent}%`;
         meterText.textContent = `Add $${remaining.toFixed(2)} for free ground shipping`;
-      } else {
-        meterBar.style.width = '100%';
-        meterText.textContent = 'You get free ground shipping. Your order is over $150.';
       }
     }
     

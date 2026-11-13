@@ -174,7 +174,7 @@ function getHeader(title, activePage = '', bodyClass = '') {
 </head><body${bodyClass ? ` class="${bodyClass}"` : ''}>
 <div class="test-banner d-only">Test site. Nothing here is for sale and no orders are taken. Shop at <a href="https://www.energizedengines.com">energizedengines.com</a></div>
 <div class="test-banner m-only" style="justify-content:center">Test site. Order at&nbsp;<a href="https://www.energizedengines.com">energizedengines.com</a></div>
-<div class="util d-only"><div class="wrap"><span>${icons.truck}<b>Free ground shipping</b> on orders over $150, Lower 48</span>
+<div class="util d-only"><div class="wrap"><span>${icons.truck}<b>Free ground shipping</b> on orders over $250, Lower 48</span>
 <span>${icons.location}Free local delivery within 10 miles of Jersey Village, TX</span><span class="sp"></span>
 <span>${icons.phone}Call or text <b>832-444-5426</b></span></div></div>
 <header class="hdr"><div class="wrap"><div class="row">
@@ -213,7 +213,7 @@ function getFooter() {
 <div><h4>Shop</h4><a href="${BASE_PATH}/models.html">Shop by lift model</a><a href="${BASE_PATH}/ee-brand.html">EE brand parts</a><a href="${BASE_PATH}/search.html">Search parts</a></div>
 <div><h4>Help</h4><a href="${BASE_PATH}/manuals.html">Manuals and diagrams</a><a href="${BASE_PATH}/about.html">About</a><a href="${BASE_PATH}/return-policy.html">Returns</a></div>
 <div><h4>Services</h4><a href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental">Lift rentals</a><a href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild">Winch rebuilds</a></div></div>
-<div class="legal"><span>&copy; 2026 Energized Engines. Sumner is a trademark of its owner. Sumner part numbers are shown for reference.</span><span>Secure checkout by Stripe</span></div></div></footer>
+<div class="legal"><span>&copy; 2026 Energized Engines. Sumner is a trademark of its owner. Sumner part numbers are shown for reference.</span><span>Demo checkout: no payment is taken</span></div></div></footer>
 <script src="${BASE_PATH}/cart.js"></script>
 <script src="${BASE_PATH}/search.js"></script>
 </body></html>`;
@@ -514,9 +514,9 @@ ${[
 }).join('')}</div></div></section>
 
 <section class="trust"><div class="wrap trust-g"><div><svg viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><b>Free ground shipping over $150</b><span>Lower 48. Free local delivery within 10 miles of Jersey Village, TX.</span></div>
-<div><svg viewBox="0 0 24 24"><path d="M4 10h11a5 5 0 0 1 0 10h-3"/><path d="m8 6-4 4 4 4"/></svg><b>14-day returns</b><span>Unused parts in original packaging, as stated in our return policy.</span></div>
+<div><svg viewBox="0 0 24 24"><path d="M4 10h11a5 5 0 0 1 0 10h-3"/><path d="m8 6-4 4 4 4"/></svg><b>14-day returns</b><span>Customer pays return shipping plus a 20% restocking fee. See <a href="${BASE_PATH}/return-policy.html" style="color:inherit;text-decoration:underline">return policy</a>.</span></div>
 <div><svg viewBox="0 0 24 24"><path d="M18 8h-3.3A7 7 0 0 0 5 8H2M18 16h-3.3A7 7 0 0 1 5 16H2M12 8v8"/></svg><b>Talk to a parts person</b><span>Call or text 832-444-5426 with your model and serial number.</span></div>
-<div><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><b>Secure checkout</b><span>Card payments handled by Stripe. We never see your card number.</span></div></div></section>
+<div><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><b>Demo checkout: no payment is taken</b><span>This is a test site. Shop at energizedengines.com for real orders.</span></div></div></section>
 
 <section class="sec"><div class="wrap man-g"><div class="man-l"><div class="eyebrow">Manuals and diagrams</div><h2>Find the part on the exploded diagram</h2><p>Assembly diagrams and parts manuals from Sumner, linked directly from sumner.com.</p><a href="${BASE_PATH}/manuals.html" class="btn">Browse manuals and diagrams</a></div>
 <div class="man-list">${manualsData.filter(m => m.manual_url && m.http_status === '200').slice(0, 4).map(m => `<a href="${m.manual_url}" target="_blank" rel="noopener" class="man-row"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>

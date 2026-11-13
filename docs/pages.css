@@ -8,12 +8,15 @@
 .hero h1{font-size:var(--fs-56);margin:10px 0 12px;text-transform:uppercase;letter-spacing:.005em}
 .lede{font-size:var(--fs-18);color:var(--ink-2);margin:0 0 var(--s-6);max-width:560px}
 .finder{background:#fff;border:1px solid var(--line-strong);border-radius:var(--r-lg);box-shadow:var(--sh-2);padding:var(--s-5)}
+.f-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:var(--s-3);align-items:end}
 .f-row,.f-pn{display:flex;gap:var(--s-3);align-items:end}
 .sel{display:flex;flex-direction:column;gap:6px;font-size:var(--fs-13);font-weight:600;color:var(--ink-2);flex:1}
 .selbox{height:48px;border:1.5px solid var(--line-strong);border-radius:var(--r-md);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:var(--fs-16);font-weight:500;color:var(--ink);background:#fff;cursor:pointer}
-.selbox svg{width:18px;height:18px;color:var(--ink-2)}
 .selbox.sm{height:40px;font-size:var(--fs-14);min-width:170px}
+select.selbox{appearance:none;padding-right:40px;background-image:url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" stroke="%236B737E" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>');background-repeat:no-repeat;background-position:right 14px center;background-size:18px}
 .f-go{flex:0 0 auto}
+.or{display:flex;align-items:center;gap:12px;margin:var(--s-4) 0;color:var(--muted);font-size:var(--fs-13);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .f-or{display:flex;align-items:center;gap:12px;margin:var(--s-4) 0;color:var(--muted);font-size:var(--fs-13);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
 .f-or::before,.f-or::after{content:"";flex:1;height:1px;background:var(--line)}
 .hero-stats{display:flex;gap:var(--s-8);margin-top:var(--s-6)}
@@ -32,6 +35,27 @@
 .mtile .models{font-size:var(--fs-13);color:var(--ink-2);margin-top:6px;word-spacing:4px}
 .mt-f{display:flex;justify-content:space-between;align-items:center;font-size:var(--fs-14);font-weight:600;color:var(--ink-2);margin-top:var(--s-4)}
 .mt-f svg{width:20px;height:20px;color:var(--red-600)}
+
+/* Trust bar */
+.trust{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trust-g{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-8);padding:var(--s-10) 0}
+.trust-g>div{display:flex;flex-direction:column;gap:var(--s-2)}
+.trust-g svg{width:28px;height:28px;stroke:var(--red-600);margin-bottom:4px}
+.trust-g b{font-size:var(--fs-16);line-height:1.3}
+.trust-g span{font-size:var(--fs-14);color:var(--ink-2);line-height:1.4}
+
+/* Manuals section */
+.man-g{display:grid;grid-template-columns:5fr 7fr;gap:var(--s-10);align-items:start}
+.man-l{display:flex;flex-direction:column;gap:var(--s-3)}
+.man-l .btn{margin-top:var(--s-2);align-self:flex-start}
+.man-list{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.man-row{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s-3);display:flex;gap:var(--s-3);align-items:center;transition:border-color .15s,box-shadow .15s}
+.man-row:hover{border-color:var(--line-strong);box-shadow:var(--sh-1)}
+.man-row svg{width:40px;height:40px;flex-shrink:0;fill:var(--back-bg);stroke:var(--back)}
+.man-row>div{flex:1;min-width:0}
+.man-t{font-size:var(--fs-14);font-weight:600;line-height:1.3;margin-bottom:2px}
+.man-meta{font-size:var(--fs-12);color:var(--ink-2)}
+.man-row>svg:last-child{width:18px;height:18px;flex-shrink:0;color:var(--ink-2)}
 
 /* EE band */
 .eeband{background:var(--charcoal);color:#fff;padding:var(--s-12) 0}
@@ -247,7 +271,11 @@
   .hero h1{font-size:2rem}
   .lede{font-size:var(--fs-16)}
   .finder{padding:var(--s-3)}
+  .f-grid{grid-template-columns:1fr;gap:var(--s-2)}
   .finder .sel{min-width:0}
+  .trust-g{grid-template-columns:1fr;gap:var(--s-6)}
+  .man-g{grid-template-columns:1fr;gap:var(--s-6)}
+  .man-list{grid-template-columns:1fr}
   /* Fix button overflow at 390px */
   .btn{padding:0 var(--s-3);min-width:0}
   .co-step{padding:var(--s-4)}

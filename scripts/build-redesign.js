@@ -24,14 +24,16 @@ const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 
 // Load manual sources
 let manualSources = {};
+let manualsData = [];
 if (fs.existsSync(MANUAL_SOURCES_FILE)) {
   const manualCsv = fs.readFileSync(MANUAL_SOURCES_FILE, 'utf8');
   manualCsv.split('\n').slice(1).forEach(line => {
     if (!line.trim()) return;
-    const match = line.match(/^"([^"]+)","([^"]+)","([^"]+)"/);
+    const match = line.match(/^"([^"]+)","([^"]+)","([^"]+)","([^"]+)"/);
     if (match) {
-      const [, model, title, url] = match;
+      const [, model, title, url, status] = match;
       manualSources[model] = { title, url };
+      manualsData.push({ model, manual_title: title, manual_url: url, http_status: status });
     }
   });
 }
@@ -426,13 +428,52 @@ function buildHomePage() {
     return partIds.size;
   };
   
+  // Get popular parts: EE parts with photos (non-placeholder)
+  const popularParts = data.products
+    .filter(p => p.vendor === 'Energized Engines' && p.images && p.images.length > 0 && !(p.images[0].width === 225 && p.images[0].height === 225))
+    .slice(0, 8);
+  
+  // Get EE parts with Sumner comparison (both prices exist)
+  const eeCompare = data.products
+    .filter(p => {
+      if (p.vendor !== 'Energized Engines') return false;
+      const price = getPrice(p);
+      if (!price || price === 0) return false;
+      // Check if there's a corresponding Sumner part
+      const sumnerPart = data.products.find(s => s.part_number === p.replaces_part_number && s.vendor !== 'Energized Engines');
+      if (!sumnerPart) return false;
+      const sumnerPrice = getPrice(sumnerPart);
+      return sumnerPrice && sumnerPrice > price;
+    })
+    .slice(0, 4);
+  
+  // ID plate SVG
+  const plateSVG = `<svg viewBox="0 0 320 180" class="plate" aria-hidden="true"><rect x="6" y="6" width="308" height="168" rx="10" fill="#E9ECEF" stroke="#9AA2AC" stroke-width="2"/>
+<circle cx="24" cy="24" r="5" fill="#9AA2AC"/><circle cx="296" cy="24" r="5" fill="#9AA2AC"/><circle cx="24" cy="156" r="5" fill="#9AA2AC"/><circle cx="296" cy="156" r="5" fill="#9AA2AC"/>
+<text x="40" y="58" font-family="Inter" font-size="13" font-weight="600" fill="#4A525D">MODEL NO.</text><rect x="40" y="66" width="240" height="34" rx="4" fill="#fff" stroke="#EA0917" stroke-width="2.5"/>
+<text x="52" y="90" font-family="JetBrains Mono" font-size="18" font-weight="600" fill="#14171C">2118</text>
+<text x="40" y="128" font-family="Inter" font-size="13" font-weight="600" fill="#4A525D">SERIAL NO.</text><rect x="40" y="136" width="240" height="24" rx="4" fill="#fff" stroke="#9AA2AC" stroke-width="1.5"/>
+<text x="52" y="154" font-family="JetBrains Mono" font-size="14" fill="#6B737E">123456</text></svg>`;
+  
   const html = `${getHeader('Sumner lift parts', 'home')}
 <section class="hero"><div class="wrap hero-g"><div class="hero-l"><div class="eyebrow">Sumner lift parts · OEM and EE brand</div><h1>Find parts for your lift</h1>
-<p class="lede">Search by part number or browse our full catalog.</p>
-<div class="finder"><form action="${BASE_PATH}/search.html" method="get" style="width:100%"><div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" name="q" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button type="submit" class="btn btn-dark">Search</button></div></form></div>
+<p class="lede">Pick your Sumner series and model to see every part that fits it, or search by part number.</p>
+<div class="finder">
+<div class="f-grid" id="modelFinder"><label class="sel"><span>Series</span><select id="seriesSelect" class="selbox"><option value="">Select series</option>${[
+  { series: '2000', label: 'Series 2000' },
+  { series: '2100', label: 'Series 2100' },
+  { series: '2400', label: 'Series 2400' },
+  { series: 'roust-a-bout', label: 'Roust-A-Bout' },
+  { series: 'eventer', label: 'Eventer' },
+  { series: 'gantry', label: 'Gantry' }
+].map(s => `<option value="${s.series}">${s.label}</option>`).join('')}</select></label>
+<label class="sel"><span>Model</span><select id="modelSelect" class="selbox" disabled><option value="">Select model</option></select></label>
+<button type="button" class="btn btn-red" id="showPartsBtn" disabled>Show parts</button></div>
+<div class="or">OR</div>
+<form action="${BASE_PATH}/search.html" method="get" style="width:100%"><div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" name="q" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button type="submit" class="btn btn-dark">Search</button></div></form></div>
 <div class="hero-stats"><div><b class="num">${stats.parts.toLocaleString()}</b><span>parts listed</span></div><div><b class="num">${stats.models}</b><span>Sumner models</span></div><div><b class="num">${stats.eeParts}</b><span>EE brand parts</span></div></div></div>
 <div class="hero-r d-only"><div class="plate-card"><div class="eyebrow" style="color:var(--ink-2)">Not sure of your model?</div><h3 style="margin:6px 0 4px">It's on the plate on the mast</h3>
-<p>The model number is stamped on the ID plate near the base of the mast. Have the serial number too if you call us.</p></div></div></div></section>
+<p>The model number is stamped on the ID plate near the base of the mast. Have the serial number too if you call us.</p>${plateSVG}</div></div></div></section>
 
 <section class="sec"><div class="wrap"><div class="sec-h"><div><h2>Shop by lift model</h2><p>Every part we list, sorted by the Sumner lift it fits.</p></div><a href="${BASE_PATH}/models.html">All ${stats.models} models</a></div>
 <div class="mgrid">
@@ -450,9 +491,29 @@ ${[
 }).join('')}
 </div></div></section>
 
+<section class="sec" style="padding-top:0"><div class="wrap"><div class="sec-h"><div><h2>Popular parts</h2><p>EE brand parts with photos. Hand-picked until order history exists.</p></div><a href="${BASE_PATH}/search.html">See all parts</a></div>
+<div class="grid-cards">${popularParts.map(p => renderProductCard(p)).join('')}</div></div></section>
+
+<section class="eeband"><div class="wrap"><div class="sec-h"><div><div class="eyebrow" style="color:var(--on-dark-2)">EE brand</div><h2>Our own replacement parts, priced below the Sumner part</h2>
+<p style="color:var(--on-dark-2)">Save on wear parts like rollers, casters, and load lines. EE brand parts fit the same as Sumner OEM.</p></div><a href="${BASE_PATH}/search.html?q=ee">Shop all ${stats.eeParts} EE brand parts</a></div>
+<div class="grid-cards">${eeCompare.map(p => {
+  const sumnerPart = data.products.find(s => s.part_number === p.replaces_part_number && s.vendor !== 'Energized Engines');
+  return renderProductCard(p, sumnerPart);
+}).join('')}</div></div></section>
+
+<section class="trust"><div class="wrap trust-g"><div><svg viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><b>Free ground shipping over $150</b><span>Lower 48. Free local delivery within 10 miles of Jersey Village, TX.</span></div>
+<div><svg viewBox="0 0 24 24"><path d="M4 10h11a5 5 0 0 1 0 10h-3"/><path d="m8 6-4 4 4 4"/></svg><b>14-day returns</b><span>Unused parts in original packaging, as stated in our return policy.</span></div>
+<div><svg viewBox="0 0 24 24"><path d="M18 8h-3.3A7 7 0 0 0 5 8H2M18 16h-3.3A7 7 0 0 1 5 16H2M12 8v8"/></svg><b>Talk to a parts person</b><span>Call or text 832-444-5426 with your model and serial number.</span></div>
+<div><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><b>Secure checkout</b><span>Card payments handled by Stripe. We never see your card number.</span></div></div></section>
+
+<section class="sec"><div class="wrap man-g"><div class="man-l"><div class="eyebrow">Manuals and diagrams</div><h2>Find the part on the exploded diagram</h2><p>Assembly diagrams and parts manuals from Sumner, linked directly from sumner.com.</p><a href="${BASE_PATH}/manuals.html" class="btn">Browse manuals and diagrams</a></div>
+<div class="man-list">${manualsData.filter(m => m.manual_url && m.http_status === '200').slice(0, 4).map(m => `<a href="${m.manual_url}" target="_blank" rel="noopener" class="man-row"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+<div><div class="man-t">${m.manual_title}</div><div class="man-meta">Fits ${m.model} · Sumner PDF</div></div>${icons.chevronRight}</a>`).join('')}</div></div></section>
+
 <section class="svc"><div class="wrap svc-g"><div><b>Lift rentals</b><span>Sumner 2118, 2124, 2412 and 2416. Daily, weekly or monthly.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental">Ask about rentals</a></div>
 <div><b>Winch rebuilds</b><span>Send us your Sumner winch and we rebuild it.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild">Ask about a rebuild</a></div></div></section>
-${getFooter()}`;
+${getFooter()}
+<script src="${BASE_PATH}/home.js"></script>`;
   
   fs.writeFileSync(path.join(DOCS_DIR, 'index.html'), html);
   console.log('✓ Built index.html');

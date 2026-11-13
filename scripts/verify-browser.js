@@ -192,6 +192,119 @@ console.log('\n3. Cart flow test (Playwright)...');
       await page.close();
     }
     
+    // Test typeahead keyboard navigation at 390px (P0-10)
+    console.log('\n📱 Testing typeahead keyboard navigation (P0-10)...');
+    const typePage = await browser.newPage();
+    await typePage.setViewportSize({ width: 390, height: 844 });
+    await typePage.goto(`${baseUrl}/`);
+    
+    await typePage.click('.m-only .search input');
+    await typePage.fill('.m-only .search input', '783540');
+    await typePage.waitForTimeout(300);
+    
+    const typeaheadCheck = await checkVisibility(typePage, '#typeaheadMobile.show', '390px: Typeahead visible after typing');
+    allChecks.push(typeaheadCheck);
+    
+    await typePage.keyboard.press('Escape');
+    await typePage.waitForTimeout(200);
+    const typeaheadHidden = await typePage.locator('#typeaheadMobile.show').count() === 0;
+    allChecks.push({ name: '390px: Esc closes typeahead', ok: typeaheadHidden });
+    
+    await typePage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-typeahead-390.png') });
+    await typePage.close();
+    
+    // Test cart drawer accessibility (P0-12)
+    console.log('\n🛒 Testing cart drawer accessibility (P0-12)...');
+    const drawerPage = await browser.newPage();
+    await drawerPage.setViewportSize({ width: 768, height: 1024 });
+    await drawerPage.goto(`${baseUrl}/products/outrigger-caster-kit-for-series-2000-and-2100-ee-1021.html`);
+    
+    await drawerPage.click('#addToCartBtn');
+    await drawerPage.waitForTimeout(400);
+    
+    const hasDialogRole = await drawerPage.locator('#cartDrawer[role="dialog"]').count() > 0;
+    const hasAriaModal = await drawerPage.locator('#cartDrawer[aria-modal="true"]').count() > 0;
+    allChecks.push({ name: '768px: Cart drawer has role=dialog', ok: hasDialogRole });
+    allChecks.push({ name: '768px: Cart drawer has aria-modal=true', ok: hasAriaModal });
+    
+    await drawerPage.keyboard.press('Escape');
+    await drawerPage.waitForTimeout(200);
+    const drawerClosed = await drawerPage.locator('#cartDrawer.show').count() === 0;
+    allChecks.push({ name: '768px: Esc closes cart drawer', ok: drawerClosed });
+    
+    await drawerPage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-cart-drawer.png') });
+    await drawerPage.close();
+    
+    // Test checkout panels at 320px and 390px (P0-8)
+    console.log('\n💳 Testing checkout panels (P0-8)...');
+    
+    for (const width of [320, 390]) {
+      const checkoutPage = await browser.newPage();
+      await checkoutPage.setViewportSize({ width, height: 844 });
+      await checkoutPage.goto(`${baseUrl}/checkout.html`);
+      await checkoutPage.waitForTimeout(300);
+      
+      const contactCheck = await checkVisibility(checkoutPage, 'text=Contact', `${width}px: Contact panel visible`);
+      const shippingCheck = await checkVisibility(checkoutPage, 'text=Shipping', `${width}px: Shipping panel visible`);
+      const paymentCheck = await checkVisibility(checkoutPage, 'text=Payment', `${width}px: Payment panel visible`);
+      
+      allChecks.push(contactCheck);
+      allChecks.push(shippingCheck);
+      allChecks.push(paymentCheck);
+      
+      const scrollWidth = await checkoutPage.evaluate(() => document.documentElement.scrollWidth);
+      allChecks.push({ name: `${width}px: Checkout no horizontal overflow`, ok: scrollWidth <= width, actual: `${scrollWidth}px` });
+      
+      await checkoutPage.screenshot({ path: path.join(DOCS_DIR, 'shots', `verify-checkout-${width}.png`), fullPage: true });
+      await checkoutPage.close();
+    }
+    
+    // Test search filters and sort (P0-7)
+    console.log('\n🔍 Testing search filters and sort (P0-7)...');
+    const searchPage = await browser.newPage();
+    await searchPage.setViewportSize({ width: 1280, height: 1024 });
+    await searchPage.goto(`${baseUrl}/search.html?q=783`);
+    await searchPage.waitForTimeout(400);
+    
+    const filtersCheck = await checkVisibility(searchPage, 'text=Filters', '1280px: Search filters visible');
+    const sortCheck = await checkVisibility(searchPage, '#sortSelect', '1280px: Sort dropdown visible');
+    
+    allChecks.push(filtersCheck);
+    allChecks.push(sortCheck);
+    
+    const initialCount = await searchPage.locator('.srp-bar h2').textContent();
+    await searchPage.check('#filterEE');
+    await searchPage.waitForTimeout(400);
+    const filteredCount = await searchPage.locator('.srp-bar h2').textContent();
+    
+    const countChanged = initialCount !== filteredCount;
+    allChecks.push({ name: '1280px: Filter changes result count', ok: countChanged, actual: `${initialCount} → ${filteredCount}` });
+    
+    await searchPage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-search-filters.png'), fullPage: true });
+    await searchPage.close();
+    
+    // Test home sections visible (P0-5)
+    console.log('\n🏠 Testing home page sections (P0-5)...');
+    const homePage = await browser.newPage();
+    await homePage.setViewportSize({ width: 1280, height: 1024 });
+    await homePage.goto(`${baseUrl}/`);
+    await homePage.waitForTimeout(300);
+    
+    const modelFinderCheck = await checkVisibility(homePage, '#modelFinder', '1280px: Model finder visible');
+    const popularCheck = await checkVisibility(homePage, 'text=Popular parts', '1280px: Popular parts section visible');
+    const eeBandCheck = await checkVisibility(homePage, 'text=Our own replacement parts', '1280px: EE brand band visible');
+    const trustCheck = await checkVisibility(homePage, '.trust', '1280px: Trust bar visible');
+    const manualsCheck = await checkVisibility(homePage, 'text=Manuals and diagrams', '1280px: Manuals section visible');
+    
+    allChecks.push(modelFinderCheck);
+    allChecks.push(popularCheck);
+    allChecks.push(eeBandCheck);
+    allChecks.push(trustCheck);
+    allChecks.push(manualsCheck);
+    
+    await homePage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-home-sections.png'), fullPage: true });
+    await homePage.close();
+    
     await browser.close();
     server.close();
     

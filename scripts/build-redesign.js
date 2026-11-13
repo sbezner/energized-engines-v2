@@ -308,21 +308,37 @@ function buildAll() {
   });
   console.log(`\n✓ Built ${productCount} product pages`);
   
-  // Build series/model pages
-  let seriesCount = 0;
-  Object.keys(data.models).forEach(model => {
-    buildModelPage(model, data.models[model]);
-    seriesCount++;
+  // Build series pages (must come before individual model pages to avoid overwriting)
+  const seriesConfig = [
+    { name: '2000', models: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'] },
+    { name: '2100', models: ['2100', '2112', '2118', '2124'] },
+    { name: '2400', models: [] },
+    { name: 'Roust-A-Bout', models: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'] },
+    { name: 'Eventer', models: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25'] },
+    { name: 'Gantry', models: ['Gantry', 'GH2T'] }
+  ];
+  
+  const seriesModels = new Set();
+  seriesConfig.forEach(({ name, models }) => {
+    buildSeriesPage(name, models);
+    models.forEach(m => seriesModels.add(m));
   });
-  console.log(`✓ Built ${seriesCount} model/series pages`);
+  
+  // Build individual model pages (skip those in series)
+  let modelCount = 0;
+  Object.keys(data.models).forEach(model => {
+    if (!seriesModels.has(model)) {
+      buildModelPage(model, data.models[model]);
+      modelCount++;
+    }
+  });
+  console.log(`✓ Built ${seriesConfig.length} series pages + ${modelCount} individual model pages`);
   
   // Build search data
   buildSearchData();
   
   // Build extra pages
   buildEEBrandPage();
-  buildSeriesPage('2400', []);
-  buildSeriesPage('Eventer', ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25']);
   
   console.log('\n✅ Build complete!');
   console.log(`   - ${productCount} product pages`);
@@ -474,9 +490,8 @@ function buildModelPage(modelKey, products) {
 <h1>${title} PARTS</h1>
 <p style="margin:var(--s-4) 0">Parts for ${title} Sumner lifts. All ${products.length} parts shown.</p>
 <div class="grid-cards" style="margin-top:var(--s-6)">
-${products.slice(0, 100).map(p => renderProductCard(p)).join('')}
+${products.map(p => renderProductCard(p)).join('')}
 </div>
-${products.length > 100 ? `<p style="text-align:center;margin:var(--s-6) 0;color:var(--muted)">Showing first 100 of ${products.length} parts</p>` : ''}
 </div>
 ${getFooter()}`;
   

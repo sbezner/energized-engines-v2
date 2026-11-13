@@ -133,11 +133,12 @@ select.selbox{appearance:none;padding-right:40px;background-image:url('data:imag
 .gal-thumb.active{border:2px solid var(--ink)}
 .gal-thumb img{width:100%;height:100%;object-fit:contain}
 .gal-main{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);aspect-ratio:1/1;display:grid;place-items:center;padding:var(--s-6);position:relative;overflow:hidden}
-.gal-main img{width:100%;height:100%;object-fit:contain;max-height:600px}
+.gal-main img{width:100%;height:100%;object-fit:contain;max-height:100%}
 .gal-c{position:absolute;bottom:12px;right:12px;font-size:var(--fs-12);font-weight:600;background:rgba(20,23,28,.75);color:#fff;padding:3px 8px;border-radius:var(--r-pill)}
-/* At 390px: use object-fit contain with max-height to prevent tall photos from getting cropped */
+/* At 390px and 320px: constrain to frame */
 @media (max-width:639px){
-  .gal-main img{object-fit:contain;max-height:400px}
+  .gal-main img{width:100%;height:100%;object-fit:contain;max-height:100%}
+  .gal-main{aspect-ratio:1/1}
 }
 .buy{display:flex;flex-direction:column;gap:var(--s-4)}
 .buy-tags{display:flex;gap:6px;flex-wrap:wrap}

@@ -158,6 +158,61 @@ if (notYetCount === 0) {
   console.log(`   ✗ Found "not yet verified" on ${notYetCount} pages`);
 }
 
+// 6a. Check EE part number format in search data
+console.log('\n6a. EE part number format...');
+const eePartsWithBadFormat = searchData.parts.filter(p => {
+  return p.vendor === 'Energized Engines' && p.partNumber && !p.partNumber.startsWith('EE ');
+});
+if (eePartsWithBadFormat.length === 0) {
+  console.log(`   ✓ All EE part numbers formatted as "EE XXXX"`);
+} else {
+  errors.push(`${eePartsWithBadFormat.length} EE parts without "EE " prefix`);
+  console.log(`   ✗ ${eePartsWithBadFormat.length} EE parts without "EE " prefix`);
+}
+
+// 6b. Check for empty part number chips
+console.log('\n6b. Empty part number chips...');
+const withEmptyPN = [];
+productFiles.forEach(file => {
+  const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
+  if (html.includes('<b class="mono"></b>') || html.includes('<b class="mono"> </b>')) {
+    withEmptyPN.push(file);
+  }
+});
+if (withEmptyPN.length === 0) {
+  console.log(`   ✓ No empty part number chips`);
+} else {
+  errors.push(`${withEmptyPN.length} pages with empty part number chips`);
+  console.log(`   ✗ ${withEmptyPN.length} pages with empty part number chips`);
+}
+
+// 6c. Check for Sumner trademark on checkout pages
+console.log('\n6c. Sumner trademark on checkout pages...');
+const checkoutPages = ['checkout.html', 'order-confirmation.html'];
+let missingTrademark = [];
+checkoutPages.forEach(page => {
+  const html = fs.readFileSync(path.join(DOCS_DIR, page), 'utf8');
+  if (!html.includes('Sumner is a trademark of its owner')) {
+    missingTrademark.push(page);
+  }
+});
+if (missingTrademark.length === 0) {
+  console.log(`   ✓ Sumner trademark present on checkout pages`);
+} else {
+  errors.push(`Missing Sumner trademark on: ${missingTrademark.join(', ')}`);
+  console.log(`   ✗ Missing Sumner trademark on: ${missingTrademark.join(', ')}`);
+}
+
+// 6d. Check no README files in docs/
+console.log('\n6d. README files in docs/...');
+const readmeFiles = fs.readdirSync(DOCS_DIR).filter(f => f.toUpperCase().startsWith('README'));
+if (readmeFiles.length === 0) {
+  console.log(`   ✓ No README files in docs/`);
+} else {
+  errors.push(`Found ${readmeFiles.length} README files in docs/: ${readmeFiles.join(', ')}`);
+  console.log(`   ✗ Found ${readmeFiles.length} README files in docs/: ${readmeFiles.join(', ')}`);
+}
+
 // 7. Check noindex on every page
 console.log('\n7. noindex meta tag...');
 const allHtmlFiles = [];

@@ -205,6 +205,9 @@
     return [...exact, ...startsWith, ...contains, ...titleMatch];
   }
   
+  let activeFilters = { brand: [], photo: false, series: [] };
+  let activeSortOrder = 'relevance';
+  
   function initSearch() {
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
@@ -223,29 +226,54 @@
     const searchInput = document.querySelector('input[name="q"]');
     if (searchInput) searchInput.value = query;
     
+    // Initialize filters
+    initFilters();
+    
     currentResults = searchParts(query);
-    displayedCount = 0;
+    currentResults = applyFilters(currentResults);
+    currentResults = applySort(currentResults);
+    displayedCount = Math.min(PAGE_SIZE, currentResults.length);
+    
+    renderResults();
+  }
+  
+  function renderResults() {
+    const query = new URLSearchParams(window.location.search).get('q');
+    const resultsDiv = document.getElementById('searchResults');
+    const searchCount = document.getElementById('searchCount');
+    
+    if (searchCount) {
+      searchCount.innerHTML = currentResults.length > 0 ? 
+        `<h2>${currentResults.length} result${currentResults.length !== 1 ? 's' : ''}</h2>` :
+        `<h2>No results</h2>`;
+    }
     
     if (currentResults.length === 0) {
       resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + escapeHtml(query) + '"</p>';
+      document.getElementById('showMoreBtn').style.display = 'none';
       return;
     }
     
-    resultsDiv.innerHTML = `<h2>${currentResults.length} results for "${escapeHtml(query)}"</h2><div class="grid-cards" id="searchGrid"></div>`;
-    
+    resultsDiv.innerHTML = '<div class="grid-cards" id="searchGrid"></div>';
     showMoreResults();
   }
   
   function showMoreResults() {
     const grid = document.getElementById('searchGrid');
+    const showMoreBtn = document.getElementById('showMoreBtn');
     if (!grid) return;
     
-    const nextBatch = currentResults.slice(displayedCount, displayedCount + PAGE_SIZE);
+    const start = displayedCount;
+    const end = Math.min(displayedCount + PAGE_SIZE, currentResults.length);
+    const nextBatch = currentResults.slice(start, end);
     
     nextBatch.forEach(part => {
-      const card = document.createElement('a');
-      card.className = 'card product-card';
-      card.href = `${BASE_PATH}/products/${part.handle}.html`;
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      const isEE = part.vendor === 'Energized Engines';
+      const hasSave = isEE && part.oldPrice && parseFloat(part.oldPrice) > parseFloat(part.price || 0);
+      const savePercent = hasSave ? Math.round(((parseFloat(part.oldPrice) - parseFloat(part.price)) / parseFloat(part.oldPrice)) * 100) : 0;
       
       const price = parseFloat(part.price || 0);
       const priceHtml = price > 0 ? `<b>$${price.toFixed(2)}</b>` : 'Call for price';

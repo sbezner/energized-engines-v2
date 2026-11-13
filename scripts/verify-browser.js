@@ -10,6 +10,7 @@ const path = require('path');
 const http = require('http');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
+const SCREENSHOT_DIR = path.join(__dirname, '..', 'notes', 'verify-shots');
 let errors = [];
 
 console.log('\n🌐 BROWSER VERIFICATION\n');
@@ -24,8 +25,21 @@ try {
   process.exit(1);
 }
 
-// 1. Check for duplicate IDs across all HTML pages
-console.log('\n1. Duplicate IDs check...');
+// 1. Check that no products use the 225x225 placeholder
+console.log('\n1. Placeholder image check...');
+const searchData = JSON.parse(fs.readFileSync(path.join(DOCS_DIR, 'search-data.json'), 'utf8'));
+const withPlaceholder = searchData.parts.filter(p => p.image && p.image.includes('_225x225')).length;
+const withoutImage = searchData.parts.filter(p => !p.image || p.image === '').length;
+
+if (withPlaceholder === 0) {
+  console.log(`   ✓ No products using 225x225 placeholder (${withoutImage} now show "No photo yet")`);
+} else {
+  errors.push(`${withPlaceholder} products still using 225x225 placeholder`);
+  console.log(`   ✗ ${withPlaceholder} products still using 225x225 placeholder`);
+}
+
+// 2. Check for duplicate IDs across all HTML pages
+console.log('\n2. Duplicate IDs check...');
 const allHtmlFiles = [];
 function collectHtml(dir) {
   const items = fs.readdirSync(dir);
@@ -45,7 +59,7 @@ let duplicateIdErrors = [];
 allHtmlFiles.forEach(file => {
   const html = fs.readFileSync(file, 'utf8');
   const ids = [];
-  const idMatches = html.matchAll(/\bid="([^"]+)"/g);
+  const idMatches = html.matchAll(/(?:^|\s)id="([^"]+)"/g);
   for (const match of idMatches) {
     ids.push(match[1]);
   }
@@ -65,8 +79,8 @@ if (duplicateIdErrors.length === 0) {
   });
 }
 
-// 2. Playwright cart flow test
-console.log('\n2. Cart flow test (Playwright)...');
+// 3. Playwright cart flow test
+console.log('\n3. Cart flow test (Playwright)...');
 (async function testCartFlow() {
   try {
     const { chromium } = require('playwright');
@@ -79,7 +93,10 @@ console.log('\n2. Cart flow test (Playwright)...');
       }
       if (url === '' || url === '/') url = '/index.html';
       
-      let filePath = path.join(DOCS_DIR, url.slice(1));
+      // Strip query string
+      const urlPath = url.split('?')[0];
+      
+      let filePath = path.join(DOCS_DIR, urlPath.slice(1));
       const extname = path.extname(filePath);
       const contentTypes = {
         '.html': 'text/html',
@@ -178,6 +195,151 @@ console.log('\n2. Cart flow test (Playwright)...');
       
       await page.close();
     }
+    
+    // Test typeahead keyboard navigation at 390px (P0-10)
+    console.log('\n📱 Testing typeahead keyboard navigation (P0-10)...');
+    const typePage = await browser.newPage();
+    await typePage.setViewportSize({ width: 390, height: 844 });
+    await typePage.goto(`${baseUrl}/`);
+    
+    await typePage.click('.m-only .search input');
+    await typePage.fill('.m-only .search input', '783540');
+    await typePage.waitForTimeout(300);
+    
+    const typeaheadCheck = await checkVisibility(typePage, '#typeaheadMobile.show', '390px: Typeahead visible after typing');
+    allChecks.push(typeaheadCheck);
+    
+    await typePage.keyboard.press('Escape');
+    await typePage.waitForTimeout(200);
+    const typeaheadHidden = await typePage.locator('#typeaheadMobile.show').count() === 0;
+    allChecks.push({ name: '390px: Esc closes typeahead', ok: typeaheadHidden });
+    
+    if (!fs.existsSync(SCREENSHOT_DIR)) fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
+    await typePage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-typeahead-390.png') });
+    await typePage.close();
+    
+    // Test cart drawer accessibility (P0-12)
+    console.log('\n🛒 Testing cart drawer accessibility (P0-12)...');
+    const drawerPage = await browser.newPage();
+    await drawerPage.setViewportSize({ width: 768, height: 1024 });
+    await drawerPage.goto(`${baseUrl}/products/779070-lower-pulley-mounting-kit-2000-2100-2500.html`);
+    
+    await drawerPage.click('#addToCartBtn');
+    await drawerPage.waitForTimeout(400);
+    
+    const hasDialogRole = await drawerPage.locator('#cartDrawer[role="dialog"]').count() > 0;
+    const hasAriaModal = await drawerPage.locator('#cartDrawer[aria-modal="true"]').count() > 0;
+    allChecks.push({ name: '768px: Cart drawer has role=dialog', ok: hasDialogRole });
+    allChecks.push({ name: '768px: Cart drawer has aria-modal=true', ok: hasAriaModal });
+    
+    await drawerPage.keyboard.press('Escape');
+    await drawerPage.waitForTimeout(200);
+    const drawerClosed = await drawerPage.locator('#cartDrawer.show').count() === 0;
+    allChecks.push({ name: '768px: Esc closes cart drawer', ok: drawerClosed });
+    
+    await drawerPage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-cart-drawer.png') });
+    await drawerPage.close();
+    
+    // Test checkout panels at 320px and 390px (P0-8)
+    console.log('\n💳 Testing checkout panels (P0-8)...');
+    
+    for (const width of [320, 390]) {
+      const checkoutPage = await browser.newPage();
+      await checkoutPage.setViewportSize({ width, height: 844 });
+      await checkoutPage.goto(`${baseUrl}/checkout.html`);
+      await checkoutPage.waitForTimeout(300);
+      
+      const contactCheck = await checkVisibility(checkoutPage, 'text=Contact', `${width}px: Contact panel visible`);
+      const shippingCheck = await checkVisibility(checkoutPage, 'text=Shipping', `${width}px: Shipping panel visible`);
+      const paymentCheck = await checkVisibility(checkoutPage, 'text=Payment', `${width}px: Payment panel visible`);
+      
+      allChecks.push(contactCheck);
+      allChecks.push(shippingCheck);
+      allChecks.push(paymentCheck);
+      
+      const scrollWidth = await checkoutPage.evaluate(() => document.documentElement.scrollWidth);
+      allChecks.push({ name: `${width}px: Checkout no horizontal overflow`, ok: scrollWidth <= width, actual: `${scrollWidth}px` });
+      
+      await checkoutPage.screenshot({ path: path.join(SCREENSHOT_DIR, `verify-checkout-${width}.png`), fullPage: true });
+      await checkoutPage.close();
+    }
+    
+    // Test search filters and sort (P0-7)
+    console.log('\n🔍 Testing search filters and sort (P0-7)...');
+    const searchPage = await browser.newPage();
+    await searchPage.setViewportSize({ width: 1280, height: 1024 });
+    await searchPage.goto(`${baseUrl}/search.html?q=783`);
+    await searchPage.waitForTimeout(400);
+    
+    const filtersCheck = await checkVisibility(searchPage, 'text=Filters', '1280px: Search filters visible');
+    const sortCheck = await checkVisibility(searchPage, '#sortSelect', '1280px: Sort dropdown visible');
+    
+    allChecks.push(filtersCheck);
+    allChecks.push(sortCheck);
+    
+    const initialCount = await searchPage.locator('.srp-bar h2').textContent();
+    await searchPage.check('#filterEE');
+    await searchPage.waitForTimeout(400);
+    const filteredCount = await searchPage.locator('.srp-bar h2').textContent();
+    
+    const countChanged = initialCount !== filteredCount;
+    allChecks.push({ name: '1280px: Filter changes result count', ok: countChanged, actual: `${initialCount} → ${filteredCount}` });
+    
+    await searchPage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-search-filters.png'), fullPage: true });
+    await searchPage.close();
+    
+    // Test home sections visible (P0-5)
+    console.log('\n🏠 Testing home page sections (P0-5)...');
+    const homePage = await browser.newPage();
+    await homePage.setViewportSize({ width: 1280, height: 1024 });
+    await homePage.goto(`${baseUrl}/`);
+    await homePage.waitForTimeout(300);
+    
+    const modelFinderCheck = await checkVisibility(homePage, '#modelFinder', '1280px: Model finder visible');
+    const popularCheck = await checkVisibility(homePage, 'text=Popular parts', '1280px: Popular parts section visible');
+    const eeBandCheck = await checkVisibility(homePage, 'text=Our own replacement parts', '1280px: EE brand band visible');
+    const trustCheck = await checkVisibility(homePage, '.trust', '1280px: Trust bar visible');
+    const manualsCheck = await checkVisibility(homePage, 'text=Manuals and diagrams', '1280px: Manuals section visible');
+    
+    allChecks.push(modelFinderCheck);
+    allChecks.push(popularCheck);
+    allChecks.push(eeBandCheck);
+    allChecks.push(trustCheck);
+    allChecks.push(manualsCheck);
+    
+    await homePage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-home-sections.png'), fullPage: true });
+    await homePage.close();
+    
+    // Check product image sizing at 320 and 390
+    console.log('\n📏 Testing product image constraints (P0-3)...\n');
+    const testProducts = [
+      { handle: 'ee-1021-rubber-foot-tube-for-series-2000-and-2100', name: 'EE 1021' },
+      { handle: 'ee-1046-caster-assembly-for-series-2000', name: 'EE 1046' },
+      { handle: 'mast-roller-7-14-x-1-516-with-5-8-id-bearing', name: 'Sumner 783540' }
+    ];
+    
+    const imgPage = await browser.newPage();
+    for (const product of testProducts) {
+      for (const width of [320, 390]) {
+        await imgPage.setViewportSize({ width, height: 844 });
+        await imgPage.goto(`http://localhost:${port}/products/${product.handle}.html`, { waitUntil: 'networkidle' });
+        await imgPage.waitForSelector('.gal-main img', { timeout: 5000 }).catch(() => null);
+        
+        const galMain = await imgPage.locator('.gal-main').first();
+        const img = await imgPage.locator('.gal-main img').first();
+        
+        const frameBox = await galMain.boundingBox().catch(() => null);
+        const imgBox = await img.boundingBox().catch(() => null);
+        
+        if (imgBox && frameBox && imgBox.height > frameBox.height + 1) {
+          errors.push(`${product.name} at ${width}px: img ${Math.round(imgBox.height)}px > frame ${Math.round(frameBox.height)}px`);
+          console.log(`   ✗ ${width}px: ${product.name} img too tall (${Math.round(imgBox.height)}px > ${Math.round(frameBox.height)}px)`);
+        } else if (imgBox && frameBox) {
+          console.log(`   ✓ ${width}px: ${product.name} img ${Math.round(imgBox.height)}px ≤ frame ${Math.round(frameBox.height)}px`);
+        }
+      }
+    }
+    await imgPage.close();
     
     await browser.close();
     server.close();

@@ -158,6 +158,61 @@ if (notYetCount === 0) {
   console.log(`   ✗ Found "not yet verified" on ${notYetCount} pages`);
 }
 
+// 6a. Check EE part number format in search data
+console.log('\n6a. EE part number format...');
+const eePartsWithBadFormat = searchData.parts.filter(p => {
+  return p.vendor === 'Energized Engines' && p.partNumber && !p.partNumber.startsWith('EE ');
+});
+if (eePartsWithBadFormat.length === 0) {
+  console.log(`   ✓ All EE part numbers formatted as "EE XXXX"`);
+} else {
+  errors.push(`${eePartsWithBadFormat.length} EE parts without "EE " prefix`);
+  console.log(`   ✗ ${eePartsWithBadFormat.length} EE parts without "EE " prefix`);
+}
+
+// 6b. Check for empty part number chips
+console.log('\n6b. Empty part number chips...');
+const withEmptyPN = [];
+productFiles.forEach(file => {
+  const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
+  if (html.includes('<b class="mono"></b>') || html.includes('<b class="mono"> </b>')) {
+    withEmptyPN.push(file);
+  }
+});
+if (withEmptyPN.length === 0) {
+  console.log(`   ✓ No empty part number chips`);
+} else {
+  errors.push(`${withEmptyPN.length} pages with empty part number chips`);
+  console.log(`   ✗ ${withEmptyPN.length} pages with empty part number chips`);
+}
+
+// 6c. Check for Sumner trademark on checkout pages
+console.log('\n6c. Sumner trademark on checkout pages...');
+const checkoutPages = ['checkout.html', 'order-confirmation.html'];
+let missingTrademark = [];
+checkoutPages.forEach(page => {
+  const html = fs.readFileSync(path.join(DOCS_DIR, page), 'utf8');
+  if (!html.includes('Sumner is a trademark of its owner')) {
+    missingTrademark.push(page);
+  }
+});
+if (missingTrademark.length === 0) {
+  console.log(`   ✓ Sumner trademark present on checkout pages`);
+} else {
+  errors.push(`Missing Sumner trademark on: ${missingTrademark.join(', ')}`);
+  console.log(`   ✗ Missing Sumner trademark on: ${missingTrademark.join(', ')}`);
+}
+
+// 6d. Check no README files in docs/
+console.log('\n6d. README files in docs/...');
+const readmeFiles = fs.readdirSync(DOCS_DIR).filter(f => f.toUpperCase().startsWith('README'));
+if (readmeFiles.length === 0) {
+  console.log(`   ✓ No README files in docs/`);
+} else {
+  errors.push(`Found ${readmeFiles.length} README files in docs/: ${readmeFiles.join(', ')}`);
+  console.log(`   ✗ Found ${readmeFiles.length} README files in docs/: ${readmeFiles.join(', ')}`);
+}
+
 // 7. Check noindex on every page
 console.log('\n7. noindex meta tag...');
 const allHtmlFiles = [];
@@ -289,6 +344,51 @@ if (!hasRA) policyChecks.push('✓ No "RA number"');
 else errors.push('Return policy incorrectly contains "RA number"');
 
 console.log(`   ${policyChecks.join(', ')}`);
+
+// 12. Check models.html links
+console.log('\n12. Models page links...');
+const modelsHtml = fs.readFileSync(path.join(DOCS_DIR, 'models.html'), 'utf-8');
+const modelLinks = [...modelsHtml.matchAll(/href="([^"]+)"/g)].map(m => m[1]).filter(href => href.includes('/series/') || href.includes('/search.html'));
+const brokenModelLinks = [];
+modelLinks.forEach(href => {
+  let filePath;
+  if (href.includes('?')) {
+    // search.html?q=... - just check search.html exists
+    filePath = path.join(DOCS_DIR, 'search.html');
+  } else {
+    // Extract path after /energized-engines-v2/
+    const relPath = href.replace(/^.*\/energized-engines-v2\//, '');
+    filePath = path.join(DOCS_DIR, relPath);
+  }
+  if (!fs.existsSync(filePath)) {
+    brokenModelLinks.push(href);
+  }
+});
+if (brokenModelLinks.length > 0) {
+  errors.push(`${brokenModelLinks.length} broken links on models.html: ${brokenModelLinks.slice(0, 3).join(', ')}`);
+  console.log(`   ✗ ${brokenModelLinks.length} broken links`);
+} else {
+  console.log(`   ✓ All ${modelLinks.length} links point to existing pages (0 404s)`);
+}
+
+// 13. Check home.js model count matches models.html
+console.log('\n13. Home finder vs models page...');
+const homeJs = fs.readFileSync(path.join(DOCS_DIR, 'home.js'), 'utf-8');
+const homeModelMatch = homeJs.match(/const seriesModels = \{([^}]+)\}/s);
+if (homeModelMatch) {
+  const homeModelArrays = homeModelMatch[1].match(/\[[^\]]+\]/g) || [];
+  const homeModelCount = homeModelArrays.reduce((sum, arr) => {
+    const models = arr.match(/'[^']+'/g) || [];
+    return sum + models.length;
+  }, 0);
+  const modelsHtmlCount = (modelsHtml.match(/class="mtile"/g) || []).length;
+  if (homeModelCount !== modelsHtmlCount || homeModelCount !== 27) {
+    errors.push(`home.js has ${homeModelCount} models but models.html has ${modelsHtmlCount} (expected 27)`);
+    console.log(`   ✗ home.js=${homeModelCount}, models.html=${modelsHtmlCount}`);
+  } else {
+    console.log(`   ✓ Both have exactly ${homeModelCount} models`);
+  }
+}
 
 // Summary
 console.log('\n' + '='.repeat(70));

@@ -55,7 +55,7 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 .ta.show{display:block}
 .ta .grp{padding:var(--s-2) var(--s-4) var(--s-1);font-size:var(--fs-12);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .ta .it{display:grid;grid-template-columns:48px 1fr auto;gap:var(--s-3);align-items:center;padding:var(--s-2) var(--s-4);cursor:pointer}
-.ta .it.on{background:var(--bg)}
+.ta .it.on,.ta .it.selected{background:var(--bg)}
 .ta .it img{width:48px;height:48px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line)}
 .ta .it .t{font-size:var(--fs-14);font-weight:500;line-height:1.3}
 .ta .it .pn{font-size:var(--fs-13);color:var(--ink-2)}
@@ -111,7 +111,7 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 .card .pr b{font-size:var(--fs-20);font-weight:700;font-variant-numeric:tabular-nums}
 .card .pr s{font-size:var(--fs-13);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .card .ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2)}
-.qa{height:40px;width:40px;border-radius:var(--r-md);background:var(--ink);color:#fff;display:grid;place-items:center;border:0;cursor:pointer}
+.qa{height:44px;width:44px;border-radius:var(--r-md);background:var(--ink);color:#fff;display:grid;place-items:center;border:0;cursor:pointer}
 .qa svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.2}
 .qa.dis{background:var(--out-bg);cursor:not-allowed}
 .qa.dis svg{stroke:var(--muted)}
@@ -139,14 +139,18 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .logo img{height:32px}
   .hdr .row{gap:var(--s-2)}
   .hdr .row .sp{flex:1}
-  .m-search{padding:0 0 var(--s-3)}
-  .m-search .search{max-width:none}
-  .m-search .search form{height:44px}
+  .m-search{padding:0 var(--gutter) var(--s-3)}
+  .m-search .search{max-width:none;width:100%}
+  .m-search .search form{height:44px;width:100%}
+  .m-search .search input{height:44px}
+  .m-search .search button{height:44px;width:56px}
   .card .bd{padding:var(--s-3)}
   .card .nm{font-size:var(--fs-13)}
   .card .pr b{font-size:var(--fs-18)}
   .card .pr{flex-direction:column;gap:0}
   .card .pr s{font-size:var(--fs-12)}
+  /* Ensure footer links have 44px tap targets on phones */
+  .foot a{padding:10px 0;min-height:44px;display:flex;align-items:center}
   .card .rep{display:none}
   .card .fits .chip:nth-of-type(n+4){display:none}
   .card .im{padding:var(--s-8) var(--s-2) var(--s-2)}
@@ -157,7 +161,8 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .foot .cols{grid-template-columns:1fr}
   .util{display:none}
   .stock .l{display:none}
-  .search input{font-size:15px;padding:0 12px}
+  /* Keep search input at 16px minimum to prevent iOS zoom */
+  .search input{font-size:var(--fs-16);padding:0 12px}
 }
 
 /* Utility bar icon sizing */
@@ -165,10 +170,13 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 .util{overflow:hidden}
 
 @media (max-width:639px){
+  /* Keep search input at 16px minimum to prevent iOS zoom */
+  .search input{font-size:var(--fs-16)}
   .search input::placeholder{font-size:var(--fs-14)}
 }
 @media (max-width:390px){
-  .search input{font-size:var(--fs-14)}
+  /* Keep search input at 16px minimum to prevent iOS zoom */
+  .search input{font-size:var(--fs-16)}
   .search input::placeholder{content:"Search parts"}
 }
 

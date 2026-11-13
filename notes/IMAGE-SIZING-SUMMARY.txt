@@ -1,0 +1,115 @@
+===============================================================================
+IMAGE SIZING TEST SUMMARY
+===============================================================================
+
+Date: November 13, 2026
+Test: Product image sizing at 320px and 390px viewports
+Method: Playwright automated measurements
+
+-------------------------------------------------------------------------------
+RESULT: ❌ 2 OF 6 TESTS FAILED (66.7% pass rate)
+-------------------------------------------------------------------------------
+
+ISSUE: EE 1021 Outrigger Caster images overflow their container frames
+
+EXACT MEASUREMENTS WITH UNITS:
+
+Product: EE 1021 Outrigger Caster
+  320px viewport:
+    - Frame (.gal-main): 296px × 296px
+    - Image (img): 246px × 328px
+    - ❌ FAIL: Image height 328px > Frame height 296px (overflow: 32px)
+  
+  390px viewport:
+    - Frame (.gal-main): 358px × 358px
+    - Image (img): 308px × 411px
+    - ❌ FAIL: Image height 411px > Frame height 358px (overflow: 53px)
+    - Screenshot: notes/verify-shots/verify-ee1021-image-390px.png
+
+Product: EE 779070 Lower Pulley Kit
+  320px viewport:
+    - Frame: 296px × 296px
+    - Image: 246px × 158px
+    - ✅ PASS
+  
+  390px viewport:
+    - Frame: 358px × 358px
+    - Image: 308px × 198px
+    - ✅ PASS
+
+Product: Sumner 784717 Base Assembly
+  320px viewport:
+    - Frame: 296px × 296px
+    - Image: 246px × 228px
+    - ✅ PASS
+  
+  390px viewport:
+    - Frame: 358px × 358px
+    - Image: 308px × 285px
+    - ✅ PASS
+
+-------------------------------------------------------------------------------
+ROOT CAUSE
+-------------------------------------------------------------------------------
+
+The CSS rule for .gal-main img uses width:100% and height:100%, which causes
+images with tall (portrait) aspect ratios to overflow the container despite
+the max-height:100% and object-fit:contain rules.
+
+Current CSS (docs/pages.css line 136):
+  .gal-main img {
+    width: 100%;
+    height: 100%;         ← This is the problem
+    object-fit: contain;
+    max-height: 100%;
+  }
+
+The media query attempts to fix this with !important rules, but it's not
+sufficient for all aspect ratios:
+  @media (max-width:639px) {
+    .gal-main img {
+      max-width: 100%!important;
+      max-height: 100%!important;
+      width: auto!important;      ← These should work but don't
+      height: auto!important;     ← in all cases
+      object-fit: contain!important;
+    }
+  }
+
+-------------------------------------------------------------------------------
+RECOMMENDED FIX
+-------------------------------------------------------------------------------
+
+Update the base .gal-main img rule to use auto dimensions:
+
+.gal-main img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+This ensures images scale proportionally without exceeding container bounds.
+
+-------------------------------------------------------------------------------
+IMPACT
+-------------------------------------------------------------------------------
+
+Products with tall product images (portrait orientation) display incorrectly
+on mobile devices:
+- Image overflows visible container
+- Inconsistent design presentation
+- Poor user experience
+
+Affected products need to be identified and tested after CSS fix.
+
+-------------------------------------------------------------------------------
+FILES GENERATED
+-------------------------------------------------------------------------------
+
+Report: notes/IMAGE-SIZING-TEST-REPORT.md (detailed analysis)
+Test Script: scripts/test-image-sizing.js
+Screenshot: notes/verify-shots/verify-ee1021-image-390px.png (shows overflow)
+
+===============================================================================

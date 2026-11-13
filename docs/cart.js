@@ -80,6 +80,19 @@
     return cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
   }
   
+  function calculateShipping(subtotal) {
+    const threshold = window.EEConfig?.FREE_SHIP_MIN || 250;
+    return subtotal > threshold ? 0 : null; // null means "not yet calculated" or "TBD"
+  }
+  
+  function getShippingText(subtotal) {
+    const threshold = window.EEConfig?.FREE_SHIP_MIN || 250;
+    if (subtotal > threshold) {
+      return 'FREE';
+    }
+    return 'Calculated at checkout';
+  }
+  
   function updateCartUI() {
     // Update cart count badge
     const countElems = document.querySelectorAll('.icon-btn .count');
@@ -100,12 +113,17 @@
     }
   }
   
+  let lastFocusedElement = null;
+  
   function openCartDrawer(productName, quantity) {
     const drawer = document.getElementById('cartDrawer');
     const scrim = document.getElementById('cartScrim');
     const addedMsg = document.getElementById('cartAddedMsg');
     
     if (!drawer) return;
+    
+    // Store currently focused element to return focus later
+    lastFocusedElement = document.activeElement;
     
     // Update added message
     if (addedMsg && productName) {
@@ -115,15 +133,21 @@
     // Render cart items
     renderCartDrawer();
     
-    // Show drawer
+    // Show drawer with dialog attributes
+    drawer.setAttribute('role', 'dialog');
+    drawer.setAttribute('aria-modal', 'true');
+    drawer.setAttribute('aria-label', 'Shopping cart');
     scrim.classList.add('show');
     drawer.classList.add('show');
     
-    // Trap focus
+    // Focus first interactive element
     const firstFocusable = drawer.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
     if (firstFocusable) {
       setTimeout(() => firstFocusable.focus(), 100);
     }
+    
+    // Set up focus trap
+    setupFocusTrap(drawer);
   }
   
   function closeCartDrawer() {
@@ -133,7 +157,41 @@
     if (drawer) {
       drawer.classList.remove('show');
       scrim.classList.remove('show');
+      
+      // Return focus to the element that opened the drawer
+      if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+        lastFocusedElement.focus();
+      }
+      lastFocusedElement = null;
     }
+  }
+  
+  function setupFocusTrap(drawer) {
+    const focusableElements = drawer.querySelectorAll(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+    
+    function trapTabKey(e) {
+      if (e.key !== 'Tab') return;
+      
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+    
+    // Remove old listener if exists
+    drawer.removeEventListener('keydown', trapTabKey);
+    drawer.addEventListener('keydown', trapTabKey);
   }
   
   function renderCartDrawer() {
@@ -146,7 +204,7 @@
     if (!itemsContainer) return;
     
     const subtotal = getCartTotal();
-    const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
+    const threshold = window.EEConfig?.FREE_SHIP_MIN || 250;
     
     // Render items
     itemsContainer.innerHTML = cart.map(item => {
@@ -182,13 +240,17 @@
     // Update shipping meter
     if (meterElem && meterBar && meterText) {
       const remaining = threshold - subtotal;
-      if (remaining > 0) {
+      if (subtotal > threshold) {
+        meterBar.style.width = '100%';
+        meterText.textContent = 'You qualify for free ground shipping!';
+      } else if (remaining <= 0.005) {
+        // At exactly $250 or very close
+        meterBar.style.width = '100%';
+        meterText.textContent = 'Free ground shipping on orders over $250. Add any item to qualify.';
+      } else {
         const percent = Math.min((subtotal / threshold) * 100, 100);
         meterBar.style.width = `${percent}%`;
         meterText.textContent = `Add $${remaining.toFixed(2)} for free ground shipping`;
-      } else {
-        meterBar.style.width = '100%';
-        meterText.textContent = 'You get free ground shipping. Your order is over $150.';
       }
     }
     
@@ -255,6 +317,8 @@
     getCart,
     getCartCount,
     getCartTotal,
+    calculateShipping,
+    getShippingText,
     openCartDrawer,
     closeCartDrawer,
     renderCartDrawer,

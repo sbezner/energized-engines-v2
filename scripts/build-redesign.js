@@ -150,7 +150,8 @@ function getHeader(title, activePage = '', bodyClass = '') {
 <div class="hdr-actions"><div class="hdr-phone d-only">Questions? Call or text<b>832-444-5426</b></div>
 <a class="icon-btn m-only" href="tel:+18324445426" aria-label="Call">${icons.phone}</a>
 <button class="icon-btn cart-btn" onclick="EECart.openCartDrawer()" aria-label="Cart">${icons.cart}${cartCount}</button></div></div>
-<div class="m-only m-search"><div class="search"><form role="search" action="${BASE_PATH}/search.html" method="get"><input type="search" name="q" placeholder="Search part number, model or keyword" aria-label="Search"><button aria-label="Search">${icons.search}</button></form></div></div></div></header>
+<div class="m-only m-search"><div class="search"><form role="search" action="${BASE_PATH}/search.html" method="get"><input type="search" name="q" placeholder="Search part number, model or keyword" aria-label="Search"><button aria-label="Search">${icons.search}</button></form>
+<div class="ta" id="typeaheadMobile"></div></div></div></div></header>
 <nav class="nav d-only"><div class="wrap"><a class="primary" href="${BASE_PATH}/models.html">${icons.grid}Shop by lift model${icons.chevronDown}</a>
 <a href="${BASE_PATH}/series/2000.html">Series 2000</a><a href="${BASE_PATH}/series/2100.html">Series 2100</a><a href="${BASE_PATH}/series/2400.html">Series 2400</a>
 <a href="${BASE_PATH}/series/roust-a-bout.html">Roust-A-Bout</a><a href="${BASE_PATH}/series/eventer.html">Eventer</a><a href="${BASE_PATH}/series/gantry.html">Gantry</a>

@@ -19,12 +19,14 @@
     .catch(e => console.error('Failed to load search data:', e));
   
   function initTypeahead() {
-    const inputs = document.querySelectorAll('.search input[type="search"]');
-    const typeahead = document.getElementById('typeahead');
+    const desktopInput = document.querySelector('.d-only .search input[type="search"]');
+    const mobileInput = document.querySelector('.m-only .search input[type="search"]');
+    const desktopTypeahead = document.getElementById('typeahead');
+    const mobileTypeahead = document.getElementById('typeaheadMobile');
     
-    if (!typeahead) return;
-    
-    inputs.forEach(input => {
+    function attachTypeahead(input, container) {
+      if (!input || !container) return;
+      
       let debounceTimer;
       
       input.addEventListener('input', function(e) {
@@ -32,19 +34,22 @@
         const query = e.target.value.trim();
         
         if (query.length < 2) {
-          typeahead.classList.remove('show');
+          container.classList.remove('show');
           return;
         }
         
         debounceTimer = setTimeout(() => {
-          showTypeahead(query, typeahead);
+          showTypeahead(query, container);
         }, 120);
       });
       
       input.addEventListener('blur', function() {
-        setTimeout(() => typeahead.classList.remove('show'), 200);
+        setTimeout(() => container.classList.remove('show'), 200);
       });
-    });
+    }
+    
+    attachTypeahead(desktopInput, desktopTypeahead);
+    attachTypeahead(mobileInput, mobileTypeahead);
   }
   
   function showTypeahead(query, container) {

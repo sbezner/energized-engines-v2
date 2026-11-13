@@ -22,6 +22,45 @@ function getPrice(p) {
 console.log('Loading data...');
 const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 
+// Normalize and clean model list
+function normalizeModelKey(model) {
+  return model.replace(/\s+/g, '').toUpperCase();
+}
+
+// EE SKUs that aren't Sumner models
+const EE_SKUS_TO_EXCLUDE = ['2001', '2003', '2004', '2005', '2017', '2021'];
+// Genie models to exclude
+const GENIE_MODELS = ['SLC-18', 'SLC-24'];
+
+// Build clean model list with normalized keys
+const normalizedModels = {};
+const seenKeys = new Set();
+const excludeSet = new Set([...EE_SKUS_TO_EXCLUDE, ...GENIE_MODELS].map(normalizeModelKey));
+
+Object.keys(data.models).forEach(model => {
+  const normalizedKey = normalizeModelKey(model);
+  
+  // Skip if excluded
+  if (excludeSet.has(normalizedKey)) {
+    console.log(`Excluding model: ${model}`);
+    return;
+  }
+  
+  // Skip if already seen (case-insensitive duplicate)
+  if (seenKeys.has(normalizedKey)) {
+    console.log(`Skipping duplicate model: ${model} (already have ${normalizedKey})`);
+    return;
+  }
+  
+  seenKeys.add(normalizedKey);
+  normalizedModels[model] = data.models[model];
+});
+
+// Replace data.models with the cleaned version
+data.models = normalizedModels;
+const MODEL_COUNT = Object.keys(data.models).length;
+console.log(`Cleaned model count: ${MODEL_COUNT} (excluded ${EE_SKUS_TO_EXCLUDE.length + GENIE_MODELS.length}, removed duplicates)`);
+
 // Load manual sources
 let manualSources = {};
 let manualsData = [];
@@ -413,7 +452,7 @@ function buildAll() {
 function buildHomePage() {
   const stats = {
     parts: data.products.length,
-    models: Object.keys(data.models).length,
+    models: MODEL_COUNT,
     eeParts: data.products.filter(p => p.vendor === 'Energized Engines').length
   };
   
@@ -832,7 +871,7 @@ function buildModelsIndexPage() {
   const html = `${getHeader('Shop by Model', 'models')}
 <div class="wrap" style="padding:var(--s-8) 0">
 <h1>Shop by Lift Model</h1>
-<p style="margin:var(--s-4) 0;color:var(--ink-2)">Browse all ${Object.keys(data.models).length} Sumner lift models.</p>
+<p style="margin:var(--s-4) 0;color:var(--ink-2)">Browse all ${MODEL_COUNT} Sumner lift models.</p>
 <div class="mgrid" style="margin-top:var(--s-6)">
 ${Object.entries(data.models).map(([model, products]) => {
   const seriesKey = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');

@@ -111,9 +111,9 @@ productFiles.forEach(file => {
   const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
   if (html.includes('b-man')) {
     badgeCounts.pages++;
-    if (html.includes('Exact diagram match')) badgeCounts.exact++;
-    if (html.includes('Series diagram match')) badgeCounts.series++;
-    if (html.includes('Listed in manual')) badgeCounts.listed++;
+    if (html.includes('title="Exact diagram match"') || html.includes('>Exact<')) badgeCounts.exact++;
+    if (html.includes('title="Series diagram match"') || html.includes('>Series<')) badgeCounts.series++;
+    if (html.includes('title="Listed in manual"') || html.includes('>Listed<')) badgeCounts.listed++;
   }
 });
 

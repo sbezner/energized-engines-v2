@@ -82,8 +82,7 @@
       "handle": "shaft-roller",
       "models": [
         "2000",
-        "2100",
-        "2014"
+        "2100"
       ],
       "vendor": "Sumner"
     },
@@ -112,8 +111,7 @@
       "handle": "sumner-780820-brace-mast-right-lf-166",
       "models": [
         "2000",
-        "2100",
-        "2012"
+        "2100"
       ],
       "vendor": "Sumner"
     },
@@ -7362,9 +7360,7 @@
       "oldPrice": null,
       "image": "",
       "handle": "sumner-779910-weldbox-2008",
-      "models": [
-        "2008"
-      ],
+      "models": [],
       "vendor": "Sumner"
     },
     {
@@ -16112,6 +16108,7 @@
       "handle": "sumner-784095-top-mast-assembly-2012s-lift",
       "models": [
         "2000",
+        "2012S",
         "2100"
       ],
       "vendor": "Sumner"
@@ -16142,6 +16139,7 @@
       "handle": "sumner-784097-btm-mast-assembly-2012s",
       "models": [
         "2000",
+        "2012S",
         "2100"
       ],
       "vendor": "Sumner"
@@ -16157,6 +16155,7 @@
       "handle": "sumner-784096-ctr-mast-assembly-2012s-lift",
       "models": [
         "2000",
+        "2012S",
         "2100"
       ],
       "vendor": "Sumner"
@@ -16172,6 +16171,7 @@
       "handle": "sumner-784099-mast-fabrication-btm-mast-2012s-lift",
       "models": [
         "2000",
+        "2012S",
         "2100"
       ],
       "vendor": "Sumner"
@@ -16203,6 +16203,7 @@
       "handle": "sumner-784796-load-line-assy-2012s-41-ft",
       "models": [
         "2000",
+        "2012S",
         "2100"
       ],
       "vendor": "Sumner"
@@ -25955,7 +25956,6 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2100_Page_1_bdf48329-1581-4639-a4f8-db3c3bd7f957.png?v=1702073627",
       "handle": "sumner-783629-load-line-assy-2018-2118",
       "models": [
-        "2018",
         "2118",
         "2100",
         "2000"
@@ -25972,7 +25972,6 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/products/2100_Page_1_50499969-fb0e-4d33-abff-ee4498816d93.png?v=1702073625",
       "handle": "sumner-783628-load-line-assy-2012-2112",
       "models": [
-        "2012",
         "2112",
         "2100",
         "2000"
@@ -25989,7 +25988,6 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/783630.jpg?v=1698100082",
       "handle": "load-line-assy-2024-2124",
       "models": [
-        "2024",
         "2124",
         "2100",
         "2000"
@@ -26807,6 +26805,7 @@
       "handle": "sumner-784797-load-line-assy-2016s-51-ft",
       "models": [
         "2000",
+        "2016S",
         "2100"
       ],
       "vendor": "Sumner"
@@ -28960,7 +28959,8 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/786382_7443212c-1afd-4545-91a9-38bbfb11d9d7.jpg?v=1700329892",
       "handle": "sumner-786382-2016s-short-stack-lift-16-800lbs",
       "models": [
-        "2000"
+        "2000",
+        "2016S"
       ],
       "vendor": "Sumner"
     },
@@ -28974,7 +28974,8 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/786383.jpg?v=1700330490",
       "handle": "sumner-786383-2012s-short-stack-lift-12-800lbs",
       "models": [
-        "2000"
+        "2000",
+        "2012S"
       ],
       "vendor": "Sumner"
     },
@@ -29000,7 +29001,8 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/786382.jpg?v=1700328733",
       "handle": "sumner-784087-2016s-short-stack-lift-16-800lbs-galvanized",
       "models": [
-        "2000"
+        "2000",
+        "2016S"
       ],
       "vendor": "Sumner"
     },
@@ -29014,7 +29016,8 @@
       "image": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784086.jpg?v=1700328793",
       "handle": "sumner-784093-2012s-short-stack-lift-12-800lbs-galvanized",
       "models": [
-        "2000"
+        "2000",
+        "2012S"
       ],
       "vendor": "Sumner"
     },
@@ -30268,11 +30271,8 @@
       "handle": "load-line-cable-2100-series",
       "models": [
         "2100",
-        "2012",
         "2112",
-        "2018",
         "2118",
-        "2024",
         "2124"
       ],
       "vendor": "Energized Engines"

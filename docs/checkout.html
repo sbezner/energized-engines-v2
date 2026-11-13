@@ -13,14 +13,55 @@
 </div></div></header>
 <main><div class="wrap" style="padding-top:var(--s-8);padding-bottom:var(--s-8);max-width:1120px">
 <div class="co-g">
-<div><div class="co-step">
-<h3>Test Checkout</h3>
-<div style="background:var(--low-bg);color:var(--low);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-4)">
-<b>Demo Mode:</b> No payment will be processed. This is a test checkout to demonstrate the design.
+<div style="display:flex;flex-direction:column;gap:var(--s-5)">
+<div class="co-step">
+<div class="step-h"><span class="step-n">1</span><h3>Contact</h3></div>
+<div class="fld"><label for="email">Email</label><input type="email" id="email" class="inp" placeholder="your@email.com"></div>
+<label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-14);cursor:pointer">
+<input type="checkbox" style="width:20px;height:20px"> Email me with news and offers</label>
 </div>
-<p>In production, this would integrate with Stripe Checkout to securely process payments. The cart contents would be sent to a serverless function that creates a Stripe Checkout Session.</p>
-<button class="btn btn-pri" onclick="demoCheckout()" style="margin-top:var(--s-4)">Continue to Demo Order Confirmation</button>
-</div></div>
+
+<div class="co-step">
+<div class="step-h"><span class="step-n">2</span><h3>Shipping</h3></div>
+<div class="fld"><label for="fullName">Full name</label><input type="text" id="fullName" class="inp" placeholder="John Smith"></div>
+<div class="fld"><label for="company">Company (optional)</label><input type="text" id="company" class="inp" placeholder="Company name"></div>
+<div class="fld"><label for="address">Address</label><input type="text" id="address" class="inp" placeholder="Street address"></div>
+<div class="two-f">
+<div class="fld"><label for="city">City</label><input type="text" id="city" class="inp" placeholder="City"></div>
+<div class="fld"><label for="state">State</label><input type="text" id="state" class="inp" placeholder="TX" maxlength="2"></div>
+</div>
+<div class="fld"><label for="zip">ZIP code</label><input type="text" id="zip" class="inp" placeholder="77040" maxlength="10"></div>
+
+<div class="ship-opt">
+<label class="radio-card">
+<input type="radio" name="shipping" value="free" checked>
+<div><b>Free ground shipping</b><span>Orders over $150</span></div>
+<span id="freeShipPrice" class="num">FREE</span>
+</label>
+<label class="radio-card">
+<input type="radio" name="shipping" value="calculated">
+<div><b>Standard shipping</b><span>Calculated at checkout</span></div>
+<span class="num">TBD</span>
+</label>
+<label class="radio-card">
+<input type="radio" name="shipping" value="local">
+<div><b>Local delivery</b><span>Within 10 miles of Jersey Village, TX</span></div>
+<span class="num">FREE</span>
+</label>
+</div>
+</div>
+
+<div class="co-step">
+<div class="step-h"><span class="step-n">3</span><h3>Payment</h3></div>
+<div style="background:var(--low-bg);color:var(--low);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-3);font-size:var(--fs-14)">
+<b>Demo Mode:</b> This is a test checkout. No payment will be processed and no order will be created.
+</div>
+<p style="margin:var(--s-3) 0;font-size:var(--fs-14);color:var(--ink-2)">In production, Stripe Payment Element would appear here with Card, Apple Pay, Google Pay, and Bank/ACH options. Card details go straight to Stripe. We never see or store your card number.</p>
+<div class="fld"><label for="poNumber">PO number (optional)</label><input type="text" id="poNumber" class="inp" placeholder="Purchase order number"></div>
+<button class="btn btn-pri btn-block btn-lg" onclick="demoCheckout()" style="margin-top:var(--s-4)">Pay <span id="payTotal">$0.00</span></button>
+</div>
+</div>
+
 <div class="co-r">
 <h3>Order Summary</h3>
 <div id="checkoutItems"></div>
@@ -29,8 +70,15 @@
 <div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;font-size:var(--fs-14);color:var(--muted)">
 <span>Shipping</span><span id="checkoutShipping">FREE</span></div>
 <div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;font-size:var(--fs-14);color:var(--muted);border-bottom:1px solid var(--line)">
-<span>Tax</span><span>Calculated</span></div>
+<span>Tax</span><span>Calculated at checkout</span></div>
 <div class="sum"><div class="gt"><span>Total</span><b id="checkoutTotal" class="num">$0.00</b></div></div>
+
+<div class="trust-mini" style="margin-top:var(--s-4);padding-top:var(--s-4);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:var(--s-2);font-size:var(--fs-13);color:var(--ink-2)">
+<div style="display:flex;gap:8px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2"><path d="M2 6h12v10H2zM14 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Free ground shipping over $150</div>
+<div style="display:flex;gap:8px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2"><path d="M4 10h11a5 5 0 0 1 0 10h-3"/><path d="m8 6-4 4 4 4"/></svg>14-day returns on unused parts</div>
+<div style="display:flex;gap:8px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Secure checkout</div>
+<div style="display:flex;gap:8px"><svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>Ships from Jersey Village, TX</div>
+</div>
 </div>
 </div>
 </div></main>
@@ -43,7 +91,9 @@ function demoCheckout() {
 document.addEventListener('DOMContentLoaded', function() {
   const cart = EECart.getCart();
   const subtotal = EECart.getCartTotal();
-  const shippingText = EECart.getShippingText(subtotal);
+  const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
+  const shippingText = subtotal >= threshold ? 'FREE' : 'Calculated at checkout';
+  
   const items = cart.map(item => `
     <div class="li mini">
       <img src="${item.image || '/energized-engines-v2/images/placeholder.jpg'}" alt="">
@@ -52,10 +102,18 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="font-weight:600">$${(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
     </div>
   `).join('');
+  
   document.getElementById('checkoutItems').innerHTML = items;
   document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
   document.getElementById('checkoutShipping').textContent = shippingText;
   document.getElementById('checkoutTotal').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('payTotal').textContent = `$${subtotal.toFixed(2)}`;
+  
+  // Update free shipping radio text
+  const freeShipPrice = document.getElementById('freeShipPrice');
+  if (freeShipPrice) {
+    freeShipPrice.textContent = subtotal >= threshold ? 'FREE' : 'Not eligible';
+  }
 });
 </script>
 </body></html>

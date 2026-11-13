@@ -248,6 +248,10 @@
   .lede{font-size:var(--fs-16)}
   .finder{padding:var(--s-3)}
   .finder .sel{min-width:0}
+  /* Fix button overflow at 390px */
+  .btn{padding:0 var(--s-3);min-width:0}
+  .co-step{padding:var(--s-4)}
+  .step-n{width:28px;height:28px;font-size:var(--fs-14)}
   .finder .selbox{overflow:hidden;text-overflow:ellipsis}
   .f-row{flex-wrap:wrap}
   .f-row .sel{flex:1 1 calc(50% - 6px)}

@@ -217,7 +217,7 @@ console.log('\n3. Cart flow test (Playwright)...');
     console.log('\n🛒 Testing cart drawer accessibility (P0-12)...');
     const drawerPage = await browser.newPage();
     await drawerPage.setViewportSize({ width: 768, height: 1024 });
-    await drawerPage.goto(`${baseUrl}/products/outrigger-caster-kit-for-series-2000-and-2100-ee-1021.html`);
+    await drawerPage.goto(`${baseUrl}/products/779070-lower-pulley-mounting-kit-2000-2100-2500.html`);
     
     await drawerPage.click('#addToCartBtn');
     await drawerPage.waitForTimeout(400);

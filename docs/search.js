@@ -431,13 +431,24 @@
       
       const price = parseFloat(part.price || 0);
       const priceHtml = price > 0 ? `<b>$${price.toFixed(2)}</b>` : 'Call for price';
+      const oldPriceHtml = hasSave ? `<s>Sumner $${parseFloat(part.oldPrice).toFixed(2)}</s>` : '';
+      
+      const badges = [];
+      if (isEE) {
+        badges.push('<span class="badge b-ee"><svg viewBox="0 0 10 12"><path d="M6 0 0 7h4l-1 5 7-8H6l1-4z"/></svg>EE brand</span>');
+      } else {
+        badges.push('<span class="badge b-oem">Sumner OEM</span>');
+      }
+      if (hasSave && savePercent > 0) {
+        badges.push(`<span class="badge b-save">Save ${savePercent}%</span>`);
+      }
       
       card.innerHTML = `
-        <div class="im"><img src="${part.image || BASE_PATH + '/images/placeholder.jpg'}" alt="" loading="lazy" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'"></div>
+        <div class="im"><div class="tl">${badges.join('')}</div><img src="${part.image || BASE_PATH + '/images/placeholder.jpg'}" alt="" loading="lazy" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'"></div>
         <div class="bd">
           <div class="pn">${escapeHtml(part.partNumber)}</div>
           <div class="nm">${escapeHtml(part.name)}</div>
-          <div class="pr">${priceHtml}</div>
+          <div class="pr">${priceHtml}${oldPriceHtml ? ' ' + oldPriceHtml : ''}</div>
         </div>
       `;
       

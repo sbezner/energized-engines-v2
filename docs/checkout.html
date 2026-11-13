@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   const items = cart.map(item => `
     <div class="li mini">
-      <img src="${item.image || '/energized-engines-v2/images/placeholder.jpg'}" alt="">
+      <img src="${item.image || '/energized-engines-v2/images/placeholder.svg'}" alt="" onerror="this.onerror=null;this.src='/energized-engines-v2/images/placeholder.svg'">
       <div style="flex:1"><div style="font-size:var(--fs-13);font-weight:600">${item.name}</div>
       <div class="pn">Qty ${item.quantity}</div></div>
       <div style="font-weight:600">$${(parseFloat(item.price) * item.quantity).toFixed(2)}</div>

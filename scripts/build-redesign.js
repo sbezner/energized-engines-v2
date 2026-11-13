@@ -189,12 +189,12 @@ function renderProductCard(product) {
   const price = getPrice(product);
   const isEE = product.vendor === 'Energized Engines';
   const cleanedTitle = cleanTitle(product.title);
-  const image = product.images?.[0]?.src || '';
   const handle = product.handle || `product-${product.id}`;
   
-  // Check for Sumner logo placeholder
-  const isSumnerLogo = image && (image.includes('Sumner_Logo') || image.includes('sumner-logo'));
-  const displayImage = isSumnerLogo ? '' : image;
+  // Filter out 225x225 Sumner logo placeholder
+  const validImages = (product.images || []).filter(img => !(img.width === 225 && img.height === 225));
+  const image = validImages[0]?.src || '';
+  const displayImage = image;
   
   // Get fitment models (limit to 3 on cards, 2 on mobile via CSS)
   const models = (product.models || []).slice(0, 3).map(m => 
@@ -422,7 +422,8 @@ function buildProductPage(product) {
   const price = getPrice(product);
   const isEE = product.vendor === 'Energized Engines';
   const handle = product.handle || `product-${product.id}`;
-  const images = product.images || [];
+  // Filter out 225x225 Sumner logo placeholder images
+  const images = (product.images || []).filter(img => !(img.width === 225 && img.height === 225));
   const models = product.models || [];
   
   // Get diagram info
@@ -654,13 +655,15 @@ function buildSearchData() {
   const searchData = {
     parts: data.products.map(p => {
       const pn = p.extracted_part_number || p.part_number || '';
+      // Filter out 225x225 placeholder
+      const validImages = (p.images || []).filter(img => !(img.width === 225 && img.height === 225));
       return {
         id: p.id,
         partNumber: pn,
         normalized_pn: pn.toString().replace(/[^A-Z0-9]/gi, '').toUpperCase(),
         name: p.title,
         price: (p.variants?.[0]?.price || 0).toString(),
-        image: p.images?.[0]?.src || '',
+        image: validImages[0]?.src || '',
         handle: p.handle || `product-${p.id}`,
         models: p.models || []
       };

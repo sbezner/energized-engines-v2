@@ -24,8 +24,21 @@ try {
   process.exit(1);
 }
 
-// 1. Check for duplicate IDs across all HTML pages
-console.log('\n1. Duplicate IDs check...');
+// 1. Check that no products use the 225x225 placeholder
+console.log('\n1. Placeholder image check...');
+const searchData = JSON.parse(fs.readFileSync(path.join(DOCS_DIR, 'search-data.json'), 'utf8'));
+const withPlaceholder = searchData.parts.filter(p => p.image && p.image.includes('_225x225')).length;
+const withoutImage = searchData.parts.filter(p => !p.image || p.image === '').length;
+
+if (withPlaceholder === 0) {
+  console.log(`   ✓ No products using 225x225 placeholder (${withoutImage} now show "No photo yet")`);
+} else {
+  errors.push(`${withPlaceholder} products still using 225x225 placeholder`);
+  console.log(`   ✗ ${withPlaceholder} products still using 225x225 placeholder`);
+}
+
+// 2. Check for duplicate IDs across all HTML pages
+console.log('\n2. Duplicate IDs check...');
 const allHtmlFiles = [];
 function collectHtml(dir) {
   const items = fs.readdirSync(dir);
@@ -65,8 +78,8 @@ if (duplicateIdErrors.length === 0) {
   });
 }
 
-// 2. Playwright cart flow test
-console.log('\n2. Cart flow test (Playwright)...');
+// 3. Playwright cart flow test
+console.log('\n3. Cart flow test (Playwright)...');
 (async function testCartFlow() {
   try {
     const { chromium } = require('playwright');

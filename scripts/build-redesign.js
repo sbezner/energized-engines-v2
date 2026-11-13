@@ -32,9 +32,9 @@ const EE_SKUS_TO_EXCLUDE = ['2001', '2003', '2004', '2005', '2017', '2021'];
 // Genie models to exclude
 const GENIE_MODELS = ['SLC-18', 'SLC-24'];
 
-// Define the canonical cleaned model list (27 models)
+// Define the canonical cleaned model list (24 models)
 const CLEANED_MODEL_LIST = [
-  '2000', '2008', '2010', '2012', '2014', '2015', '2018', '2020', '2024', '2025',
+  '2000', '2010', '2012S', '2015', '2016S', '2020', '2025',
   '2100', '2112', '2118', '2124',
   '2400', '2412', '2416',
   'EVENTER 16', 'EVENTER 20', 'EVENTER 25',
@@ -899,7 +899,7 @@ ${getFooter()}`;
 function buildModelsIndexPage() {
   // Map models to their series pages
   const modelToSeries = {
-    '2000': '2000', '2008': '2000', '2010': '2000', '2012': '2000', '2014': '2000', '2015': '2000', '2018': '2000', '2020': '2000', '2024': '2000', '2025': '2000',
+    '2000': '2000', '2010': '2000', '2012S': '2000', '2015': '2000', '2016S': '2000', '2020': '2000', '2025': '2000',
     '2100': '2100', '2112': '2100', '2118': '2100', '2124': '2100',
     '2400': '2400', '2412': '2400', '2416': '2400',
     'EVENTER 16': 'eventer', 'EVENTER 20': 'eventer', 'EVENTER 25': 'eventer',

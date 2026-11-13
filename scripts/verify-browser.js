@@ -10,6 +10,7 @@ const path = require('path');
 const http = require('http');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
+const SCREENSHOT_DIR = path.join(__dirname, '..', 'notes', 'verify-shots');
 let errors = [];
 
 console.log('\n🌐 BROWSER VERIFICATION\n');
@@ -58,7 +59,7 @@ let duplicateIdErrors = [];
 allHtmlFiles.forEach(file => {
   const html = fs.readFileSync(file, 'utf8');
   const ids = [];
-  const idMatches = html.matchAll(/\bid="([^"]+)"/g);
+  const idMatches = html.matchAll(/(?:^|\s)id="([^"]+)"/g);
   for (const match of idMatches) {
     ids.push(match[1]);
   }
@@ -210,7 +211,8 @@ console.log('\n3. Cart flow test (Playwright)...');
     const typeaheadHidden = await typePage.locator('#typeaheadMobile.show').count() === 0;
     allChecks.push({ name: '390px: Esc closes typeahead', ok: typeaheadHidden });
     
-    await typePage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-typeahead-390.png') });
+    if (!fs.existsSync(SCREENSHOT_DIR)) fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
+    await typePage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-typeahead-390.png') });
     await typePage.close();
     
     // Test cart drawer accessibility (P0-12)
@@ -232,7 +234,7 @@ console.log('\n3. Cart flow test (Playwright)...');
     const drawerClosed = await drawerPage.locator('#cartDrawer.show').count() === 0;
     allChecks.push({ name: '768px: Esc closes cart drawer', ok: drawerClosed });
     
-    await drawerPage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-cart-drawer.png') });
+    await drawerPage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-cart-drawer.png') });
     await drawerPage.close();
     
     // Test checkout panels at 320px and 390px (P0-8)
@@ -255,7 +257,7 @@ console.log('\n3. Cart flow test (Playwright)...');
       const scrollWidth = await checkoutPage.evaluate(() => document.documentElement.scrollWidth);
       allChecks.push({ name: `${width}px: Checkout no horizontal overflow`, ok: scrollWidth <= width, actual: `${scrollWidth}px` });
       
-      await checkoutPage.screenshot({ path: path.join(DOCS_DIR, 'shots', `verify-checkout-${width}.png`), fullPage: true });
+      await checkoutPage.screenshot({ path: path.join(SCREENSHOT_DIR, `verify-checkout-${width}.png`), fullPage: true });
       await checkoutPage.close();
     }
     
@@ -280,7 +282,7 @@ console.log('\n3. Cart flow test (Playwright)...');
     const countChanged = initialCount !== filteredCount;
     allChecks.push({ name: '1280px: Filter changes result count', ok: countChanged, actual: `${initialCount} → ${filteredCount}` });
     
-    await searchPage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-search-filters.png'), fullPage: true });
+    await searchPage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-search-filters.png'), fullPage: true });
     await searchPage.close();
     
     // Test home sections visible (P0-5)
@@ -302,7 +304,7 @@ console.log('\n3. Cart flow test (Playwright)...');
     allChecks.push(trustCheck);
     allChecks.push(manualsCheck);
     
-    await homePage.screenshot({ path: path.join(DOCS_DIR, 'shots', 'verify-home-sections.png'), fullPage: true });
+    await homePage.screenshot({ path: path.join(SCREENSHOT_DIR, 'verify-home-sections.png'), fullPage: true });
     await homePage.close();
     
     await browser.close();

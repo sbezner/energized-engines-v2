@@ -36,15 +36,18 @@ if (zeroPrice.length < 10) {
   console.log(`   ✗ ${zeroPrice.length} products at $0 (expected < 10)`);
 }
 
-// 3. Check search-data.json has normalized_pn
+// 3. Check search-data.json has normalized_pn (only required when partNumber exists)
 console.log('\n3. Search data normalized_pn...');
 const searchData = JSON.parse(fs.readFileSync(path.join(DOCS_DIR, 'search-data.json'), 'utf8'));
-const withoutNormPN = searchData.parts.filter(p => !p.normalized_pn || p.normalized_pn === '');
+const withoutNormPN = searchData.parts.filter(p => {
+  const hasPartNumber = p.partNumber && p.partNumber.trim() !== '';
+  return hasPartNumber && (!p.normalized_pn || p.normalized_pn === '');
+});
 if (withoutNormPN.length === 0) {
-  console.log(`   ✓ All ${searchData.parts.length} parts have normalized_pn`);
+  console.log(`   ✓ All parts with partNumber have normalized_pn`);
 } else {
-  errors.push(`${withoutNormPN.length} parts missing normalized_pn`);
-  console.log(`   ✗ ${withoutNormPN.length} parts missing normalized_pn`);
+  errors.push(`${withoutNormPN.length} parts with partNumber missing normalized_pn`);
+  console.log(`   ✗ ${withoutNormPN.length} parts with partNumber missing normalized_pn`);
 }
 
 // 4. Check search ranking
@@ -104,24 +107,35 @@ tests.forEach(test => {
   }
 });
 
-// 5. Check badge counts
+// 5. Check badge counts (classify by actual badge text content)
 console.log('\n5. Badge types (60 exact / 96 series / 191 listed on 299 pages)...');
 const badgeCounts = { exact: 0, series: 0, listed: 0, pages: 0 };
 productFiles.forEach(file => {
   const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
-  if (html.includes('b-man')) {
+  if (html.includes('class="b-man"')) {
     badgeCounts.pages++;
-    if (html.includes('title="Exact diagram match"') || html.includes('>Exact<')) badgeCounts.exact++;
-    if (html.includes('title="Series diagram match"') || html.includes('>Series<')) badgeCounts.series++;
-    if (html.includes('title="Listed in manual"') || html.includes('>Listed<')) badgeCounts.listed++;
+    // Classify by badge text: 'Verified for' = exact, 'Listed in Series ... parts manual' = series, other 'Listed in' = listed
+    const badgeMatches = html.match(/<span class="badge b-man"[^>]*>([^<]+)<\/span>/g);
+    if (badgeMatches) {
+      badgeMatches.forEach(badge => {
+        const text = badge.match(/>([^<]+)</)[1];
+        if (text.includes('Verified for')) {
+          badgeCounts.exact++;
+        } else if (text.match(/Listed in Series \d+ parts manual/)) {
+          badgeCounts.series++;
+        } else if (text.includes('Listed in')) {
+          badgeCounts.listed++;
+        }
+      });
+    }
   }
 });
 
 if (badgeCounts.exact === 60 && badgeCounts.series === 96 && badgeCounts.listed === 191 && badgeCounts.pages === 299) {
   console.log(`   ✓ ${badgeCounts.exact} exact / ${badgeCounts.series} series / ${badgeCounts.listed} listed on ${badgeCounts.pages} pages`);
 } else {
-  warnings.push(`Badge counts: ${badgeCounts.exact}/${badgeCounts.series}/${badgeCounts.listed} on ${badgeCounts.pages} pages (expected 60/96/191 on 299)`);
-  console.log(`   ⚠ ${badgeCounts.exact}/${badgeCounts.series}/${badgeCounts.listed} on ${badgeCounts.pages} pages (expected 60/96/191 on 299)`);
+  errors.push(`Badge counts: ${badgeCounts.exact}/${badgeCounts.series}/${badgeCounts.listed} on ${badgeCounts.pages} pages (expected 60/96/191 on 299)`);
+  console.log(`   ✗ ${badgeCounts.exact}/${badgeCounts.series}/${badgeCounts.listed} on ${badgeCounts.pages} pages (expected 60/96/191 on 299)`);
 }
 
 // 6. Check for 'not yet verified'
@@ -203,8 +217,52 @@ for (const [, seriesKey, tileCount] of tileMatches) {
   }
 }
 
-// 10. Check return policy content
-console.log('\n10. Return policy text...');
+// 10. Check product page prices
+console.log('\n10. Product page prices...');
+const productData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'processed-products.json'), 'utf8'));
+const zeroVariantProducts = productData.products.filter(p => !p.variants?.[0]?.price || parseFloat(p.variants[0].price) === 0);
+let zeroPriceErrors = 0;
+
+// Check that no product has data-price="0" unless its variant price is 0
+productFiles.slice(0, 100).forEach(file => {
+  const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
+  const dataPriceMatch = html.match(/data-price="([^"]+)"/);
+  if (dataPriceMatch && dataPriceMatch[1] === '0') {
+    // Check if this product's variant price is actually 0
+    const idMatch = html.match(/data-id="(\d+)"/);
+    if (idMatch) {
+      const product = productData.products.find(p => p.id.toString() === idMatch[1]);
+      const variantPrice = parseFloat(product?.variants?.[0]?.price || 0);
+      if (variantPrice > 0) zeroPriceErrors++;
+    }
+  }
+});
+
+// Check Eventer sound array bar shows $660.00
+const eventerBarFile = productFiles.find(f => f.includes('784060'));
+let eventerBarPrice = 'NOT FOUND';
+if (eventerBarFile) {
+  const html = fs.readFileSync(path.join(DOCS_DIR, 'products', eventerBarFile), 'utf8');
+  const priceMatch = html.match(/\$660\.00/);
+  eventerBarPrice = priceMatch ? '$660.00' : 'INCORRECT';
+}
+
+if (zeroPriceErrors === 0 && eventerBarPrice === '$660.00') {
+  console.log(`   ✓ No incorrect data-price="0" found`);
+  console.log(`   ✓ Eventer sound array bar shows ${eventerBarPrice}`);
+} else {
+  if (zeroPriceErrors > 0) {
+    errors.push(`${zeroPriceErrors} products with data-price="0" but variants[0].price > 0`);
+    console.log(`   ✗ ${zeroPriceErrors} products with incorrect data-price="0"`);
+  }
+  if (eventerBarPrice !== '$660.00') {
+    errors.push(`Eventer bar price is ${eventerBarPrice}, expected $660.00`);
+    console.log(`   ✗ Eventer bar shows ${eventerBarPrice}`);
+  }
+}
+
+// 11. Check return policy content
+console.log('\n11. Return policy text...');
 const policyHtml = fs.readFileSync(path.join(DOCS_DIR, 'return-policy.html'), 'utf8');
 const has14days = policyHtml.includes('within 14 days of ship date');
 const hasCircuitBoards = policyHtml.includes('CIRCUIT BOARDS');

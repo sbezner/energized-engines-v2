@@ -14,6 +14,11 @@ const BASE_PATH = '/energized-engines-v2';
 const MANUAL_SOURCES_FILE = path.join(__dirname, '..', 'notes', 'manual-sources.csv');
 const DIAGRAM_MAP_FILE = path.join(__dirname, '..', 'notes', 'diagram-map.csv');
 
+// Helper to get product price from variants or fallback
+function getPrice(p) {
+  return parseFloat(p.variants?.[0]?.price ?? p.price ?? 0);
+}
+
 console.log('Loading data...');
 const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 
@@ -181,7 +186,7 @@ function getFooter() {
 // Product card component
 function renderProductCard(product) {
   const partNumber = product.part_number || product.extracted_part_number || '';
-  const price = parseFloat(product.price || 0);
+  const price = getPrice(product);
   const isEE = product.vendor === 'Energized Engines';
   const cleanedTitle = cleanTitle(product.title);
   const image = product.images?.[0]?.src || '';
@@ -209,8 +214,8 @@ function renderProductCard(product) {
       const sumnerProduct = data.products?.find(p => 
         p.extracted_part_number === sumnerPartNum && p.vendor === 'Sumner'
       );
-      if (sumnerProduct && sumnerProduct.price) {
-        sumnerPrice = parseFloat(sumnerProduct.price);
+      if (sumnerProduct) {
+        sumnerPrice = getPrice(sumnerProduct);
       }
     }
   }
@@ -414,7 +419,7 @@ ${getFooter()}`;
 function buildProductPage(product) {
   const partNumber = product.extracted_part_number || product.part_number || '';
   const title = cleanTitle(product.title);
-  const price = parseFloat(product.price || 0);
+  const price = getPrice(product);
   const isEE = product.vendor === 'Energized Engines';
   const handle = product.handle || `product-${product.id}`;
   const images = product.images || [];

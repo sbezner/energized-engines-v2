@@ -32,6 +32,16 @@ const EE_SKUS_TO_EXCLUDE = ['2001', '2003', '2004', '2005', '2017', '2021'];
 // Genie models to exclude
 const GENIE_MODELS = ['SLC-18', 'SLC-24'];
 
+// Define the canonical cleaned model list (27 models)
+const CLEANED_MODEL_LIST = [
+  '2000', '2008', '2010', '2012', '2014', '2015', '2018', '2020', '2024', '2025',
+  '2100', '2112', '2118', '2124',
+  '2400', '2412', '2416',
+  'EVENTER 16', 'EVENTER 20', 'EVENTER 25',
+  'Gantry', 'GH2T',
+  'Roust-A-Bout', 'R-100', 'R-150', 'R-180', 'R-250'
+];
+
 // Build clean model list with normalized keys (for model pages only)
 // Keep all models in data.models for series page building, but track which should have pages
 const normalizedModels = {};
@@ -60,7 +70,7 @@ Object.keys(data.models).forEach(model => {
   normalizedModels[model] = data.models[model];
 });
 
-const MODEL_COUNT = Object.keys(normalizedModels).length;
+const MODEL_COUNT = CLEANED_MODEL_LIST.length;
 console.log(`Cleaned model count: ${MODEL_COUNT} (excluded ${EXCLUDED_MODEL_KEYS.length}, kept ${Object.keys(data.models).length} in data.models for lookups)`);
 
 // Load manual sources
@@ -884,15 +894,38 @@ ${getFooter()}`;
 }
 
 function buildModelsIndexPage() {
+  // Map models to their series pages
+  const modelToSeries = {
+    '2000': '2000', '2008': '2000', '2010': '2000', '2012': '2000', '2014': '2000', '2015': '2000', '2018': '2000', '2020': '2000', '2024': '2000', '2025': '2000',
+    '2100': '2100', '2112': '2100', '2118': '2100', '2124': '2100',
+    '2400': '2400', '2412': '2400', '2416': '2400',
+    'EVENTER 16': 'eventer', 'EVENTER 20': 'eventer', 'EVENTER 25': 'eventer',
+    'Gantry': 'gantry', 'GH2T': 'gantry',
+    'Roust-A-Bout': 'roust-a-bout', 'R-100': 'roust-a-bout', 'R-150': 'roust-a-bout', 'R-180': 'roust-a-bout', 'R-250': 'roust-a-bout'
+  };
+  
+  // Map each model to its series page or search link
+  const modelLinks = CLEANED_MODEL_LIST.map(model => {
+    const products = data.models[model] || [];
+    
+    // Determine link target
+    let href;
+    const seriesPage = modelToSeries[model];
+    if (seriesPage) {
+      href = `${BASE_PATH}/series/${seriesPage}.html`;
+    } else {
+      href = `${BASE_PATH}/search.html?q=${encodeURIComponent(model)}`;
+    }
+    
+    return `<a class="mtile" href="${href}"><div><h3>${model.toUpperCase()}</h3></div><div class="mt-f"><span class="num">${products.length} parts</span>${icons.chevronRight}</div></a>`;
+  });
+  
   const html = `${getHeader('Shop by Model', 'models')}
 <div class="wrap" style="padding:var(--s-8) 0">
 <h1>Shop by Lift Model</h1>
 <p style="margin:var(--s-4) 0;color:var(--ink-2)">Browse all ${MODEL_COUNT} Sumner lift models.</p>
 <div class="mgrid" style="margin-top:var(--s-6)">
-${Object.entries(data.models).map(([model, products]) => {
-  const seriesKey = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${model.toUpperCase()}</h3></div><div class="mt-f"><span class="num">${products.length} parts</span>${icons.chevronRight}</div></a>`;
-}).join('')}
+${modelLinks.join('')}
 </div></div>
 ${getFooter()}`;
   

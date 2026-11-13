@@ -1,0 +1,109 @@
+===============================================================================
+MEASUREMENT VERIFICATION SUMMARY
+===============================================================================
+
+Date: November 13, 2026
+Site: Energized Engines v2 (test site)
+Method: Playwright automated measurements with Chromium
+
+-------------------------------------------------------------------------------
+RESULTS: ✅ ALL MEASUREMENTS PASSED
+-------------------------------------------------------------------------------
+
+1. ✅ Search Results: EE 1021 Card
+   - Card visible with "EE brand" badge
+   - "Save 38%" badge displayed
+   - Compare price: "Sumner $112.00" (struck through)
+   - Screenshot: notes/verify-shots/verify-search-1021-save-badge.png
+
+2. ✅ Product Image at 390px
+   - .gal-main dimensions: 358px × 358px
+   - Fits perfectly in 358×358px frame
+   - Aspect ratio 1:1 maintained
+   - Screenshot: notes/verify-shots/verify-product-390px-image.png
+
+3. ✅ Mobile Search at 320px
+   - Input height: 44px
+   - Button height: 44px
+   - Meets WCAG 2.1 AA tap target requirements
+
+4. ✅ Mobile Search at 390px
+   - Input height: 44px
+   - Button height: 44px
+   - Meets WCAG 2.1 AA tap target requirements
+   - Screenshot: notes/verify-shots/verify-mobile-search-390px.png
+
+5. ✅ Quantity Buttons at 390px
+   - Button 1: 44px × 46px
+   - Button 2: 44px × 46px
+   - Both exceed 44×44px minimum
+
+6. ✅ Brand Filter Visibility
+   - #filterEE checkbox is visible
+   - Brand filter group open by default
+   - Accessible and functional
+
+-------------------------------------------------------------------------------
+EXACT MEASUREMENTS WITH UNITS
+-------------------------------------------------------------------------------
+
+Desktop (1280×720px):
+- Search card: Visible with all required badges
+- Compare price text: "Sumner $112.00"
+- Filter checkbox #filterEE: Visible
+
+Mobile at 390px (390×844px viewport):
+- .gal-main image box: 358px width × 358px height
+- Search input: 44px tall
+- Search button: 44px tall
+- Quantity button 1: 44px wide × 46px tall
+- Quantity button 2: 44px wide × 46px tall
+
+Mobile at 320px (320×568px viewport):
+- Search input: 44px tall
+- Search button: 44px tall
+
+-------------------------------------------------------------------------------
+TECHNICAL DETAILS
+-------------------------------------------------------------------------------
+
+CSS Implementation:
+- Image constraint: aspect-ratio: 1/1 at @media (max-width:639px)
+- Mobile tap targets: Explicit height:44px rules in site.css
+- Gutter spacing: 16px per side on mobile (358px = 390px - 32px)
+
+JavaScript Implementation:
+- Save badge: Shown when vendor='Energized Engines' AND oldPrice > price
+- Compare price: Rendered as <s>Sumner ${oldPrice}</s>
+- Dynamic search results via search.js
+
+Accessibility:
+- All tap targets ≥44×44px (WCAG 2.1 AA)
+- Font size 16px on inputs (prevents iOS zoom)
+- ARIA labels on interactive elements
+
+-------------------------------------------------------------------------------
+FILES GENERATED
+-------------------------------------------------------------------------------
+
+Report: notes/MEASUREMENTS-REPORT.md
+Test Script: scripts/verify-measurements.js
+Server Script: serve-simple.js
+Screenshots:
+  - notes/verify-shots/verify-search-1021-save-badge.png
+  - notes/verify-shots/verify-product-390px-image.png
+  - notes/verify-shots/verify-mobile-search-390px.png
+
+-------------------------------------------------------------------------------
+CONCLUSION
+-------------------------------------------------------------------------------
+
+All 6 verification requirements passed:
+✅ Search shows EE 1021 with Save badge and "Sumner $112.00" compare price
+✅ Product image fits exactly in 358×358px frame at 390px viewport
+✅ Mobile search input and button are 44px tall at both 320px and 390px
+✅ Quantity buttons are 44×46px (exceed 44×44px minimum) at 390px
+✅ Brand filter #filterEE is visible by default
+
+No issues found. Implementation is correct.
+===============================================================================

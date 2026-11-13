@@ -10437,7 +10437,8 @@
         "normalized_part_number": "783757",
         "models": [
           "2000",
-          "2100"
+          "2100",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/sumner-783757-winch-handle-for-series-2000-2100-2400-and-eventer",
         "is_merged": true,
@@ -20839,7 +20840,8 @@
         "normalized_part_number": "783765",
         "models": [
           "2000",
-          "2100"
+          "2100",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/two-speed-winch-handle-kit-for-series-2000-2100-and-2400",
         "is_merged": false,
@@ -22205,7 +22207,8 @@
         "extracted_part_number": "784778",
         "normalized_part_number": "784778",
         "models": [
-          "2005"
+          "2005",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/shaft-roller-2400-lift",
         "is_merged": true,
@@ -22271,7 +22274,8 @@
         "extracted_part_number": null,
         "normalized_part_number": null,
         "models": [
-          "2005"
+          "2005",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/aftermarket-roller-shaft-kit-2400-series",
         "is_merged": false,
@@ -25168,7 +25172,8 @@
         "extracted_part_number": null,
         "normalized_part_number": null,
         "models": [
-          "2021"
+          "2021",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/2400-series-dolly-wheel-kit-new-style-ee-2021",
         "is_merged": false,
@@ -38603,7 +38608,8 @@
         "normalized_part_number": "783757",
         "models": [
           "2000",
-          "2100"
+          "2100",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/sumner-783757-winch-handle-for-series-2000-2100-2400-and-eventer",
         "is_merged": true,
@@ -48279,7 +48285,8 @@
         "normalized_part_number": "783765",
         "models": [
           "2000",
-          "2100"
+          "2100",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/two-speed-winch-handle-kit-for-series-2000-2100-and-2400",
         "is_merged": false,
@@ -52517,6 +52524,247 @@
         "duplicate_urls": []
       },
       {
+        "id": 8977130750271,
+        "title": "Sumner 784841 WINCH TWO HANDLE REPLACE KIT (fits 2400 Series and Eventer 16)",
+        "handle": "winch-two-handle-replace-kit",
+        "body_html": "<p><strong>Sumner Part Number 784841 - this kit will only fit the 2400 Series and Eventer 16 lift.</strong></p>\n<p><span>WINCH TWO HANDLE REPLACE KIT</span></p>\n<p><a href=\"https://youtu.be/C6fCMHlmkSs?si=ZM1FL5SY_fwCDyKe\"><span>WATCH OUR YOUTUBE TUTORIAL HERE</span></a></p>",
+        "published_at": "2023-10-31T19:12:54-05:00",
+        "created_at": "2023-10-31T19:12:54-05:00",
+        "updated_at": "2026-09-28T10:23:40-05:00",
+        "vendor": "Sumner",
+        "product_type": "Mechanical Parts",
+        "tags": [
+          "Parts",
+          "Recently Purchased",
+          "Series 2400",
+          "Updated 12/28",
+          "Winch"
+        ],
+        "variants": [
+          {
+            "id": 47185864851775,
+            "title": "Default Title",
+            "option1": "Default Title",
+            "option2": null,
+            "option3": null,
+            "sku": "784841",
+            "requires_shipping": true,
+            "taxable": true,
+            "featured_image": null,
+            "available": true,
+            "price": "248.00",
+            "grams": 0,
+            "compare_at_price": null,
+            "position": 1,
+            "product_id": 8977130750271,
+            "created_at": "2023-10-31T19:12:54-05:00",
+            "updated_at": "2026-09-28T10:23:40-05:00"
+          }
+        ],
+        "images": [
+          {
+            "id": 44439044620607,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 1,
+            "updated_at": "2024-02-28T17:11:34-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-9.heic?v=1709161894",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439044817215,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 2,
+            "updated_at": "2024-02-28T17:11:35-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-8.heic?v=1709161895",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439044718911,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 3,
+            "updated_at": "2024-02-28T17:11:34-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-7.heic?v=1709161894",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439045144895,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 4,
+            "updated_at": "2024-02-28T17:11:36-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-6.heic?v=1709161896",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439045177663,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 5,
+            "updated_at": "2024-02-28T17:11:36-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-5.heic?v=1709161896",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439044849983,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 6,
+            "updated_at": "2024-02-28T17:11:35-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-4.heic?v=1709161895",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439044882751,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 7,
+            "updated_at": "2024-02-28T17:11:35-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-3.heic?v=1709161895",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439044948287,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 8,
+            "updated_at": "2024-02-28T17:11:36-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-2.heic?v=1709161896",
+            "width": 3024,
+            "height": 4032
+          },
+          {
+            "id": 44439044784447,
+            "created_at": "2024-02-28T17:11:32-06:00",
+            "position": 9,
+            "updated_at": "2024-02-28T17:11:34-06:00",
+            "product_id": 8977130750271,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784841-1.heic?v=1709161894",
+            "width": 3024,
+            "height": 4032
+          }
+        ],
+        "options": [
+          {
+            "name": "Title",
+            "position": 1,
+            "values": [
+              "Default Title"
+            ]
+          }
+        ],
+        "extracted_part_number": "784841",
+        "normalized_part_number": "784841",
+        "models": [
+          "EVENTER 16",
+          "Eventer 16",
+          "2400"
+        ],
+        "url": "https://energizedengines.com/products/winch-two-handle-replace-kit",
+        "is_merged": true,
+        "duplicate_urls": [
+          "https://energizedengines.com/products/sumner-784841-winch-two-handle-replace-kit"
+        ]
+      },
+      {
+        "id": 9009061626175,
+        "title": "Sumner 783757 Winch Handle for Series 2000, 2100, 2400 and Eventer",
+        "handle": "sumner-783757-winch-handle-for-series-2000-2100-2400-and-eventer",
+        "body_html": "<p> <strong>Sumner Part Number 783757</strong></p>\n<p>Winch Handle for Series 2000, 2100, 2400 and Eventer</p>",
+        "published_at": "2023-11-12T16:15:25-06:00",
+        "created_at": "2023-11-12T16:15:25-06:00",
+        "updated_at": "2026-09-28T10:23:39-05:00",
+        "vendor": "Sumner",
+        "product_type": "",
+        "tags": [
+          "Eventers",
+          "Parts",
+          "Recently Purchased",
+          "Series 2000",
+          "Series 2100",
+          "Series 2400",
+          "Updated 12/28",
+          "Winch"
+        ],
+        "variants": [
+          {
+            "id": 47268468654399,
+            "title": "Default Title",
+            "option1": "Default Title",
+            "option2": null,
+            "option3": null,
+            "sku": "783757",
+            "requires_shipping": true,
+            "taxable": true,
+            "featured_image": null,
+            "available": true,
+            "price": "244.00",
+            "grams": 0,
+            "compare_at_price": "179.90",
+            "position": 1,
+            "product_id": 9009061626175,
+            "created_at": "2023-11-12T16:15:25-06:00",
+            "updated_at": "2026-09-28T10:23:39-05:00"
+          }
+        ],
+        "images": [
+          {
+            "id": 43482000163135,
+            "created_at": "2023-11-12T16:15:25-06:00",
+            "position": 1,
+            "updated_at": "2023-11-12T16:15:27-06:00",
+            "product_id": 9009061626175,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/783757.jpg?v=1699827327",
+            "width": 240,
+            "height": 320
+          }
+        ],
+        "options": [
+          {
+            "name": "Title",
+            "position": 1,
+            "values": [
+              "Default Title"
+            ]
+          }
+        ],
+        "extracted_part_number": "783757",
+        "normalized_part_number": "783757",
+        "models": [
+          "2000",
+          "2100",
+          "2400"
+        ],
+        "url": "https://energizedengines.com/products/sumner-783757-winch-handle-for-series-2000-2100-2400-and-eventer",
+        "is_merged": true,
+        "duplicate_urls": [
+          "https://energizedengines.com/products/sumner-783757-winch-handle-4",
+          "https://energizedengines.com/products/sumner-783757-winch-handle-3",
+          "https://energizedengines.com/products/sumner-783757-winch-handle-2",
+          "https://energizedengines.com/products/sumner-783757-winch-handle-1",
+          "https://energizedengines.com/products/sumner-783757-winch-handle"
+        ]
+      },
+      {
         "id": 9067996053823,
         "title": "Sumner 784715 BASE ASSEMBLY 2400 LIFT",
         "handle": "sumner-784715-base-assembly-2400-lift",
@@ -52873,6 +53121,78 @@
         "duplicate_urls": [
           "https://energizedengines.com/products/sumner-784785-winch-assembly-2400-lift",
           "https://energizedengines.com/products/sumner-784785-winch-assembly-2400-lift-1"
+        ]
+      },
+      {
+        "id": 8949205238079,
+        "title": "Sumner 784778 SHAFT, ROLLER 2400 LIFT",
+        "handle": "shaft-roller-2400-lift",
+        "body_html": "<p><strong>Sumner Part Number 784778</strong></p>\n<p><span>SHAFT, ROLLER 2400 LIFT</span></p>\n<p><a href=\"https://www.energizedengines.com/products/aftermarket-roller-shaft-kit-2400-series?_pos=1&amp;_psq=EE+2005&amp;_ss=e&amp;_v=1.0\"><span>AFTERMARKET PART AVAILABLE</span></a></p>",
+        "published_at": "2023-10-23T17:14:01-05:00",
+        "created_at": "2023-10-23T17:14:01-05:00",
+        "updated_at": "2026-09-28T10:23:40-05:00",
+        "vendor": "Sumner",
+        "product_type": "Mechanical Parts",
+        "tags": [
+          "Eventers",
+          "Parts",
+          "Series 2400",
+          "Updated 12/28"
+        ],
+        "variants": [
+          {
+            "id": 47129004409151,
+            "title": "Default Title",
+            "option1": "Default Title",
+            "option2": null,
+            "option3": null,
+            "sku": "784778",
+            "requires_shipping": true,
+            "taxable": true,
+            "featured_image": null,
+            "available": true,
+            "price": "35.00",
+            "grams": 0,
+            "compare_at_price": null,
+            "position": 1,
+            "product_id": 8949205238079,
+            "created_at": "2023-10-23T17:14:01-05:00",
+            "updated_at": "2026-09-28T10:23:40-05:00"
+          }
+        ],
+        "images": [
+          {
+            "id": 43314522423615,
+            "created_at": "2023-10-24T13:03:55-05:00",
+            "position": 1,
+            "updated_at": "2023-10-24T13:03:56-05:00",
+            "product_id": 8949205238079,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/784778.jpg?v=1698170636",
+            "width": 2213,
+            "height": 2951
+          }
+        ],
+        "options": [
+          {
+            "name": "Title",
+            "position": 1,
+            "values": [
+              "Default Title"
+            ]
+          }
+        ],
+        "extracted_part_number": "784778",
+        "normalized_part_number": "784778",
+        "models": [
+          "2005",
+          "2400"
+        ],
+        "url": "https://energizedengines.com/products/shaft-roller-2400-lift",
+        "is_merged": true,
+        "duplicate_urls": [
+          "https://energizedengines.com/products/sumner-784778-shaft-roller-2400-lift",
+          "https://energizedengines.com/products/sumner-784778-shaft-roller-2400-lift-1"
         ]
       },
       {
@@ -53747,6 +54067,79 @@
         "duplicate_urls": []
       },
       {
+        "id": 9009071751487,
+        "title": "Two Speed Winch Handle Kit for Series 2000, 2100 and 2400",
+        "handle": "two-speed-winch-handle-kit-for-series-2000-2100-and-2400",
+        "body_html": "<p><strong>Sumner Part Number 783765</strong></p>\n<p>Two Speed Winch Handle Kit for Series 2000, 2100 and 2400</p>",
+        "published_at": "2023-11-12T16:22:04-06:00",
+        "created_at": "2023-11-12T16:22:04-06:00",
+        "updated_at": "2026-09-28T10:23:39-05:00",
+        "vendor": "Sumner",
+        "product_type": "",
+        "tags": [
+          "Accessories",
+          "Parts",
+          "Series 2000",
+          "Series 2100",
+          "Series 2400",
+          "Updated 12/28",
+          "Winch"
+        ],
+        "variants": [
+          {
+            "id": 47268491985215,
+            "title": "Default Title",
+            "option1": "Default Title",
+            "option2": null,
+            "option3": null,
+            "sku": "783765",
+            "requires_shipping": true,
+            "taxable": true,
+            "featured_image": null,
+            "available": true,
+            "price": "298.00",
+            "grams": 0,
+            "compare_at_price": "129.67",
+            "position": 1,
+            "product_id": 9009071751487,
+            "created_at": "2023-11-12T16:22:04-06:00",
+            "updated_at": "2026-09-28T10:23:39-05:00"
+          }
+        ],
+        "images": [
+          {
+            "id": 43482103087423,
+            "created_at": "2023-11-12T16:22:04-06:00",
+            "position": 1,
+            "updated_at": "2023-11-12T16:22:06-06:00",
+            "product_id": 9009071751487,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/783765.jpg?v=1699827726",
+            "width": 240,
+            "height": 320
+          }
+        ],
+        "options": [
+          {
+            "name": "Title",
+            "position": 1,
+            "values": [
+              "Default Title"
+            ]
+          }
+        ],
+        "extracted_part_number": "783765",
+        "normalized_part_number": "783765",
+        "models": [
+          "2000",
+          "2100",
+          "2400"
+        ],
+        "url": "https://energizedengines.com/products/two-speed-winch-handle-kit-for-series-2000-2100-and-2400",
+        "is_merged": false,
+        "duplicate_urls": []
+      },
+      {
         "id": 8977130848575,
         "title": "Sumner 785957 WINCH SHAFT KIT, 2400 LIFT (NEW THREAD)",
         "handle": "winch-shaft-kit-2400-lift-new-thread",
@@ -54300,6 +54693,122 @@
           "2400"
         ],
         "url": "https://energizedengines.com/products/load-line-cable-2400-series",
+        "is_merged": false,
+        "duplicate_urls": []
+      },
+      {
+        "id": 10640103801151,
+        "title": "2400 SERIES DOLLY WHEEL KIT - T BAR STYLE EE 2021",
+        "handle": "2400-series-dolly-wheel-kit-new-style-ee-2021",
+        "body_html": "<p>KIT INCLUDES:</p>\n<p>DOLLY WHEELS</p>\n<p>AXLE</p>\n<p>AXLE SUPPORT T BAR STYLE</p>\n<p>WASHERS</p>\n<p>COTTER PINS</p>\n<p>ALL PARTS OEM OR COMPATIBLE TO OEM </p>\n<p><a href=\"https://www.energizedengines.com/products/sumner-784907-axle-support-reinforcement-weldment?_pos=1&amp;_sid=02848a4d8&amp;_ss=r\">784907</a></p>\n<p><a href=\"https://www.energizedengines.com/products/sumner-779031-wheel-8-thermoplastic-gray-2?_pos=2&amp;_sid=329db2097&amp;_ss=r\">779031</a></p>\n<p><a href=\"https://www.energizedengines.com/search?q=773060&amp;options%5Bprefix%5D=last\">773060</a></p>\n<p><a href=\"https://www.energizedengines.com/search?q=774053&amp;options%5Bprefix%5D=last\">774053</a></p>\n<p><a href=\"https://www.energizedengines.com/search?q=784585&amp;options%5Bprefix%5D=last\">784585</a></p>\n<p>COMPRABLE OEM COST: $455.00</p>",
+        "published_at": "2026-09-18T13:40:35-05:00",
+        "created_at": "2026-09-18T13:40:34-05:00",
+        "updated_at": "2026-09-28T10:23:23-05:00",
+        "vendor": "Energized Engines",
+        "product_type": "",
+        "tags": [],
+        "variants": [
+          {
+            "id": 55657605005631,
+            "title": "Default Title",
+            "option1": "Default Title",
+            "option2": null,
+            "option3": null,
+            "sku": null,
+            "requires_shipping": true,
+            "taxable": true,
+            "featured_image": null,
+            "available": true,
+            "price": "309.00",
+            "grams": 0,
+            "compare_at_price": null,
+            "position": 1,
+            "product_id": 10640103801151,
+            "created_at": "2026-09-18T13:40:34-05:00",
+            "updated_at": "2026-09-28T10:23:23-05:00"
+          }
+        ],
+        "images": [],
+        "options": [
+          {
+            "name": "Title",
+            "position": 1,
+            "values": [
+              "Default Title"
+            ]
+          }
+        ],
+        "extracted_part_number": null,
+        "normalized_part_number": null,
+        "models": [
+          "2021",
+          "2400"
+        ],
+        "url": "https://energizedengines.com/products/2400-series-dolly-wheel-kit-new-style-ee-2021",
+        "is_merged": false,
+        "duplicate_urls": []
+      },
+      {
+        "id": 10268259975487,
+        "title": "AFTERMARKET ROLLER SHAFT KIT 2400 SERIES EE 2005",
+        "handle": "aftermarket-roller-shaft-kit-2400-series",
+        "body_html": "<p>AM Shaft Roller &amp; 2 Cotter Pin</p>\n<p>COMPRABLE TO SUMNER <a href=\"https://www.energizedengines.com/products/sumner-784778-shaft-roller-2400-lift?_pos=1&amp;_sid=69ed44735&amp;_ss=r\">784778</a></p>",
+        "published_at": "2026-03-06T11:34:16-06:00",
+        "created_at": "2026-03-06T11:34:15-06:00",
+        "updated_at": "2026-09-28T10:23:23-05:00",
+        "vendor": "Energized Engines",
+        "product_type": "",
+        "tags": [],
+        "variants": [
+          {
+            "id": 52366301692223,
+            "title": "Default Title",
+            "option1": "Default Title",
+            "option2": null,
+            "option3": null,
+            "sku": null,
+            "requires_shipping": true,
+            "taxable": true,
+            "featured_image": null,
+            "available": true,
+            "price": "19.00",
+            "grams": 454,
+            "compare_at_price": null,
+            "position": 1,
+            "product_id": 10268259975487,
+            "created_at": "2026-03-06T11:34:16-06:00",
+            "updated_at": "2026-09-28T10:23:23-05:00"
+          }
+        ],
+        "images": [
+          {
+            "id": 52566065807679,
+            "created_at": "2026-03-06T11:35:11-06:00",
+            "position": 1,
+            "updated_at": "2026-03-06T11:35:12-06:00",
+            "product_id": 10268259975487,
+            "variant_ids": [],
+            "src": "https://cdn.shopify.com/s/files/1/0832/7050/0671/files/IMG-3354.heic?v=1772818512",
+            "width": 3024,
+            "height": 4032
+          }
+        ],
+        "options": [
+          {
+            "name": "Title",
+            "position": 1,
+            "values": [
+              "Default Title"
+            ]
+          }
+        ],
+        "extracted_part_number": null,
+        "normalized_part_number": null,
+        "models": [
+          "2005",
+          "2400"
+        ],
+        "url": "https://energizedengines.com/products/aftermarket-roller-shaft-kit-2400-series",
         "is_merged": false,
         "duplicate_urls": []
       },
@@ -91181,7 +91690,8 @@
         "normalized_part_number": "784841",
         "models": [
           "EVENTER 16",
-          "Eventer 16"
+          "Eventer 16",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/winch-two-handle-replace-kit",
         "is_merged": true,
@@ -92173,7 +92683,8 @@
         "normalized_part_number": "784841",
         "models": [
           "EVENTER 16",
-          "Eventer 16"
+          "Eventer 16",
+          "2400"
         ],
         "url": "https://energizedengines.com/products/winch-two-handle-replace-kit",
         "is_merged": true,
@@ -223394,7 +223905,8 @@
       "normalized_part_number": "784841",
       "models": [
         "EVENTER 16",
-        "Eventer 16"
+        "Eventer 16",
+        "2400"
       ],
       "url": "https://energizedengines.com/products/winch-two-handle-replace-kit",
       "is_merged": true,
@@ -223668,7 +224180,8 @@
       "normalized_part_number": "783757",
       "models": [
         "2000",
-        "2100"
+        "2100",
+        "2400"
       ],
       "url": "https://energizedengines.com/products/sumner-783757-winch-handle-for-series-2000-2100-2400-and-eventer",
       "is_merged": true,
@@ -225618,7 +226131,8 @@
       "extracted_part_number": "784778",
       "normalized_part_number": "784778",
       "models": [
-        "2005"
+        "2005",
+        "2400"
       ],
       "url": "https://energizedengines.com/products/shaft-roller-2400-lift",
       "is_merged": true,
@@ -255983,7 +256497,8 @@
       "normalized_part_number": "783765",
       "models": [
         "2000",
-        "2100"
+        "2100",
+        "2400"
       ],
       "url": "https://energizedengines.com/products/two-speed-winch-handle-kit-for-series-2000-2100-and-2400",
       "is_merged": false,
@@ -261614,7 +262129,8 @@
       "extracted_part_number": null,
       "normalized_part_number": null,
       "models": [
-        "2021"
+        "2021",
+        "2400"
       ],
       "url": "https://energizedengines.com/products/2400-series-dolly-wheel-kit-new-style-ee-2021",
       "is_merged": false,
@@ -261809,7 +262325,8 @@
       "extracted_part_number": null,
       "normalized_part_number": null,
       "models": [
-        "2005"
+        "2005",
+        "2400"
       ],
       "url": "https://energizedengines.com/products/aftermarket-roller-shaft-kit-2400-series",
       "is_merged": false,

@@ -267,3 +267,405 @@ module.exports = {
 };
 
 // Continue with build functions in next section...
+
+// Get live refund policy text
+const REFUND_POLICY_TEXT = `You have 30 days from delivery to return eligible items for a refund or exchange.
+
+To be eligible for return, items must be:
+- Unused and uninstalled in original condition
+- In original packaging with all included documentation
+- Not damaged, modified, or altered
+- Accompanied by proof of purchase
+
+The following items cannot be returned:
+- Electrical parts and components
+- Special orders and custom parts
+- Installed or used parts
+- Consumables (cables, safety decals, hardware kits opened or partially used)
+- Items marked as final sale at time of purchase
+
+A 20% restocking fee applies to all eligible returns.`;
+
+// Build all pages
+function buildAll() {
+  console.log('Building all pages...\n');
+  
+  // Create directories
+  const dirs = ['products', 'series', 'models'];
+  dirs.forEach(dir => {
+    const dirPath = path.join(DOCS_DIR, dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  });
+  
+  // Build static pages
+  buildHomePage();
+  buildAboutPage();
+  buildReturnPolicyPage();
+  buildManualsPage();
+  buildCartPage();
+  buildCheckoutPage();
+  buildConfirmationPage();
+  buildSearchPage();
+  buildModelsIndexPage();
+  
+  // Build product pages
+  let productCount = 0;
+  data.products.forEach(product => {
+    buildProductPage(product);
+    productCount++;
+    if (productCount % 100 === 0) {
+      process.stdout.write(`\rBuilt ${productCount}/${data.products.length} product pages...`);
+    }
+  });
+  console.log(`\n✓ Built ${productCount} product pages`);
+  
+  // Build series/model pages
+  let seriesCount = 0;
+  Object.keys(data.models).forEach(model => {
+    buildModelPage(model, data.models[model]);
+    seriesCount++;
+  });
+  console.log(`✓ Built ${seriesCount} model/series pages`);
+  
+  // Build search data
+  buildSearchData();
+  
+  console.log('\n✅ Build complete!');
+  console.log(`   - ${productCount} product pages`);
+  console.log(`   - ${seriesCount} series pages`);
+  console.log(`   - 8 static pages`);
+}
+
+// Build functions
+function buildHomePage() {
+  const stats = {
+    parts: data.products.length,
+    models: Object.keys(data.models).length,
+    eeParts: data.products.filter(p => p.vendor === 'Energized Engines').length
+  };
+  
+  const html = `${getHeader('Sumner lift parts', 'home')}
+<section class="hero"><div class="wrap hero-g"><div class="hero-l"><div class="eyebrow">Sumner lift parts · OEM and EE brand</div><h1>Find parts for your lift</h1>
+<p class="lede">Pick your Sumner series and model to see every part that fits it, or search by part number.</p>
+<div class="finder"><div class="f-row">
+<label class="sel"><span>Series</span><div class="selbox">Select series${icons.chevronDown}</div></label>
+<label class="sel"><span>Model</span><div class="selbox">Select model${icons.chevronDown}</div></label>
+<button class="btn btn-pri f-go">Show parts</button></div>
+<div class="f-or"><span>or</span></div>
+<div class="f-pn"><label class="sel" style="flex:1"><span>Part number</span><input class="selbox inp" type="text" placeholder="e.g. 779002" style="border:0;padding:0;font-family:var(--font-mono)"></label><button class="btn btn-dark">Search</button></div></div>
+<div class="hero-stats"><div><b class="num">${stats.parts.toLocaleString()}</b><span>parts listed</span></div><div><b class="num">${stats.models}</b><span>Sumner models</span></div><div><b class="num">${stats.eeParts}</b><span>EE brand parts</span></div></div></div>
+<div class="hero-r d-only"><div class="plate-card"><div class="eyebrow" style="color:var(--ink-2)">Not sure of your model?</div><h3 style="margin:6px 0 4px">It's on the plate on the mast</h3>
+<p>The model number is stamped on the ID plate near the base of the mast. Have the serial number too if you call us.</p></div></div></div></section>
+
+<section class="sec"><div class="wrap"><div class="sec-h"><div><h2>Shop by lift model</h2><p>Every part we list, sorted by the Sumner lift it fits.</p></div><a href="${BASE_PATH}/models.html">All ${stats.models} models</a></div>
+<div class="mgrid">
+${Object.entries({
+  '2000': ['2010', '2015', '2020', '2025'],
+  '2100': ['2112', '2118', '2124'],
+  '2400': ['2412', '2416'],
+  'Roust-A-Bout': ['R-100', 'R-150', 'R-180', 'R-250'],
+  'Eventer': ['16', '20', '25'],
+  'Gantry': ['2 Ton Gantry', 'GH2T']
+}).map(([series, models]) => {
+  const seriesKey = series.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const count = (data.models[series] || data.models[seriesKey] || []).length || 0;
+  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${series}</h3><div class="mono models">${models.join(' ')}</div></div><div class="mt-f"><span class="num">${count} parts</span>${icons.chevronRight}</div></a>`;
+}).join('')}
+</div></div></section>
+
+<section class="svc"><div class="wrap svc-g"><div><b>Lift rentals</b><span>Sumner 2118, 2124, 2412 and 2416. Daily, weekly or monthly.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental">Ask about rentals</a></div>
+<div><b>Winch rebuilds</b><span>Send us your Sumner winch and we rebuild it.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild">Ask about a rebuild</a></div></div></section>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'index.html'), html);
+  console.log('✓ Built index.html');
+}
+
+function buildProductPage(product) {
+  const partNumber = product.extracted_part_number || product.part_number || '';
+  const title = cleanTitle(product.title);
+  const price = parseFloat(product.price || 0);
+  const isEE = product.vendor === 'Energized Engines';
+  const handle = product.handle || `product-${product.id}`;
+  const images = product.images || [];
+  const models = product.models || [];
+  
+  // Get diagram info
+  const diagrams = diagramMap[partNumber] || [];
+  const hasDiagram = diagrams.length > 0;
+  
+  // Build fits panel - show ALL badges from diagram map
+  let fitsHtml = '';
+  if (models.length > 0 || hasDiagram) {
+    fitsHtml = `<div class="fitbox"><div class="fb-h"><h3>Fits these models</h3></div>`;
+    
+    if (models.length > 0) {
+      // Group models by series
+      const modelsBySeries = {};
+      models.forEach(m => {
+        const series = m.match(/^[A-Z]+-?\d+/)?.[0] || m.split(/\s/)[0] || 'Other';
+        if (!modelsBySeries[series]) modelsBySeries[series] = [];
+        modelsBySeries[series].push(m);
+      });
+      
+      Object.entries(modelsBySeries).forEach(([series, seriesModels]) => {
+        fitsHtml += `<div class="fit-r"><b>${series}</b><div>`;
+        seriesModels.forEach(m => {
+          fitsHtml += `<span class="chip">Fits ${m}</span>`;
+        });
+        fitsHtml += `</div></div>`;
+      });
+    }
+    
+    // Add ALL badge entries from diagram map for this part
+    if (hasDiagram) {
+      fitsHtml += `<div class="fit-r"><b>Manual References</b><div style="display:flex;flex-direction:column;gap:6px">`;
+      diagrams.forEach(diagram => {
+        let badgeText = '';
+        if (diagram.badgeType === 'exact' && diagram.model) {
+          // exact: "Verified for <model> in <manual title>, p. N"
+          badgeText = `Verified for ${diagram.model} in ${diagram.manualTitle}, p. ${diagram.page}`;
+        } else if (diagram.badgeType === 'series' && diagram.model) {
+          // series: "Listed in Series X parts manual, p. N"
+          badgeText = `Listed in Series ${diagram.model} parts manual, p. ${diagram.page}`;
+        } else {
+          // listed: "Listed in Sumner <manual>, p. N"
+          badgeText = `Listed in Sumner ${diagram.manualTitle}, p. ${diagram.page}`;
+        }
+        fitsHtml += `<span class="badge b-man">${badgeText}</span>`;
+      });
+      fitsHtml += `</div></div>`;
+    }
+    
+    fitsHtml += `</div>`;
+  }
+  
+  const imageHtml = images.length > 0 ? 
+    `<img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy">` :
+    '<div style="color:var(--muted);text-align:center;padding:var(--s-12)">No photo yet</div>';
+  
+  const html = `${getHeader(title, '', 'pdp-page')}
+<div class="wrap"><nav class="crumbs"><a href="${BASE_PATH}/">Home</a>${icons.chevronRight}<span>${partNumber}</span></nav>
+<div class="pdp-g">
+<div class="gal"><div class="gal-main">${imageHtml}</div></div>
+<div class="buy">
+${hasDiagram ? `<div class="buy-tags"><span class="badge b-man">Diagram</span></div>` : ''}
+<h1 class="pdp-t">${escapeHtml(title)}</h1>
+<div class="pdp-pn"><span>Part number</span><b class="mono">${escapeHtml(partNumber)}</b></div>
+<div class="pdp-price"><b class="num">${formatPrice(price) || 'Call for price'}</b></div>
+<div class="stockbox"><div><span class="stock st-ok">In stock</span> <span class="muted-s">Ships from Jersey Village, TX</span></div></div>
+<div class="atc"><div class="qty"><button onclick="const q=document.getElementById('productQty');q.textContent=Math.max(1,parseInt(q.textContent)-1)">−</button><span class="num" id="productQty">1</span><button onclick="const q=document.getElementById('productQty');q.textContent=parseInt(q.textContent)+1">+</button></div>
+<button class="btn btn-pri" id="addToCartBtn" data-id="${product.id}" data-part-number="${escapeHtml(partNumber)}" data-name="${escapeHtml(title)}" data-price="${price}" data-image="${images[0]?.src || ''}">${icons.cart}Add to cart</button></div>
+${fitsHtml}
+</div></div></div>
+${getFooter()}`;
+  
+  const filePath = path.join(DOCS_DIR, 'products', `${handle}.html`);
+  fs.writeFileSync(filePath, html);
+}
+
+function buildModelPage(modelKey, products) {
+  const seriesKey = modelKey.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const title = modelKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
+  const html = `${getHeader(title + ' Parts', 'models')}
+<div class="wrap" style="padding-top:var(--s-8)">
+<h1>${title} PARTS</h1>
+<p style="margin:var(--s-4) 0">Parts for ${title} Sumner lifts. All ${products.length} parts shown.</p>
+<div class="grid-cards" style="margin-top:var(--s-6)">
+${products.slice(0, 100).map(p => renderProductCard(p)).join('')}
+</div>
+${products.length > 100 ? `<p style="text-align:center;margin:var(--s-6) 0;color:var(--muted)">Showing first 100 of ${products.length} parts</p>` : ''}
+</div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'series', `${seriesKey}.html`), html);
+}
+
+function buildAboutPage() {
+  const html = `${getHeader('About', 'about')}
+<div class="wrap" style="padding:var(--s-12) 0;max-width:800px">
+<h1>About Sumner Lifts and Parts</h1>
+<p style="margin:var(--s-6) 0">We stock OEM Sumner parts and house-brand aftermarket replacement parts for Sumner material lifts.</p>
+<h2>Series We Support</h2>
+<ul style="margin:var(--s-4) 0;line-height:1.8">
+<li><b>Series 2000</b> - Models 2010, 2015, 2020, 2025</li>
+<li><b>Series 2100</b> - Models 2112, 2118, 2124</li>
+<li><b>Series 2400</b> - Models 2412, 2416</li>
+<li><b>Roust-A-Bout</b> - Models R-100, R-150, R-180, R-250</li>
+<li><b>Eventer</b> - Models 16, 20, 25</li>
+<li><b>Gantry</b> - 2 Ton Gantry, GH2T</li>
+</ul>
+<p style="margin:var(--s-6) 0">Contact us: <b>832-444-5426</b> or <a href="mailto:Sales@EnergizedEngines.com" class="link">Sales@EnergizedEngines.com</a></p>
+</div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'about.html'), html);
+  console.log('✓ Built about.html');
+}
+
+function buildReturnPolicyPage() {
+  const html = `${getHeader('Return Policy', 'return-policy')}
+<div class="wrap" style="padding:var(--s-12) 0;max-width:800px">
+<div style="background:var(--low-bg);color:var(--low);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-6)">
+⚠️ <b>Draft Policy - Pending Owner Review</b><br>This return policy is a draft. It must be reviewed and approved by the owner before use.
+</div>
+<h1>Return Policy</h1>
+<div style="line-height:1.8;color:var(--ink-2)">
+${REFUND_POLICY_TEXT.split('\n\n').map(p => `<p style="margin:var(--s-4) 0">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')}
+<h2 style="margin:var(--s-6) 0 var(--s-4)">How to Initiate a Return</h2>
+<p>Contact us before returning any item:</p>
+<ul style="margin:var(--s-2) 0"><li>Email: Sales@EnergizedEngines.com</li><li>Phone: 832-444-5426</li></ul>
+<p style="margin:var(--s-4) 0"><b>Do not return items without an RA number.</b></p>
+</div></div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'return-policy.html'), html);
+  console.log('✓ Built return-policy.html');
+}
+
+function buildManualsPage() {
+  const manuals = Object.entries(manualSources).map(([model, info]) => {
+    return `<a class="manrow" href="${info.url}" target="_blank" rel="noopener">
+${icons.doc}<div><b>${escapeHtml(info.title)}</b><span>Fits ${model} · Sumner PDF</span></div>${icons.chevronRight}</a>`;
+  }).join('');
+  
+  const html = `${getHeader('Manuals and Diagrams', 'manuals')}
+<div class="wrap" style="padding:var(--s-12) 0;max-width:900px">
+<h1>Manuals and Diagrams</h1>
+<p style="margin:var(--s-4) 0;color:var(--ink-2)">Sumner lift assembly manuals and exploded diagrams. These PDFs are hosted on sumner.com.</p>
+<div style="display:grid;gap:var(--s-3);margin-top:var(--s-6)">${manuals}</div>
+</div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'manuals.html'), html);
+  console.log('✓ Built manuals.html');
+}
+
+function buildCartPage() {
+  const html = `${getHeader('Shopping Cart', 'cart')}
+<div class="wrap" style="padding-top:var(--s-8);padding-bottom:var(--s-12)">
+<h1>Shopping Cart</h1>
+<div style="display:grid;grid-template-columns:1fr 400px;gap:var(--s-10);margin-top:var(--s-6)" class="d-only">
+<div id="cartPageItems"></div>
+<div style="align-self:start;position:sticky;top:24px">
+<div style="background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-5) var(--s-6)">
+<h3>Order Summary</h3>
+<div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;border-bottom:1px solid var(--line)">
+<span>Subtotal</span><span id="cartPageSubtotal" class="num">$0.00</span></div>
+<div style="display:flex;justify-content:space-between;padding:var(--s-4) 0;font-size:var(--fs-24);font-weight:700">
+<span>Total</span><span id="cartPageTotal" class="num">$0.00</span></div>
+<a href="${BASE_PATH}/checkout.html" class="btn btn-pri btn-block">Proceed to Checkout</a>
+<a href="${BASE_PATH}/" class="btn btn-sec btn-block" style="margin-top:var(--s-2)">Continue Shopping</a>
+</div></div></div>
+<div id="cartPageItems" class="m-only"></div>
+</div>
+${getFooter()}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  EECart.renderCartPage();
+  document.getElementById('cartPageTotal').textContent = document.getElementById('cartPageSubtotal').textContent;
+});
+</script>`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'cart.html'), html);
+  console.log('✓ Built cart.html');
+}
+
+function buildCheckoutPage() {
+  const existing = fs.readFileSync(path.join(DOCS_DIR, 'checkout.html'), 'utf8');
+  // Keep existing checkout page as-is
+  console.log('✓ Keeping checkout.html');
+}
+
+function buildConfirmationPage() {
+  const existing = fs.readFileSync(path.join(DOCS_DIR, 'order-confirmation.html'), 'utf8');
+  // Keep existing confirmation page as-is  
+  console.log('✓ Keeping order-confirmation.html');
+}
+
+function buildSearchPage() {
+  const html = `${getHeader('Search', 'search')}
+<div class="wrap" style="padding:var(--s-8) 0">
+<h1>Search Parts</h1>
+<div class="search" style="max-width:600px;margin:var(--s-6) 0">
+<form role="search" action="${BASE_PATH}/search.html" method="get">
+<input type="search" name="q" placeholder="Search part number, model or keyword" aria-label="Search">
+<button aria-label="Search">${icons.search}</button>
+</form></div>
+<div id="searchResults"></div>
+</div>
+${getFooter()}
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const query = urlParams.get('q');
+if (query) {
+  document.querySelector('input[name="q"]').value = query;
+  fetch('${BASE_PATH}/search-data.json')
+    .then(r => r.json())
+    .then(data => {
+      const lq = query.toLowerCase();
+      const matches = data.parts.filter(p => 
+        p.partNumber.toLowerCase().includes(lq) ||
+        p.name.toLowerCase().includes(lq)
+      );
+      const resultsDiv = document.getElementById('searchResults');
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + query + '"</p>';
+      } else {
+        resultsDiv.innerHTML = '<h2>' + matches.length + ' results for "' + query + '"</h2><div class="grid-cards" style="margin-top:var(--s-6)">' +
+          matches.slice(0, 100).map(p => 
+            '<a class="card" href="${BASE_PATH}/products/' + p.handle + '.html"><div class="im"><img src="' + p.image + '" alt="" loading="lazy"></div>' +
+            '<div class="bd"><div class="pn">' + p.partNumber + '</div><div class="nm">' + p.name + '</div>' +
+            '<div class="pr"><b>$' + parseFloat(p.price).toFixed(2) + '</b></div></div></a>'
+          ).join('') + '</div>';
+      }
+    });
+}
+</script>`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'search.html'), html);
+  console.log('✓ Built search.html');
+}
+
+function buildModelsIndexPage() {
+  const html = `${getHeader('Shop by Model', 'models')}
+<div class="wrap" style="padding:var(--s-8) 0">
+<h1>Shop by Lift Model</h1>
+<p style="margin:var(--s-4) 0;color:var(--ink-2)">Browse all ${Object.keys(data.models).length} Sumner lift models.</p>
+<div class="mgrid" style="margin-top:var(--s-6)">
+${Object.entries(data.models).map(([model, products]) => {
+  const seriesKey = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return `<a class="mtile" href="${BASE_PATH}/series/${seriesKey}.html"><div><h3>${model.toUpperCase()}</h3></div><div class="mt-f"><span class="num">${products.length} parts</span>${icons.chevronRight}</div></a>`;
+}).join('')}
+</div></div>
+${getFooter()}`;
+  
+  fs.writeFileSync(path.join(DOCS_DIR, 'models.html'), html);
+  console.log('✓ Built models.html');
+}
+
+function buildSearchData() {
+  const searchData = {
+    parts: data.products.map(p => ({
+      id: p.id,
+      partNumber: p.extracted_part_number || p.part_number || '',
+      name: cleanTitle(p.title),
+      price: p.price || '0',
+      image: p.images?.[0]?.src || '',
+      handle: p.handle || `product-${p.id}`
+    })),
+    models: Object.keys(data.models)
+  };
+  
+  fs.writeFileSync(
+    path.join(DOCS_DIR, 'search-data.json'),
+    JSON.stringify(searchData, null, 2)
+  );
+  console.log(`✓ Built search-data.json (${searchData.parts.length} parts, ${searchData.models.length} models)`);
+}
+
+// Run build
+buildAll();

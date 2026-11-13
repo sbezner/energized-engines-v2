@@ -412,11 +412,11 @@ function buildAll() {
   
   // Build series pages (must come before individual model pages to avoid overwriting)
   const seriesConfig = [
-    { name: '2000', models: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'] },
+    { name: '2000', models: ['2000', '2008', '2010', '2012', '2014', '2015', '2018', '2020', '2024', '2025'] },
     { name: '2100', models: ['2100', '2112', '2118', '2124'] },
     { name: '2400', models: ['2400', '2412', '2416'] },
     { name: 'Roust-A-Bout', models: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'] },
-    { name: 'Eventer', models: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25'] },
+    { name: 'Eventer', models: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25'] },
     { name: 'Gantry', models: ['Gantry', 'GH2T'] }
   ];
   
@@ -435,6 +435,15 @@ function buildAll() {
     }
   });
   console.log(`✓ Built ${seriesConfig.length} series pages + ${modelCount} individual model pages`);
+  
+  // Create redirects for excluded models (EE SKUs and duplicates)
+  const redirectModels = ['2001', '2003', '2004', '2005', '2017', '2021', 'eventer25', 'Eventer 20', 'Eventer 16'];
+  redirectModels.forEach(model => {
+    const seriesKey = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const redirectHtml = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${BASE_PATH}/search.html?q=${encodeURIComponent(model)}"><title>Redirecting...</title></head><body><p>Redirecting to search results for ${model}...</p></body></html>`;
+    fs.writeFileSync(path.join(DOCS_DIR, 'series', `${seriesKey}.html`), redirectHtml);
+  });
+  console.log(`✓ Created ${redirectModels.length} redirect pages`);
   
   // Build search data
   buildSearchData();

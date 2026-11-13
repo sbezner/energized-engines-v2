@@ -433,17 +433,29 @@ function buildHomePage() {
     .filter(p => p.vendor === 'Energized Engines' && p.images && p.images.length > 0 && !(p.images[0].width === 225 && p.images[0].height === 225))
     .slice(0, 8);
   
-  // Get EE parts with Sumner comparison (both prices exist)
+  // Get EE parts with positive Sumner comparison (savings >= 1%)
   const eeCompare = data.products
     .filter(p => {
       if (p.vendor !== 'Energized Engines') return false;
       const price = getPrice(p);
       if (!price || price === 0) return false;
-      // Check if there's a corresponding Sumner part
-      const sumnerPart = data.products.find(s => s.part_number === p.replaces_part_number && s.vendor !== 'Energized Engines');
+      
+      // Extract Sumner part number from title
+      const sumnerMatch = p.title.match(/After Market Sumner (\d+)/i);
+      if (!sumnerMatch) return false;
+      
+      const sumnerPartNum = sumnerMatch[1];
+      const sumnerPart = data.products.find(s => 
+        s.extracted_part_number === sumnerPartNum && s.vendor === 'Sumner'
+      );
       if (!sumnerPart) return false;
+      
       const sumnerPrice = getPrice(sumnerPart);
-      return sumnerPrice && sumnerPrice > price;
+      if (!sumnerPrice || sumnerPrice <= price) return false;
+      
+      // Check savings is >= 1%
+      const savingPercent = ((sumnerPrice - price) / sumnerPrice) * 100;
+      return savingPercent >= 1;
     })
     .slice(0, 4);
   
@@ -783,12 +795,37 @@ function buildSearchData() {
       const validImages = (p.images || []).filter(img => !(img.width === 225 && img.height === 225));
       // Format part number for display: "EE 1021" for EE products
       const displayPartNumber = (isEE && pn) ? `EE ${pn}` : pn;
+      
+      // Get Sumner price if EE part (same logic as renderProductCard)
+      let oldPrice = null;
+      if (isEE && p.title) {
+        const sumnerMatch = p.title.match(/After Market Sumner (\d+)/i);
+        if (sumnerMatch) {
+          const sumnerPartNum = sumnerMatch[1];
+          const sumnerProduct = data.products?.find(s => 
+            s.extracted_part_number === sumnerPartNum && s.vendor === 'Sumner'
+          );
+          if (sumnerProduct) {
+            const sumnerPrice = getPrice(sumnerProduct);
+            const eePrice = getPrice(p);
+            // Only set oldPrice if Sumner price is higher and savings >= 1%
+            if (sumnerPrice && eePrice && sumnerPrice > eePrice) {
+              const savingPercent = ((sumnerPrice - eePrice) / sumnerPrice) * 100;
+              if (savingPercent >= 1) {
+                oldPrice = sumnerPrice.toString();
+              }
+            }
+          }
+        }
+      }
+      
       return {
         id: p.id,
         partNumber: displayPartNumber,
         normalized_pn: pn.toString().replace(/[^A-Z0-9]/gi, '').toUpperCase(),
         name: p.title,
         price: (p.variants?.[0]?.price || 0).toString(),
+        oldPrice: oldPrice,
         image: validImages[0]?.src || '',
         handle: p.handle || `product-${p.id}`,
         models: getFilteredModels(p),

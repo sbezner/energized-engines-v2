@@ -250,11 +250,13 @@
     
     if (currentResults.length === 0) {
       resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + escapeHtml(query) + '"</p>';
-      document.getElementById('showMoreBtn').style.display = 'none';
+      const showMoreBtn = document.getElementById('showMoreBtn');
+      if (showMoreBtn) showMoreBtn.style.display = 'none';
       return;
     }
     
     resultsDiv.innerHTML = '<div class="grid-cards" id="searchGrid"></div>';
+    displayedCount = 0;
     showMoreResults();
   }
   

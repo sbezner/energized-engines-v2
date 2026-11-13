@@ -382,8 +382,8 @@ if (homeModelMatch) {
     return sum + models.length;
   }, 0);
   const modelsHtmlCount = (modelsHtml.match(/class="mtile"/g) || []).length;
-  if (homeModelCount !== modelsHtmlCount || homeModelCount !== 27) {
-    errors.push(`home.js has ${homeModelCount} models but models.html has ${modelsHtmlCount} (expected 27)`);
+  if (homeModelCount !== modelsHtmlCount || homeModelCount !== 24) {
+    errors.push(`home.js has ${homeModelCount} models but models.html has ${modelsHtmlCount} (expected 24)`);
     console.log(`   ✗ home.js=${homeModelCount}, models.html=${modelsHtmlCount}`);
   } else {
     console.log(`   ✓ Both have exactly ${homeModelCount} models`);

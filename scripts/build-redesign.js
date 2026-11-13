@@ -32,23 +32,27 @@ const EE_SKUS_TO_EXCLUDE = ['2001', '2003', '2004', '2005', '2017', '2021'];
 // Genie models to exclude
 const GENIE_MODELS = ['SLC-18', 'SLC-24'];
 
-// Build clean model list with normalized keys
+// Build clean model list with normalized keys (for model pages only)
+// Keep all models in data.models for series page building, but track which should have pages
 const normalizedModels = {};
 const seenKeys = new Set();
 const excludeSet = new Set([...EE_SKUS_TO_EXCLUDE, ...GENIE_MODELS].map(normalizeModelKey));
+const EXCLUDED_MODEL_KEYS = [];
 
 Object.keys(data.models).forEach(model => {
   const normalizedKey = normalizeModelKey(model);
   
-  // Skip if excluded
+  // Track excluded models but keep them in data.models for product lookups
   if (excludeSet.has(normalizedKey)) {
-    console.log(`Excluding model: ${model}`);
+    console.log(`Excluding model page: ${model}`);
+    EXCLUDED_MODEL_KEYS.push(model);
     return;
   }
   
   // Skip if already seen (case-insensitive duplicate)
   if (seenKeys.has(normalizedKey)) {
     console.log(`Skipping duplicate model: ${model} (already have ${normalizedKey})`);
+    EXCLUDED_MODEL_KEYS.push(model);
     return;
   }
   
@@ -56,10 +60,8 @@ Object.keys(data.models).forEach(model => {
   normalizedModels[model] = data.models[model];
 });
 
-// Replace data.models with the cleaned version
-data.models = normalizedModels;
-const MODEL_COUNT = Object.keys(data.models).length;
-console.log(`Cleaned model count: ${MODEL_COUNT} (excluded ${EE_SKUS_TO_EXCLUDE.length + GENIE_MODELS.length}, removed duplicates)`);
+const MODEL_COUNT = Object.keys(normalizedModels).length;
+console.log(`Cleaned model count: ${MODEL_COUNT} (excluded ${EXCLUDED_MODEL_KEYS.length}, kept ${Object.keys(data.models).length} in data.models for lookups)`);
 
 // Load manual sources
 let manualSources = {};
@@ -411,12 +413,13 @@ function buildAll() {
   console.log(`\n✓ Built ${productCount} product pages`);
   
   // Build series pages (must come before individual model pages to avoid overwriting)
+  // Include ALL model keys that products might have, even excluded ones, so series pages show all parts
   const seriesConfig = [
-    { name: '2000', models: ['2000', '2008', '2010', '2012', '2014', '2015', '2018', '2020', '2024', '2025'] },
+    { name: '2000', models: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'] },
     { name: '2100', models: ['2100', '2112', '2118', '2124'] },
     { name: '2400', models: ['2400', '2412', '2416'] },
     { name: 'Roust-A-Bout', models: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'] },
-    { name: 'Eventer', models: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25'] },
+    { name: 'Eventer', models: ['EVENTER 16', 'EVENTER 20', 'EVENTER 25', 'EVENTER25', 'Eventer 16', 'Eventer 20', 'Eventer 25'] },
     { name: 'Gantry', models: ['Gantry', 'GH2T'] }
   ];
   
@@ -426,9 +429,9 @@ function buildAll() {
     models.forEach(m => seriesModels.add(m));
   });
   
-  // Build individual model pages (skip those in series)
+  // Build individual model pages (skip those in series and excluded models)
   let modelCount = 0;
-  Object.keys(data.models).forEach(model => {
+  Object.keys(normalizedModels).forEach(model => {
     if (!seriesModels.has(model)) {
       buildModelPage(model, data.models[model]);
       modelCount++;

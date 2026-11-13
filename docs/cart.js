@@ -243,6 +243,10 @@
       if (subtotal > threshold) {
         meterBar.style.width = '100%';
         meterText.textContent = 'You qualify for free ground shipping!';
+      } else if (remaining <= 0.005) {
+        // At exactly $250 or very close
+        meterBar.style.width = '100%';
+        meterText.textContent = 'Free ground shipping on orders over $250. Add any item to qualify.';
       } else {
         const percent = Math.min((subtotal / threshold) * 100, 100);
         meterBar.style.width = `${percent}%`;

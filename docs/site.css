@@ -147,6 +147,8 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .card .pr b{font-size:var(--fs-18)}
   .card .pr{flex-direction:column;gap:0}
   .card .pr s{font-size:var(--fs-12)}
+  /* Ensure footer links have 44px tap targets on phones */
+  .foot a{padding:10px 0;min-height:44px;display:flex;align-items:center}
   .card .rep{display:none}
   .card .fits .chip:nth-of-type(n+4){display:none}
   .card .im{padding:var(--s-8) var(--s-2) var(--s-2)}
@@ -157,7 +159,8 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .foot .cols{grid-template-columns:1fr}
   .util{display:none}
   .stock .l{display:none}
-  .search input{font-size:15px;padding:0 12px}
+  /* Keep search input at 16px minimum to prevent iOS zoom */
+  .search input{font-size:var(--fs-16);padding:0 12px}
 }
 
 /* Utility bar icon sizing */
@@ -165,10 +168,13 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 .util{overflow:hidden}
 
 @media (max-width:639px){
+  /* Keep search input at 16px minimum to prevent iOS zoom */
+  .search input{font-size:var(--fs-16)}
   .search input::placeholder{font-size:var(--fs-14)}
 }
 @media (max-width:390px){
-  .search input{font-size:var(--fs-14)}
+  /* Keep search input at 16px minimum to prevent iOS zoom */
+  .search input{font-size:var(--fs-16)}
   .search input::placeholder{content:"Search parts"}
 }
 

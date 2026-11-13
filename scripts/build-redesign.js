@@ -63,6 +63,39 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
+// Extract part number from product, including EE XXXX patterns
+function getPartNumber(product) {
+  if (product.extracted_part_number) {
+    return product.extracted_part_number;
+  }
+  if (product.part_number) {
+    return product.part_number;
+  }
+  // For EE products without extracted_part_number, try to extract from title
+  if (product.vendor === 'Energized Engines' && product.title) {
+    const eeMatch = product.title.match(/EE\s*(\d+)/i);
+    if (eeMatch) {
+      return eeMatch[1];
+    }
+  }
+  return '';
+}
+
+// Filter fitment models to avoid confusion with EE part numbers
+function getFilteredModels(product) {
+  const partNumber = getPartNumber(product);
+  const isEE = product.vendor === 'Energized Engines';
+  let models = product.models || [];
+  
+  // For EE products, filter out models that match the EE part number
+  // to avoid confusing chips like "Fits 2021" on EE 2021
+  if (isEE && partNumber && models.includes(partNumber)) {
+    models = models.filter(m => m !== partNumber);
+  }
+  
+  return models;
+}
+
 function cleanText(text) {
   if (!text) return '';
   return text
@@ -186,7 +219,7 @@ function getFooter() {
 
 // Product card component
 function renderProductCard(product) {
-  const partNumber = product.part_number || product.extracted_part_number || '';
+  const partNumber = getPartNumber(product);
   const price = getPrice(product);
   const isEE = product.vendor === 'Energized Engines';
   const cleanedTitle = cleanTitle(product.title);
@@ -197,8 +230,9 @@ function renderProductCard(product) {
   const image = validImages[0]?.src || '';
   const displayImage = image;
   
-  // Get fitment models (limit to 3 on cards, 2 on mobile via CSS)
-  const models = (product.models || []).slice(0, 3).map(m => 
+  // Get filtered fitment models (limit to 3 on cards, 2 on mobile via CSS)
+  const filteredModels = getFilteredModels(product);
+  const models = filteredModels.slice(0, 3).map(m => 
     `<span class="chip sm">Fits ${m}</span>`
   ).join('');
   
@@ -243,9 +277,16 @@ function renderProductCard(product) {
   const replaces = isEE && product.title ? 
     product.title.match(/After Market Sumner (\d+)/i)?.[1] || '' : '';
   
+  // Format part number for EE products: "EE 1021" instead of just "1021"
+  const displayPartNumber = (isEE && partNumber) ? `EE ${partNumber}` : partNumber;
+  
+  // Only show part number line if we have a part number
+  const partNumberLine = partNumber ? 
+    `<div class="pn">${escapeHtml(displayPartNumber)}${replaces ? `<span class="rep"> · replaces ${replaces}</span>` : ''}</div>` : '';
+  
   return `<a class="card" href="${BASE_PATH}/products/${handle}.html">
 <div class="im"><div class="tl">${badges.join('')}</div>${imageHtml}</div>
-<div class="bd"><div class="pn">${escapeHtml(partNumber)}${replaces ? `<span class="rep"> · replaces ${replaces}</span>` : ''}</div>
+<div class="bd">${partNumberLine}
 <div class="nm">${escapeHtml(cleanedTitle)}</div>
 <div class="fits">${models ? `<span class="muted-s">Fits</span>${models}` : ''}</div>
 <div class="pr"><b>${formatPrice(price) || 'Call for price'}</b>${sumnerPrice ? `<s>Sumner ${formatPrice(sumnerPrice)}</s>` : ''}</div>
@@ -418,14 +459,14 @@ ${getFooter()}`;
 }
 
 function buildProductPage(product) {
-  const partNumber = product.extracted_part_number || product.part_number || '';
+  const partNumber = getPartNumber(product);
   const title = cleanTitle(product.title);
   const price = getPrice(product);
   const isEE = product.vendor === 'Energized Engines';
   const handle = product.handle || `product-${product.id}`;
   // Filter out 225x225 Sumner logo placeholder images
   const images = (product.images || []).filter(img => !(img.width === 225 && img.height === 225));
-  const models = product.models || [];
+  const filteredModels = getFilteredModels(product);
   
   // Get diagram info
   const diagrams = diagramMap[partNumber] || [];
@@ -433,13 +474,13 @@ function buildProductPage(product) {
   
   // Build fits panel - show ALL badges from diagram map
   let fitsHtml = '';
-  if (models.length > 0 || hasDiagram) {
+  if (filteredModels.length > 0 || hasDiagram) {
     fitsHtml = `<div class="fitbox"><div class="fb-h"><h3>Fits these models</h3></div>`;
     
-    if (models.length > 0) {
+    if (filteredModels.length > 0) {
       // Group models by series
       const modelsBySeries = {};
-      models.forEach(m => {
+      filteredModels.forEach(m => {
         const series = m.match(/^[A-Z]+-?\d+/)?.[0] || m.split(/\s/)[0] || 'Other';
         if (!modelsBySeries[series]) modelsBySeries[series] = [];
         modelsBySeries[series].push(m);
@@ -478,24 +519,44 @@ function buildProductPage(product) {
     fitsHtml += `</div>`;
   }
   
-  const imageHtml = images.length > 0 ? 
-    `<img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy">` :
-    '<div style="color:var(--muted);text-align:center;padding:var(--s-12)">No photo yet</div>';
+  // Build gallery with thumbnails for multi-image products
+  let galleryHtml = '';
+  if (images.length === 0) {
+    galleryHtml = '<div class="gal"><div class="gal-main"><div style="color:var(--muted);text-align:center;padding:var(--s-12)">No photo yet</div></div></div>';
+  } else if (images.length === 1) {
+    // Single image: one column with full-size main image
+    galleryHtml = `<div class="gal"><div class="gal-main"><img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy" style="object-fit:contain;max-height:600px"></div></div>`;
+  } else {
+    // Multiple images: thumbnails + main image
+    const thumbnails = images.map((img, i) => 
+      `<button class="gal-thumb${i === 0 ? ' active' : ''}" onclick="document.querySelectorAll('.gal-thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.querySelector('.gal-main img').src='${img.src}'"><img src="${img.src}" alt="${escapeHtml(title)}" loading="lazy"></button>`
+    ).join('');
+    galleryHtml = `<div class="gal gal-multi"><div class="gal-thumbs">${thumbnails}</div><div class="gal-main"><img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy" style="object-fit:contain;max-height:600px"></div></div>`;
+  }
+  
+  // Format part number for display: "EE 1021" for EE products, plain for others
+  const displayPartNumber = (isEE && partNumber) ? `EE ${partNumber}` : partNumber;
+  
+  // Only show part number row if we have a part number
+  const partNumberRow = partNumber ? 
+    `<div class="pdp-pn"><span>Part number</span><b class="mono">${escapeHtml(displayPartNumber)}</b></div>` : '';
   
   const html = `${getHeader(title, '', 'pdp-page')}
-<div class="wrap"><nav class="crumbs"><a href="${BASE_PATH}/">Home</a>${icons.chevronRight}<span>${partNumber}</span></nav>
+<div class="wrap"><nav class="crumbs"><a href="${BASE_PATH}/">Home</a>${icons.chevronRight}<span>${displayPartNumber || 'Product'}</span></nav>
 <div class="pdp-g">
-<div class="gal"><div class="gal-main">${imageHtml}</div></div>
+${galleryHtml}
 <div class="buy">
 ${hasDiagram ? `<div class="buy-tags"><span class="badge b-man">Diagram</span></div>` : ''}
 <h1 class="pdp-t">${escapeHtml(title)}</h1>
-<div class="pdp-pn"><span>Part number</span><b class="mono">${escapeHtml(partNumber)}</b></div>
+${partNumberRow}
 <div class="pdp-price"><b class="num">${formatPrice(price) || 'Call for price'}</b></div>
 <div class="stockbox"><div><span class="stock st-ok">In stock</span> <span class="muted-s">Ships from Jersey Village, TX</span></div></div>
 <div class="atc"><div class="qty"><button onclick="const q=document.getElementById('productQty');q.textContent=Math.max(1,parseInt(q.textContent)-1)">−</button><span class="num" id="productQty">1</span><button onclick="const q=document.getElementById('productQty');q.textContent=parseInt(q.textContent)+1">+</button></div>
 <button class="btn btn-pri" id="addToCartBtn" data-id="${product.id}" data-part-number="${escapeHtml(partNumber)}" data-name="${escapeHtml(title)}" data-price="${price}" data-image="${images[0]?.src || ''}">${icons.cart}Add to cart</button></div>
 ${fitsHtml}
-</div></div></div>
+</div></div>
+<div class="sticky-atc"><div><b class="num">${formatPrice(price) || 'Call for price'}</b><span class="stock st-ok">In stock</span></div>
+<button class="btn btn-pri" onclick="document.getElementById('addToCartBtn').click()">Add to cart</button></div></div>
 ${getFooter()}`;
   
   const filePath = path.join(DOCS_DIR, 'products', `${handle}.html`);
@@ -655,18 +716,22 @@ ${getFooter()}`;
 function buildSearchData() {
   const searchData = {
     parts: data.products.map(p => {
-      const pn = p.extracted_part_number || p.part_number || '';
+      const pn = getPartNumber(p);
+      const isEE = p.vendor === 'Energized Engines';
       // Filter out 225x225 placeholder
       const validImages = (p.images || []).filter(img => !(img.width === 225 && img.height === 225));
+      // Format part number for display: "EE 1021" for EE products
+      const displayPartNumber = (isEE && pn) ? `EE ${pn}` : pn;
       return {
         id: p.id,
-        partNumber: pn,
+        partNumber: displayPartNumber,
         normalized_pn: pn.toString().replace(/[^A-Z0-9]/gi, '').toUpperCase(),
         name: p.title,
         price: (p.variants?.[0]?.price || 0).toString(),
         image: validImages[0]?.src || '',
         handle: p.handle || `product-${p.id}`,
-        models: p.models || []
+        models: getFilteredModels(p),
+        vendor: p.vendor
       };
     }),
     models: Object.keys(data.models)

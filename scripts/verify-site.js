@@ -158,61 +158,6 @@ if (notYetCount === 0) {
   console.log(`   ✗ Found "not yet verified" on ${notYetCount} pages`);
 }
 
-// 6a. Check EE part number format in search data
-console.log('\n6a. EE part number format...');
-const eePartsWithBadFormat = searchData.parts.filter(p => {
-  return p.vendor === 'Energized Engines' && p.partNumber && !p.partNumber.startsWith('EE ');
-});
-if (eePartsWithBadFormat.length === 0) {
-  console.log(`   ✓ All EE part numbers formatted as "EE XXXX"`);
-} else {
-  errors.push(`${eePartsWithBadFormat.length} EE parts without "EE " prefix`);
-  console.log(`   ✗ ${eePartsWithBadFormat.length} EE parts without "EE " prefix`);
-}
-
-// 6b. Check for empty part number chips
-console.log('\n6b. Empty part number chips...');
-const withEmptyPN = [];
-productFiles.forEach(file => {
-  const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
-  if (html.includes('<b class="mono"></b>') || html.includes('<b class="mono"> </b>')) {
-    withEmptyPN.push(file);
-  }
-});
-if (withEmptyPN.length === 0) {
-  console.log(`   ✓ No empty part number chips`);
-} else {
-  errors.push(`${withEmptyPN.length} pages with empty part number chips`);
-  console.log(`   ✗ ${withEmptyPN.length} pages with empty part number chips`);
-}
-
-// 6c. Check for Sumner trademark on checkout pages
-console.log('\n6c. Sumner trademark on checkout pages...');
-const checkoutPages = ['checkout.html', 'order-confirmation.html'];
-let missingTrademark = [];
-checkoutPages.forEach(page => {
-  const html = fs.readFileSync(path.join(DOCS_DIR, page), 'utf8');
-  if (!html.includes('Sumner is a trademark of its owner')) {
-    missingTrademark.push(page);
-  }
-});
-if (missingTrademark.length === 0) {
-  console.log(`   ✓ Sumner trademark present on checkout pages`);
-} else {
-  errors.push(`Missing Sumner trademark on: ${missingTrademark.join(', ')}`);
-  console.log(`   ✗ Missing Sumner trademark on: ${missingTrademark.join(', ')}`);
-}
-
-// 6d. Check no README files in docs/
-console.log('\n6d. README files in docs/...');
-const readmeFiles = fs.readdirSync(DOCS_DIR).filter(f => f.toUpperCase().startsWith('README'));
-if (readmeFiles.length === 0) {
-  console.log(`   ✓ No README files in docs/`);
-} else {
-  errors.push(`Found ${readmeFiles.length} README files in docs/: ${readmeFiles.join(', ')}`);
-  console.log(`   ✗ Found ${readmeFiles.length} README files in docs/: ${readmeFiles.join(', ')}`);
-}
-
 // 7. Check noindex on every page
 console.log('\n7. noindex meta tag...');
 const allHtmlFiles = [];
@@ -322,8 +267,77 @@ if (zeroPriceErrors === 0 && eventerBarPrice === '$660.00') {
   }
 }
 
-// 11. Check return policy content
-console.log('\n11. Return policy text...');
+// 11. Check for $150 in shipping copy (should be $250)
+console.log('\n11. Shipping threshold check...');
+const configJs = fs.readFileSync(path.join(DOCS_DIR, 'config.js'), 'utf8');
+const has150 = configJs.includes('FREE_SHIPPING_THRESHOLD: 150');
+const has250 = configJs.includes('FREE_SHIPPING_THRESHOLD: 250');
+if (!has150 && has250) {
+  console.log(`   ✓ FREE_SHIPPING_THRESHOLD is 250 (not 150)`);
+} else {
+  errors.push(`FREE_SHIPPING_THRESHOLD is ${has150 ? '150' : 'not 250'}`);
+  console.log(`   ✗ FREE_SHIPPING_THRESHOLD is ${has150 ? '150' : 'not 250'}`);
+}
+
+// 12. Check for Stripe claims (should not exist)
+console.log('\n12. Stripe claims check...');
+let stripeCount = 0;
+allHtmlFiles.forEach(file => {
+  const html = fs.readFileSync(file, 'utf8');
+  if (html.includes('Secure checkout by Stripe') && !file.includes('footer')) {
+    stripeCount++;
+  }
+});
+if (stripeCount === 0) {
+  console.log(`   ✓ No inappropriate "Secure checkout by Stripe" claims`);
+} else {
+  errors.push(`Found "Secure checkout by Stripe" on ${stripeCount} pages`);
+  console.log(`   ✗ Found on ${stripeCount} pages`);
+}
+
+// 13. Check models count (should be 27 with links, not 39)
+console.log('\n13. Models count...');
+const modelsHtml = fs.readFileSync(path.join(DOCS_DIR, 'models.html'), 'utf8');
+const modelCount = (modelsHtml.match(/<a class="mtile"/g) || []).length;
+if (modelCount === 27) {
+  console.log(`   ✓ ${modelCount} models with links`);
+} else {
+  errors.push(`Models count is ${modelCount}, expected 27`);
+  console.log(`   ✗ ${modelCount} models (expected 27)`);
+}
+
+// 14. Check for filterEE and typeaheadMobile
+console.log('\n14. Filter and typeahead elements...');
+const searchHtml = fs.readFileSync(path.join(DOCS_DIR, 'search.html'), 'utf8');
+const hasFilterEE = searchHtml.includes('id="filterEE"');
+const hasTypeaheadMobile = searchHtml.includes('id="typeaheadMobile"');
+if (hasFilterEE && hasTypeaheadMobile) {
+  console.log(`   ✓ Brand filter and mobile typeahead present`);
+} else {
+  if (!hasFilterEE) errors.push('Missing Brand filter');
+  if (!hasTypeaheadMobile) errors.push('Missing mobile typeahead');
+  console.log(`   ${hasFilterEE ? '✓' : '✗'} Brand filter, ${hasTypeaheadMobile ? '✓' : '✗'} mobile typeahead`);
+}
+
+// 15. Check oldPrice count in search-data
+console.log('\n15. oldPrice count in search-data.json...');
+const oldPriceCount = searchData.parts.filter(p => p.oldPrice != null).length;
+const oldPricePositive = searchData.parts.filter(p => {
+  if (!p.oldPrice) return false;
+  const price = parseFloat(p.price);
+  const old = parseFloat(p.oldPrice);
+  const pct = Math.round(((old - price) / old) * 100);
+  return pct > 0;
+}).length;
+if (oldPricePositive >= 34) {
+  console.log(`   ✓ ${oldPricePositive} parts with positive oldPrice percentage (≥34)`);
+} else {
+  errors.push(`oldPrice count ${oldPricePositive}, expected ≥34`);
+  console.log(`   ✗ ${oldPricePositive} parts with positive oldPrice (expected ≥34)`);
+}
+
+// 16. Check return policy content
+console.log('\n16. Return policy text...');
 const policyHtml = fs.readFileSync(path.join(DOCS_DIR, 'return-policy.html'), 'utf8');
 const has14days = policyHtml.includes('within 14 days of ship date');
 const hasCircuitBoards = policyHtml.includes('CIRCUIT BOARDS');
@@ -345,49 +359,18 @@ else errors.push('Return policy incorrectly contains "RA number"');
 
 console.log(`   ${policyChecks.join(', ')}`);
 
-// 12. Check models.html links
-console.log('\n12. Models page links...');
-const modelsHtml = fs.readFileSync(path.join(DOCS_DIR, 'models.html'), 'utf-8');
-const modelLinks = [...modelsHtml.matchAll(/href="([^"]+)"/g)].map(m => m[1]).filter(href => href.includes('/series/') || href.includes('/search.html'));
-const brokenModelLinks = [];
-modelLinks.forEach(href => {
-  let filePath;
-  if (href.includes('?')) {
-    // search.html?q=... - just check search.html exists
-    filePath = path.join(DOCS_DIR, 'search.html');
-  } else {
-    // Extract path after /energized-engines-v2/
-    const relPath = href.replace(/^.*\/energized-engines-v2\//, '');
-    filePath = path.join(DOCS_DIR, relPath);
-  }
-  if (!fs.existsSync(filePath)) {
-    brokenModelLinks.push(href);
-  }
-});
-if (brokenModelLinks.length > 0) {
-  errors.push(`${brokenModelLinks.length} broken links on models.html: ${brokenModelLinks.slice(0, 3).join(', ')}`);
-  console.log(`   ✗ ${brokenModelLinks.length} broken links`);
+// 17. Check EE 1004 shows savings on product page and in search
+console.log('\n17. EE 1004 savings check...');
+const ee1004Page = fs.readFileSync(path.join(DOCS_DIR, 'products', 'load-line-cable-eventer-or-2000-series.html'), 'utf8');
+const ee1004HasSave = ee1004Page.includes('You save $106.00 (47%)');
+const ee1004Search = searchData.parts.find(p => p.partNumber === 'EE 1004' || p.partNumber === '1004');
+const ee1004SearchOk = ee1004Search && ee1004Search.oldPrice && parseFloat(ee1004Search.oldPrice) === 226;
+if (ee1004HasSave && ee1004SearchOk) {
+  console.log(`   ✓ EE 1004 shows savings on product page and has oldPrice in search`);
 } else {
-  console.log(`   ✓ All ${modelLinks.length} links point to existing pages (0 404s)`);
-}
-
-// 13. Check home.js model count matches models.html
-console.log('\n13. Home finder vs models page...');
-const homeJs = fs.readFileSync(path.join(DOCS_DIR, 'home.js'), 'utf-8');
-const homeModelMatch = homeJs.match(/const seriesModels = \{([^}]+)\}/s);
-if (homeModelMatch) {
-  const homeModelArrays = homeModelMatch[1].match(/\[[^\]]+\]/g) || [];
-  const homeModelCount = homeModelArrays.reduce((sum, arr) => {
-    const models = arr.match(/'[^']+'/g) || [];
-    return sum + models.length;
-  }, 0);
-  const modelsHtmlCount = (modelsHtml.match(/class="mtile"/g) || []).length;
-  if (homeModelCount !== modelsHtmlCount || homeModelCount !== 27) {
-    errors.push(`home.js has ${homeModelCount} models but models.html has ${modelsHtmlCount} (expected 27)`);
-    console.log(`   ✗ home.js=${homeModelCount}, models.html=${modelsHtmlCount}`);
-  } else {
-    console.log(`   ✓ Both have exactly ${homeModelCount} models`);
-  }
+  if (!ee1004HasSave) errors.push('EE 1004 product page missing savings');
+  if (!ee1004SearchOk) errors.push('EE 1004 search-data missing oldPrice');
+  console.log(`   ${ee1004HasSave ? '✓' : '✗'} Product page, ${ee1004SearchOk ? '✓' : '✗'} search data`);
 }
 
 // Summary

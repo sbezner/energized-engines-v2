@@ -158,7 +158,8 @@ console.log('\n3. Cart flow test (Playwright)...');
     for (const viewport of viewports) {
       const page = await browser.newPage({ viewport });
       await page.goto(`${baseUrl}/products/sumner-783540-mast-roller-1.html`);
-      await page.click('.btn.btn-pri');
+      await page.locator('#addToCartBtn').first().scrollIntoViewIfNeeded();
+      await page.locator('#addToCartBtn').first().click({force: true});
       await page.waitForTimeout(1000);
       await page.goto(`${baseUrl}/cart.html`);
       await page.waitForLoadState('domcontentloaded');

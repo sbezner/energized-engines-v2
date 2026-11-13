@@ -345,6 +345,51 @@ else errors.push('Return policy incorrectly contains "RA number"');
 
 console.log(`   ${policyChecks.join(', ')}`);
 
+// 12. Check models.html links
+console.log('\n12. Models page links...');
+const modelsHtml = fs.readFileSync(path.join(DOCS_DIR, 'models.html'), 'utf-8');
+const modelLinks = [...modelsHtml.matchAll(/href="([^"]+)"/g)].map(m => m[1]).filter(href => href.includes('/series/') || href.includes('/search.html'));
+const brokenModelLinks = [];
+modelLinks.forEach(href => {
+  let filePath;
+  if (href.includes('?')) {
+    // search.html?q=... - just check search.html exists
+    filePath = path.join(DOCS_DIR, 'search.html');
+  } else {
+    // Extract path after /energized-engines-v2/
+    const relPath = href.replace(/^.*\/energized-engines-v2\//, '');
+    filePath = path.join(DOCS_DIR, relPath);
+  }
+  if (!fs.existsSync(filePath)) {
+    brokenModelLinks.push(href);
+  }
+});
+if (brokenModelLinks.length > 0) {
+  errors.push(`${brokenModelLinks.length} broken links on models.html: ${brokenModelLinks.slice(0, 3).join(', ')}`);
+  console.log(`   ✗ ${brokenModelLinks.length} broken links`);
+} else {
+  console.log(`   ✓ All ${modelLinks.length} links point to existing pages (0 404s)`);
+}
+
+// 13. Check home.js model count matches models.html
+console.log('\n13. Home finder vs models page...');
+const homeJs = fs.readFileSync(path.join(DOCS_DIR, 'home.js'), 'utf-8');
+const homeModelMatch = homeJs.match(/const seriesModels = \{([^}]+)\}/s);
+if (homeModelMatch) {
+  const homeModelArrays = homeModelMatch[1].match(/\[[^\]]+\]/g) || [];
+  const homeModelCount = homeModelArrays.reduce((sum, arr) => {
+    const models = arr.match(/'[^']+'/g) || [];
+    return sum + models.length;
+  }, 0);
+  const modelsHtmlCount = (modelsHtml.match(/class="mtile"/g) || []).length;
+  if (homeModelCount !== modelsHtmlCount || homeModelCount !== 27) {
+    errors.push(`home.js has ${homeModelCount} models but models.html has ${modelsHtmlCount} (expected 27)`);
+    console.log(`   ✗ home.js=${homeModelCount}, models.html=${modelsHtmlCount}`);
+  } else {
+    console.log(`   ✓ Both have exactly ${homeModelCount} models`);
+  }
+}
+
 // Summary
 console.log('\n' + '='.repeat(70));
 if (errors.length === 0 && warnings.length === 0) {

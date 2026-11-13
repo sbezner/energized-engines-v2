@@ -39,6 +39,7 @@
 .eeband{background:var(--charcoal);color:#fff;padding:var(--s-12) 0}
 .eeband .sec-h p{color:var(--on-dark-2);max-width:620px}
 .eeband h2{max-width:720px}
+.eeband .card{color:var(--ink)}
 .cmpgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-4)}
 .cmp{background:var(--charcoal-2);border:1px solid #3A404A;border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
 .cmp img{aspect-ratio:4/3;object-fit:cover;width:100%;background:#fff}
@@ -211,12 +212,13 @@
 .inp.ph,.ph{color:var(--muted)}
 .two-f,.three-f{display:flex;gap:var(--s-3)}
 .rates{display:flex;flex-direction:column;gap:8px;margin-top:var(--s-2)}
-.rate{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line-strong);border-radius:var(--r-md);padding:12px 14px;font-size:var(--fs-14)}
+.rate{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line-strong);border-radius:var(--r-md);padding:12px 14px;font-size:var(--fs-14);cursor:pointer}
 .rate.on{border-color:var(--ink);background:#FBFBFC}
-.rate div{flex:1;display:flex;flex-direction:column}
+.rate > div:not(.rd){flex:1;display:flex;flex-direction:column}
 .rate span{color:var(--muted);font-size:var(--fs-13)}
-.rd{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);flex:0 0 20px}
+.rd{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);flex:0 0 20px;position:relative}
 .rd.on{border:6px solid var(--ink)}
+.rate input[type="radio"]{position:absolute;opacity:0;width:20px;height:20px;margin:0;cursor:pointer}
 .stripe{border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s-4);background:#FBFBFC}
 .tabs{display:flex;gap:8px;margin-bottom:var(--s-4);flex-wrap:wrap}
 .tabs span{border:1.5px solid var(--line-strong);border-radius:var(--r-md);padding:8px 14px;font-size:var(--fs-14);font-weight:600;background:#fff}
@@ -272,6 +274,7 @@
 }
 .nav a{white-space:nowrap}
 .eeband .badge.b-save{background:var(--red-600);color:#fff}
+.eeband .sec-h a{color:var(--on-dark-2)}
 /* fixes after render review */
 .pdp-g>*,.plp-g>*,.co-g>*{min-width:0}
 .gal-main{overflow:hidden}

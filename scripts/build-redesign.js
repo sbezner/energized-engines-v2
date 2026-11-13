@@ -207,7 +207,8 @@ function renderProductCard(product) {
   // Get Sumner price if EE part
   let sumnerPrice = null;
   if (isEE && product.title) {
-    const sumnerMatch = product.title.match(/After Market Sumner (\d+)/i);
+    // Match "After Market", "Aftermarket", or "After-Market" (case-insensitive)
+    const sumnerMatch = product.title.match(/After[-\s]?market\s+Sumner\s+(\d+)/i);
     if (sumnerMatch) {
       const sumnerPartNum = sumnerMatch[1];
       // Find Sumner product with this part number
@@ -240,7 +241,7 @@ function renderProductCard(product) {
     : '<div style="color:var(--muted);font-size:var(--fs-14);text-align:center">No photo yet</div>';
   
   const replaces = isEE && product.title ? 
-    product.title.match(/After Market Sumner (\d+)/i)?.[1] || '' : '';
+    product.title.match(/After[-\s]?market\s+Sumner\s+(\d+)/i)?.[1] || '' : '';
   
   return `<a class="card" href="${BASE_PATH}/products/${handle}.html">
 <div class="im"><div class="tl">${badges.join('')}</div>${imageHtml}</div>
@@ -577,6 +578,7 @@ ${getFooter()}`;
 }
 
 function buildCartPage() {
+  // Source: https://energizedengines.com/policies/shipping-policy
   const html = `${getHeader('Shopping Cart', 'cart')}
 <style>
 @media (min-width: 768px) {
@@ -592,6 +594,7 @@ function buildCartPage() {
 <h3>Order Summary</h3>
 <div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;border-bottom:1px solid var(--line)">
 <span>Subtotal</span><span id="cartPageSubtotal" class="num">$0.00</span></div>
+<p style="font-size:var(--fs-13);color:var(--ink-2);margin:var(--s-2) 0">Free standard ground shipping on qualified parts orders over $250 (Lower 48 states only, standard parts, oversized or freight items excluded). AK, HI & U.S. Territories: $35 flat rate.</p>
 <div style="display:flex;justify-content:space-between;padding:var(--s-4) 0;font-size:var(--fs-24);font-weight:700">
 <span>Total</span><span id="cartPageTotal" class="num">$0.00</span></div>
 <a href="${BASE_PATH}/checkout.html" class="btn btn-pri btn-block">Proceed to Checkout</a>

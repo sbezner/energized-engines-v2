@@ -221,6 +221,7 @@ function getHeader(title, activePage = '', bodyClass = '') {
 <meta name="robots" content="noindex, nofollow"><title>${escapeHtml(title)} | Energized Engines (test)</title>
 <link rel="icon" type="image/png" href="${BASE_PATH}/logo.png">
 <link rel="stylesheet" href="${BASE_PATH}/tokens.css"><link rel="stylesheet" href="${BASE_PATH}/site.css"><link rel="stylesheet" href="${BASE_PATH}/pages.css">
+<style>@media (min-width:960px) and (max-width:1199px){.nav .wrap>a[href$="/series/roust-a-bout.html"],.nav .wrap>a[href$="/series/eventer.html"],.nav .wrap>a[href$="/series/gantry.html"]{display:none}}</style>
 <script src="${BASE_PATH}/config.js"></script>
 </head><body${bodyClass ? ` class="${bodyClass}"` : ''}>
 <div class="test-banner d-only">Test site. Nothing here is for sale and no orders are taken. Shop at <a href="https://www.energizedengines.com">energizedengines.com</a></div>
@@ -743,7 +744,7 @@ ${eeCompareHtml}
 ${fitsHtml}
 <div class="pdp-help"><p style="margin:0 0 var(--s-2);color:var(--muted);font-size:var(--fs-14)">Not sure this fits your lift? Call or text us at <b style="color:var(--ink)">832-444-5426</b> with your model and serial number.</p></div>
 <div class="mini-trust" style="display:flex;gap:var(--s-4);margin-top:var(--s-4);padding:var(--s-4);background:var(--bg-2);border-radius:var(--r-2);font-size:var(--fs-13)">
-<div style="display:flex;align-items:center;gap:6px">${icons.truck}<span>Free shipping over $250</span></div>
+<div style="display:flex;align-items:center;gap:6px">${icons.truck}<span>Free ground shipping over $250, Lower 48</span></div>
 <div style="display:flex;align-items:center;gap:6px">${icons.returns}<span><a href="${BASE_PATH}/return-policy.html" style="color:inherit;text-decoration:underline">14-day returns</a>. Customer pays return shipping plus a 20% restocking fee. See return policy.</span></div>
 </div>
 </div></div>

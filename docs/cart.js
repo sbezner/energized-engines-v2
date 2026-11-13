@@ -210,10 +210,10 @@
     itemsContainer.innerHTML = cart.map(item => {
       const imgSrc = item.image && (item.image.startsWith('http://') || item.image.startsWith('https://')) 
         ? item.image 
-        : `${BASE_PATH}/${item.image || 'images/placeholder.jpg'}`;
+        : `${BASE_PATH}/${item.image || 'images/placeholder.svg'}`;
       return `
       <div class="li">
-        <img src="${imgSrc}" alt="${escapeHtml(item.name)}" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
+        <img src="${imgSrc}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null;this.src='${BASE_PATH}/images/placeholder.svg'">
         <div>
           <div class="pn">${escapeHtml(item.partNumber)}</div>
           <div class="li-n">${escapeHtml(item.name)}</div>
@@ -276,10 +276,10 @@
     container.innerHTML = cart.map(item => {
       const imgSrc = item.image && (item.image.startsWith('http://') || item.image.startsWith('https://')) 
         ? item.image 
-        : `${BASE_PATH}/${item.image || 'images/placeholder.jpg'}`;
+        : `${BASE_PATH}/${item.image || 'images/placeholder.svg'}`;
       return `
       <div class="li" style="border-bottom:1px solid var(--line);padding:var(--s-4) 0">
-        <img src="${imgSrc}" alt="${escapeHtml(item.name)}" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
+        <img src="${imgSrc}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null;this.src='${BASE_PATH}/images/placeholder.svg'">
         <div style="flex:1;min-width:0">
           <div class="pn">${escapeHtml(item.partNumber)}</div>
           <div style="font-weight:600;font-size:var(--fs-16);margin:4px 0">${escapeHtml(item.name)}</div>

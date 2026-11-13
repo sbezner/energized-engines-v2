@@ -146,7 +146,7 @@
         const price = part.price && parseFloat(part.price) > 0 ? `$${parseFloat(part.price).toFixed(2)}` : 'Call for price';
         
         html += `<a class="it" role="option" aria-selected="false" href="${BASE_PATH}/products/${part.handle}.html">
-          <img src="${part.image || BASE_PATH + '/images/placeholder.jpg'}" alt="" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
+          <img src="${part.image || BASE_PATH + '/images/placeholder.svg'}" alt="" onerror="this.onerror=null;this.src='${BASE_PATH}/images/placeholder.svg'">
           <div><div class="t">${highlightedName}</div><div class="pn">${highlightedPN}</div></div>
           <div class="p">${price}</div>
         </a>`;
@@ -301,7 +301,7 @@
       
       // Photo filter
       if (activeFilters.photo) {
-        const hasPhoto = part.image && !part.image.includes('placeholder.jpg');
+        const hasPhoto = part.image && !part.image.includes('placeholder.svg') && !part.image.includes('placeholder.jpg');
         if (!hasPhoto) return false;
       }
       
@@ -443,8 +443,12 @@
         badges.push(`<span class="badge b-save">Save ${savePercent}%</span>`);
       }
       
+      const imageHtml = part.image 
+        ? `<img src="${part.image}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${BASE_PATH}/images/placeholder.svg'">` 
+        : '<div style="color:var(--muted);font-size:var(--fs-14);text-align:center;padding:var(--s-4)">No photo yet</div>';
+      
       card.innerHTML = `
-        <div class="im"><div class="tl">${badges.join('')}</div><img src="${part.image || BASE_PATH + '/images/placeholder.jpg'}" alt="" loading="lazy" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'"></div>
+        <div class="im"><div class="tl">${badges.join('')}</div>${imageHtml}</div>
         <div class="bd">
           <div class="pn">${escapeHtml(part.partNumber)}</div>
           <div class="nm">${escapeHtml(part.name)}</div>

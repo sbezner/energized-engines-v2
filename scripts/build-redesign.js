@@ -662,7 +662,7 @@ function buildEEBrandPage() {
 <h1>EE Brand Replacement Parts</h1>
 <p style="margin:var(--s-4) 0">Energized Engines aftermarket replacement parts for Sumner lifts. ${eeProducts.length} parts available.</p>
 <div class="grid-cards" style="margin-top:var(--s-6)">
-${eeProducts.slice(0, 100).map(p => renderProductCard(p)).join('')}
+${eeProducts.map(p => renderProductCard(p)).join('')}
 </div>
 ${eeProducts.length > 100 ? `<p style="text-align:center;margin:var(--s-6) 0;color:var(--muted)">Showing first 100 of ${eeProducts.length} EE parts. <a href="${BASE_PATH}/search.html?q=energized">Search all</a></p>` : ''}
 </div>
@@ -691,7 +691,7 @@ function buildSeriesPage(seriesName, exactModels) {
 <p style="margin:var(--s-4) 0">Parts for ${seriesName} Sumner lifts. ${products.length} parts shown.</p>
 ${products.length === 0 ? '<p style="margin:var(--s-6) 0;color:var(--muted)">No parts cataloged for this series yet. <a href="mailto:Sales@EnergizedEngines.com">Contact us</a> for availability.</p>' : ''}
 ${products.length > 0 ? `<div class="grid-cards" style="margin-top:var(--s-6)">
-${products.slice(0, 100).map(p => renderProductCard(p)).join('')}
+${products.map(p => renderProductCard(p)).join('')}
 </div>` : ''}
 ${products.length > 100 ? `<p style="text-align:center;margin:var(--s-6) 0;color:var(--muted)">Showing first 100 of ${products.length} parts</p>` : ''}
 </div>

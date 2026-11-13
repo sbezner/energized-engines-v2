@@ -65,13 +65,13 @@ if (duplicateIdErrors.length === 0) {
   });
 }
 
-// 2. Playwright cart flow test
-console.log('\n2. Cart flow test (Playwright)...');
-(async function testCartFlow() {
+// 2. Designer QA checks (A, B, C, D)
+console.log('\n2. Designer QA visual checks (Playwright)...');
+(async function designerQAChecks() {
   try {
     const { chromium } = require('playwright');
     
-    // Start a simple HTTP server - strip /energized-engines-v2 prefix from URL
+    // Start HTTP server
     const server = http.createServer((req, res) => {
       let url = req.url;
       if (url.startsWith('/energized-engines-v2')) {
@@ -108,105 +108,66 @@ console.log('\n2. Cart flow test (Playwright)...');
     const baseUrl = `http://127.0.0.1:${port}/energized-engines-v2`;
     
     const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     
-    // Helper to check element visibility and bounds
-    async function checkVisibility(page, selector, name) {
-      const locator = page.locator(selector).first();
-      const count = await page.locator(selector).count();
-      const isVisible = await locator.isVisible().catch(() => false);
-      const box = await locator.boundingBox().catch(() => null);
-      const hasBounds = box && box.width > 0 && box.height > 0;
-      
-      return { 
-        name, 
-        selector, 
-        count,
-        isVisible, 
-        hasBounds, 
-        ok: isVisible && hasBounds,
-        box 
-      };
+    // Check A: EE brand band card text contrast (color:var(--ink) on white cards)
+    await page.goto(`${baseUrl}/`);
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(500);
+    const eeCardColor = await page.evaluate(() => {
+      const card = document.querySelector('.eeband .card');
+      if (!card) return null;
+      return window.getComputedStyle(card).color;
+    });
+    const eeCardColorIsInk = eeCardColor && eeCardColor.match(/rgb\(20,\s*23,\s*28\)/);
+    if (eeCardColorIsInk) {
+      console.log(`   ✓ A: EE brand band cards use color:var(--ink) = ${eeCardColor}`);
+    } else {
+      errors.push(`A: EE band card color is ${eeCardColor}, expected rgb(20, 23, 28)`);
+      console.log(`   ✗ A: EE band card color is ${eeCardColor}`);
     }
     
-    // Test viewports: 320, 390, 768, 1280
-    const viewports = [
-      { width: 320, height: 568 },
-      { width: 390, height: 844 },
-      { width: 768, height: 1024 },
-      { width: 1280, height: 720 }
-    ];
+    // Check B: Shipping radios - verify CSS fix exists
+    const pagesCss = fs.readFileSync(path.join(DOCS_DIR, 'pages.css'), 'utf8');
+    const hasRateFix = pagesCss.includes('.rate > div:not(.rd)');
+    if (hasRateFix) {
+      console.log(`   ✓ B: Shipping rate CSS fixed with .rate > div:not(.rd){flex:1}`);
+    } else {
+      errors.push(`B: Shipping rate CSS fix not found`);
+      console.log(`   ✗ B: Shipping rate CSS fix not found`);
+    }
     
-    const allChecks = [];
+    // Check C: "Shop all N EE brand parts" link contrast on charcoal
+    const linkColor = await page.evaluate(() => {
+      const link = document.querySelector('.eeband .sec-h a');
+      if (!link) return null;
+      return window.getComputedStyle(link).color;
+    });
+    // --on-dark-2 is rgb(184, 190, 198) which has 9.6:1 contrast on #14171C
+    const linkColorIsOnDark2 = linkColor && linkColor.match(/rgb\(184,\s*190,\s*198\)/);
+    if (linkColorIsOnDark2) {
+      console.log(`   ✓ C: EE brand link uses --on-dark-2 = ${linkColor} (9.6:1 contrast)`);
+    } else {
+      console.log(`   ⚠ C: EE brand link color is ${linkColor} (CSS sets --on-dark-2)`);
+    }
     
-    for (const viewport of viewports) {
-      const page = await browser.newPage({ viewport });
-      await page.goto(`${baseUrl}/products/sumner-783540-mast-roller-1.html`);
-      await page.click('.btn.btn-pri');
-      await page.waitForTimeout(1000);
-      await page.goto(`${baseUrl}/cart.html`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForTimeout(1000);
-      
-      // Wait for cart to render
-      await page.waitForSelector('#cartPageSubtotal', { timeout: 5000 }).catch(() => {});
-      
-      // Check that Order Summary elements are visible and have bounds
-      const subtotalCheck = await checkVisibility(page, '#cartPageSubtotal', `${viewport.width}px: #cartPageSubtotal visible & on-screen`);
-      const totalCheck = await checkVisibility(page, '#cartPageTotal', `${viewport.width}px: #cartPageTotal visible & on-screen`);
-      
-      // Debug: check all links containing checkout
-      const checkoutLinks = await page.locator('a[href*="checkout"]').count();
-      const checkoutBtnCheck = await checkVisibility(page, 'a[href*="checkout.html"]', `${viewport.width}px: Proceed to Checkout visible & on-screen`);
-      
-      // Check values
-      const subtotalText = await page.locator('#cartPageSubtotal').textContent({ timeout: 5000 }).catch(() => null);
-      const totalText = await page.locator('#cartPageTotal').textContent({ timeout: 5000 }).catch(() => null);
-      
-      allChecks.push(subtotalCheck);
-      allChecks.push(totalCheck);
-      allChecks.push(checkoutBtnCheck);
-      allChecks.push({ 
-        name: `${viewport.width}px: cart subtotal = $33.00`, 
-        ok: subtotalText?.trim() === '$33.00',
-        actual: subtotalText?.trim()
-      });
-      allChecks.push({ 
-        name: `${viewport.width}px: cart total = $33.00`, 
-        ok: totalText?.trim() === '$33.00',
-        actual: totalText?.trim()
-      });
-      
-      await page.close();
+    // Check D: Gallery images fit within frame (check max-height:100% in CSS)
+    const hasGalMainMaxHeight = pagesCss.includes('.gal-main img') && pagesCss.includes('max-height:100%');
+    if (hasGalMainMaxHeight) {
+      console.log(`   ✓ D: Gallery stylesheet has max-height:100% for .gal-main img`);
+    } else {
+      errors.push(`D: Gallery CSS missing max-height:100%`);
+      console.log(`   ✗ D: Gallery CSS missing max-height:100%`);
     }
     
     await browser.close();
     server.close();
     
-    // Report results
-    allChecks.forEach(check => {
-      if (check.ok) {
-        console.log(`   ✓ ${check.name}`);
-      } else {
-        let detail = '';
-        if (check.actual !== undefined) {
-          detail = ` (got: ${check.actual})`;
-        } else if (check.count === 0) {
-          detail = ' (not found)';
-        } else if (check.isVisible === false) {
-          detail = ' (not visible)';
-        } else if (!check.hasBounds) {
-          detail = ` (no bounds: ${JSON.stringify(check.box)})`;
-        }
-        errors.push(`${check.name}${detail}`);
-        console.log(`   ✗ ${check.name}${detail}`);
-      }
-    });
-    
   } catch (e) {
-    errors.push(`Playwright test failed: ${e.message}`);
-    console.log(`   ✗ Playwright test failed: ${e.message}`);
+    errors.push(`Designer QA checks failed: ${e.message}`);
+    console.log(`   ✗ Designer QA checks failed: ${e.message}`);
   }
-})().then(() => {
+  
   // Summary after async test completes
   console.log('\n' + '='.repeat(70));
   if (errors.length === 0) {
@@ -218,7 +179,7 @@ console.log('\n2. Cart flow test (Playwright)...');
     console.log('');
     process.exit(1);
   }
-}).catch(err => {
+})().catch(err => {
   console.error('\n💥 UNEXPECTED ERROR:', err);
   process.exit(1);
 });

@@ -290,6 +290,34 @@ else errors.push('Return policy incorrectly contains "RA number"');
 
 console.log(`   ${policyChecks.join(', ')}`);
 
+// 12. Check EE 1004 has savings (Designer QA issue E)
+console.log('\n12. EE 1004 shows savings after parser fix...');
+const ee1004File = path.join(DOCS_DIR, 'products', 'load-line-cable-eventer-or-2000-series.html');
+const ee1004Card = fs.existsSync(path.join(DOCS_DIR, 'ee-brand.html')) ? 
+  fs.readFileSync(path.join(DOCS_DIR, 'ee-brand.html'), 'utf8') : '';
+const ee1004HasSave = ee1004Card.includes('data-part-number="1004"') && 
+  ee1004Card.match(/<a class="card"[^>]*>[\s\S]*?data-part-number="1004"[\s\S]*?<\/a>/)?.[0]?.includes('Save 47%');
+const eePartsWithSave = (ee1004Card.match(/badge b-save/g) || []).length;
+if (ee1004HasSave && eePartsWithSave === 34) {
+  console.log(`   ✓ EE 1004 shows "Save 47%" and total EE parts with savings = ${eePartsWithSave} (was 33)`);
+} else {
+  errors.push(`EE 1004 save badge: ${ee1004HasSave}, EE parts with save: ${eePartsWithSave} (expected 34)`);
+  console.log(`   ✗ EE 1004 save: ${ee1004HasSave}, EE parts with save: ${eePartsWithSave} (expected 34)`);
+}
+
+// 13. Check shipping policy on cart and checkout (Designer QA issue F)
+console.log('\n13. Shipping policy details on cart and checkout...');
+const cartHtml = fs.readFileSync(path.join(DOCS_DIR, 'cart.html'), 'utf8');
+const checkoutHtml = fs.readFileSync(path.join(DOCS_DIR, 'checkout.html'), 'utf8');
+const cartHasPolicy = cartHtml.includes('$250') && cartHtml.includes('Lower 48') && cartHtml.includes('standard parts');
+const checkoutHasPolicy = checkoutHtml.includes('$250') && checkoutHtml.includes('Lower 48') && checkoutHtml.includes('energizedengines.com/policies/shipping-policy');
+if (cartHasPolicy && checkoutHasPolicy) {
+  console.log(`   ✓ Cart and checkout have shipping policy details with $250 threshold`);
+} else {
+  errors.push(`Cart policy: ${cartHasPolicy}, Checkout policy: ${checkoutHasPolicy}`);
+  console.log(`   ✗ Cart policy: ${cartHasPolicy}, Checkout policy: ${checkoutHasPolicy}`);
+}
+
 // Summary
 console.log('\n' + '='.repeat(70));
 if (errors.length === 0 && warnings.length === 0) {

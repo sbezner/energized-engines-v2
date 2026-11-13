@@ -409,6 +409,12 @@ ${[
 }).join('')}
 </div></div></section>
 
+<section class="eeband"><div class="wrap"><div class="sec-h"><div><div class="eyebrow" style="color:var(--on-dark-2)">EE brand</div><h2>Our own replacement parts, priced below the Sumner part</h2>
+<p>Aftermarket and remanufactured parts that replace a Sumner part number. Every product page shows both side by side.</p></div><a href="${BASE_PATH}/ee-brand.html">Shop all ${stats.eeParts} EE brand parts</a></div>
+<div class="grid-cards">
+${data.products.filter(p => p.vendor === 'Energized Engines').slice(0, 4).map(p => renderProductCard(p)).join('')}
+</div></div></section>
+
 <section class="svc"><div class="wrap svc-g"><div><b>Lift rentals</b><span>Sumner 2118, 2124, 2412 and 2416. Daily, weekly or monthly.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental">Ask about rentals</a></div>
 <div><b>Winch rebuilds</b><span>Send us your Sumner winch and we rebuild it.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild">Ask about a rebuild</a></div></div></section>
 ${getFooter()}`;

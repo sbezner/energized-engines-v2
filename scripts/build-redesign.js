@@ -853,12 +853,12 @@ function buildSearchPage() {
   const html = `${getHeader('Search', 'search')}
 <div class="wrap srp-wrap">
 <div class="srp-side"><h3>Filters</h3>
-<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Brand</b>${icons.chevronDown}</div>
+<div class="fg open"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Brand</b>${icons.chevronDown}</div>
 <div class="fg-b"><label class="chk"><input type="checkbox" id="filterEE" value="ee"><span>EE brand</span></label>
 <label class="chk"><input type="checkbox" id="filterSumner" value="sumner"><span>Sumner OEM</span></label></div></div>
-<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Photo</b>${icons.chevronDown}</div>
+<div class="fg open"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Photo</b>${icons.chevronDown}</div>
 <div class="fg-b"><label class="chk"><input type="checkbox" id="filterPhoto" value="photo"><span>Has photo</span></label></div></div>
-<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Series</b>${icons.chevronDown}</div>
+<div class="fg open"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Series</b>${icons.chevronDown}</div>
 <div class="fg-b" id="seriesFilters"></div></div>
 <button class="btn btn-sec btn-sm" onclick="clearFilters()" style="margin-top:var(--s-4);width:100%">Clear filters</button></div>
 <div class="srp-main"><div class="srp-bar"><div id="searchCount"><h2>Loading...</h2></div><div class="srp-sort"><label class="sel sel-sm"><span>Sort</span><select id="sortSelect" class="selbox sm"><option value="relevance">Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="part-number">Part Number</option></select></label></div></div>

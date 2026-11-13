@@ -386,20 +386,28 @@
     const resultsDiv = document.getElementById('searchResults');
     const searchCount = document.getElementById('searchCount');
     
+    console.log('renderResults called, currentResults:', currentResults.length, 'searchCount element:', !!searchCount);
+    
     if (searchCount) {
-      searchCount.innerHTML = currentResults.length > 0 ? 
+      const html = currentResults.length > 0 ? 
         `<h2>${currentResults.length} result${currentResults.length !== 1 ? 's' : ''}</h2>` :
         `<h2>No results</h2>`;
+      console.log('Setting searchCount innerHTML to:', html);
+      searchCount.innerHTML = html;
     }
     
     if (currentResults.length === 0) {
-      resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + escapeHtml(query) + '"</p>';
+      if (resultsDiv) {
+        resultsDiv.innerHTML = '<p style="text-align:center;color:var(--muted);padding:var(--s-12)">No results found for "' + escapeHtml(query) + '"</p>';
+      }
       const showMoreBtn = document.getElementById('showMoreBtn');
       if (showMoreBtn) showMoreBtn.style.display = 'none';
       return;
     }
     
-    resultsDiv.innerHTML = '<div class="grid-cards" id="searchGrid"></div>';
+    if (resultsDiv) {
+      resultsDiv.innerHTML = '<div class="grid-cards" id="searchGrid"></div>';
+    }
     displayedCount = 0;
     showMoreResults();
   }

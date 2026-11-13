@@ -139,9 +139,9 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
   .logo img{height:32px}
   .hdr .row{gap:var(--s-2)}
   .hdr .row .sp{flex:1}
-  .m-search{padding:0 0 var(--s-3)}
-  .m-search .search{max-width:none}
-  .m-search .search form{height:44px}
+  .m-search{padding:0 var(--gutter) var(--s-3)}
+  .m-search .search{max-width:none;width:100%}
+  .m-search .search form{height:44px;width:100%}
   .card .bd{padding:var(--s-3)}
   .card .nm{font-size:var(--fs-13)}
   .card .pr b{font-size:var(--fs-18)}

@@ -307,6 +307,11 @@ select.selbox{appearance:none;padding-right:40px;background-image:url('data:imag
   .btn{padding:0 var(--s-3);min-width:0}
   .co-step{padding:var(--s-4)}
   .step-n{width:28px;height:28px;font-size:var(--fs-14)}
+  /* Stack City/State fields */
+  .two-f,.three-f{flex-direction:column}
+  /* Fix mobile search overflow */
+  .m-search .search{padding:0;width:100%}
+  .m-search .search form{width:100%}
   .finder .selbox{overflow:hidden;text-overflow:ellipsis}
   .f-row{flex-wrap:wrap}
   .f-row .sel{flex:1 1 calc(50% - 6px)}

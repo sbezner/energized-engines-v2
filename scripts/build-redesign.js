@@ -563,8 +563,7 @@ ${[
 
 <section class="svc"><div class="wrap svc-g"><div><b>Lift rentals</b><span>Sumner 2118, 2124, 2412 and 2416. Daily, weekly or monthly.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Lift%20rental">Ask about rentals</a></div>
 <div><b>Winch rebuilds</b><span>Send us your Sumner winch and we rebuild it.</span><a class="link" href="mailto:Sales@EnergizedEngines.com?subject=Winch%20rebuild">Ask about a rebuild</a></div></div></section>
-${getFooter()}
-<script src="${BASE_PATH}/home.js"></script>`;
+${getFooter().replace('</body></html>', '<script src="' + BASE_PATH + '/home.js"></script></body></html>')}`;
   
   fs.writeFileSync(path.join(DOCS_DIR, 'index.html'), html);
   console.log('✓ Built index.html');

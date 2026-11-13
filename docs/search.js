@@ -207,6 +207,7 @@
   
   let activeFilters = { brand: [], photo: false, series: [] };
   let activeSortOrder = 'relevance';
+  let baseResults = [];
   
   function initSearch() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -226,15 +227,158 @@
     const searchInput = document.querySelector('input[name="q"]');
     if (searchInput) searchInput.value = query;
     
-    currentResults = searchParts(query);
+    baseResults = searchParts(query);
+    currentResults = baseResults;
     displayedCount = 0;
     
+    initFilters();
     renderResults();
   }
   
-  // Placeholder functions for future filter/sort implementation
+  function initFilters() {
+    // Brand filters
+    const filterEE = document.getElementById('filterEE');
+    const filterSumner = document.getElementById('filterSumner');
+    if (filterEE) filterEE.addEventListener('change', applyFilters);
+    if (filterSumner) filterSumner.addEventListener('change', applyFilters);
+    
+    // Photo filter
+    const filterPhoto = document.getElementById('filterPhoto');
+    if (filterPhoto) filterPhoto.addEventListener('change', applyFilters);
+    
+    // Series filters - populate and attach listeners
+    const seriesContainer = document.getElementById('seriesFilters');
+    if (seriesContainer && searchData) {
+      const seriesOptions = ['2000', '2100', '2400', 'Roust-A-Bout', 'Eventer', 'Gantry'];
+      seriesOptions.forEach(series => {
+        const label = document.createElement('label');
+        label.className = 'chk';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'filter-series';
+        checkbox.value = series;
+        checkbox.addEventListener('change', applyFilters);
+        const span = document.createElement('span');
+        span.textContent = series;
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        seriesContainer.appendChild(label);
+      });
+    }
+    
+    // Sort dropdown
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) sortSelect.addEventListener('change', applySort);
+  }
+  
+  function applyFilters() {
+    // Collect active filters
+    const filterEE = document.getElementById('filterEE');
+    const filterSumner = document.getElementById('filterSumner');
+    const filterPhoto = document.getElementById('filterPhoto');
+    
+    activeFilters.brand = [];
+    if (filterEE && filterEE.checked) activeFilters.brand.push('ee');
+    if (filterSumner && filterSumner.checked) activeFilters.brand.push('sumner');
+    
+    activeFilters.photo = filterPhoto && filterPhoto.checked;
+    
+    activeFilters.series = [];
+    document.querySelectorAll('.filter-series:checked').forEach(cb => {
+      activeFilters.series.push(cb.value);
+    });
+    
+    // Filter baseResults
+    currentResults = baseResults.filter(part => {
+      // Brand filter
+      if (activeFilters.brand.length > 0) {
+        const isEE = part.vendor === 'Energized Engines';
+        const isSumner = part.vendor === 'Sumner';
+        const matchBrand = (activeFilters.brand.includes('ee') && isEE) ||
+                          (activeFilters.brand.includes('sumner') && isSumner);
+        if (!matchBrand) return false;
+      }
+      
+      // Photo filter
+      if (activeFilters.photo) {
+        const hasPhoto = part.image && !part.image.includes('placeholder.jpg');
+        if (!hasPhoto) return false;
+      }
+      
+      // Series filter
+      if (activeFilters.series.length > 0) {
+        const partModels = part.models || [];
+        const matchesSeries = activeFilters.series.some(series => {
+          if (series === '2000') return partModels.some(m => m.startsWith('20') && ['2000','2001','2003','2004','2005','2008','2010','2012','2014','2015','2017','2018','2020','2021','2024','2025'].includes(m));
+          if (series === '2100') return partModels.some(m => m.startsWith('21'));
+          if (series === '2400') return partModels.some(m => m.startsWith('24'));
+          if (series === 'Roust-A-Bout') return partModels.some(m => m.match(/R-?\d+/i));
+          if (series === 'Eventer') return partModels.some(m => m.toLowerCase().includes('eventer'));
+          if (series === 'Gantry') return partModels.some(m => m.toLowerCase().includes('gantry'));
+          return false;
+        });
+        if (!matchesSeries) return false;
+      }
+      
+      return true;
+    });
+    
+    applySort();
+  }
+  
+  function applySort() {
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+      activeSortOrder = sortSelect.value;
+    }
+    
+    if (activeSortOrder === 'price-asc') {
+      currentResults.sort((a, b) => {
+        const priceA = parseFloat(a.price || 0);
+        const priceB = parseFloat(b.price || 0);
+        return priceA - priceB;
+      });
+    } else if (activeSortOrder === 'price-desc') {
+      currentResults.sort((a, b) => {
+        const priceA = parseFloat(a.price || 0);
+        const priceB = parseFloat(b.price || 0);
+        return priceB - priceA;
+      });
+    } else if (activeSortOrder === 'part-number') {
+      currentResults.sort((a, b) => {
+        const pnA = a.partNumber || '';
+        const pnB = b.partNumber || '';
+        return pnA.localeCompare(pnB);
+      });
+    }
+    // 'relevance' keeps the original search order
+    
+    displayedCount = 0;
+    renderResults();
+  }
+  
   window.clearFilters = function() {
-    console.log('Filters cleared');
+    // Uncheck all filters
+    const filterEE = document.getElementById('filterEE');
+    const filterSumner = document.getElementById('filterSumner');
+    const filterPhoto = document.getElementById('filterPhoto');
+    if (filterEE) filterEE.checked = false;
+    if (filterSumner) filterSumner.checked = false;
+    if (filterPhoto) filterPhoto.checked = false;
+    
+    document.querySelectorAll('.filter-series').forEach(cb => cb.checked = false);
+    
+    // Reset sort
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) sortSelect.value = 'relevance';
+    
+    // Reset filters
+    activeFilters = { brand: [], photo: false, series: [] };
+    activeSortOrder = 'relevance';
+    currentResults = baseResults;
+    
+    displayedCount = 0;
+    renderResults();
   };
   
   function renderResults() {

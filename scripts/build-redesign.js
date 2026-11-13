@@ -443,7 +443,7 @@ function buildAll() {
   const redirectModels = ['2001', '2003', '2004', '2005', '2017', '2021', 'eventer25', 'Eventer 20', 'Eventer 16'];
   redirectModels.forEach(model => {
     const seriesKey = model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const redirectHtml = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${BASE_PATH}/search.html?q=${encodeURIComponent(model)}"><title>Redirecting...</title></head><body><p>Redirecting to search results for ${model}...</p></body></html>`;
+    const redirectHtml = `<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=${BASE_PATH}/search.html?q=${encodeURIComponent(model)}"><title>Redirecting...</title></head><body><p>Redirecting to search results for ${model}...</p></body></html>`;
     fs.writeFileSync(path.join(DOCS_DIR, 'series', `${seriesKey}.html`), redirectHtml);
   });
   console.log(`✓ Created ${redirectModels.length} redirect pages`);
@@ -541,7 +541,7 @@ function buildHomePage() {
 <section class="sec"><div class="wrap"><div class="sec-h"><div><h2>Shop by lift model</h2><p>Every part we list, sorted by the Sumner lift it fits.</p></div><a href="${BASE_PATH}/models.html">All ${stats.models} models</a></div>
 <div class="mgrid">
 ${[
-  { series: '2000', exactModels: ['2000', '2008', '2010', '2012', '2014', '2015', '2018', '2020', '2024', '2025'], display: '2010 2015 2020 2025' },
+  { series: '2000', exactModels: ['2000', '2001', '2003', '2004', '2005', '2008', '2010', '2012', '2014', '2015', '2017', '2018', '2020', '2021', '2024', '2025'], display: '2010 2015 2020 2025' },
   { series: '2100', exactModels: ['2100', '2112', '2118', '2124'], display: '2112 2118 2124' },
   { series: '2400', exactModels: ['2400', '2412', '2416'], display: '2412 2416' },
   { series: 'Roust-A-Bout', exactModels: ['R-100', 'R-150', 'R-180', 'R-250', 'Roust-A-Bout'], display: 'R-100 R-150 R-180 R-250' },

@@ -112,7 +112,7 @@ console.log('\n5. Badge types (60 exact / 96 series / 191 listed on 299 pages)..
 const badgeCounts = { exact: 0, series: 0, listed: 0, pages: 0 };
 productFiles.forEach(file => {
   const html = fs.readFileSync(path.join(DOCS_DIR, 'products', file), 'utf8');
-  if (html.includes('class="b-man"')) {
+  if (html.includes('badge b-man')) {
     badgeCounts.pages++;
     // Classify by badge text: 'Verified for' = exact, 'Listed in Series ... parts manual' = series, other 'Listed in' = listed
     const badgeMatches = html.match(/<span class="badge b-man"[^>]*>([^<]+)<\/span>/g);

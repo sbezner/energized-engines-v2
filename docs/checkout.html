@@ -19,7 +19,6 @@
 <b>Demo Mode:</b> No payment will be processed. This is a test checkout to demonstrate the design.
 </div>
 <p>In production, this would integrate with Stripe Checkout to securely process payments. The cart contents would be sent to a serverless function that creates a Stripe Checkout Session.</p>
-<p style="margin-top:var(--s-4)">See <a href="/energized-engines-v2/README-checkout.md" class="link">README-checkout.md</a> for implementation details.</p>
 <button class="btn btn-pri" onclick="demoCheckout()" style="margin-top:var(--s-4)">Continue to Demo Order Confirmation</button>
 </div></div>
 <div class="co-r">
@@ -35,7 +34,7 @@
 </div>
 </div>
 </div></main>
-<footer class="foot"><div class="wrap"><div class="legal"><span>&copy; 2026 Energized Engines</span></div></div></footer>
+<footer class="foot"><div class="wrap"><div class="legal"><span>&copy; 2026 Energized Engines. Sumner is a trademark of its owner. Sumner part numbers are shown for reference.</span><span>Secure checkout by Stripe</span></div></div></footer>
 <script src="/energized-engines-v2/cart.js"></script>
 <script>
 function demoCheckout() {

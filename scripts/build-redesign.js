@@ -295,7 +295,7 @@ function renderProductCard(product) {
   // Get Sumner price if EE part
   let sumnerPrice = null;
   if (isEE && product.title) {
-    const sumnerMatch = product.title.match(/After Market Sumner (\d+)/i);
+    const sumnerMatch = product.title.match(/after[\s-]*market\s+sumner\s+(\d+)/i);
     if (sumnerMatch) {
       const sumnerPartNum = sumnerMatch[1];
       // Find Sumner product with this part number
@@ -328,7 +328,7 @@ function renderProductCard(product) {
     : '<div style="color:var(--muted);font-size:var(--fs-14);text-align:center">No photo yet</div>';
   
   const replaces = isEE && product.title ? 
-    product.title.match(/After Market Sumner (\d+)/i)?.[1] || '' : '';
+    product.title.match(/after[\s-]*market\s+sumner\s+(\d+)/i)?.[1] || '' : '';
   
   // Format part number for EE products: "EE 1021" instead of just "1021"
   const displayPartNumber = (isEE && partNumber) ? `EE ${partNumber}` : partNumber;
@@ -502,7 +502,7 @@ function buildHomePage() {
       if (!price || price === 0) return false;
       
       // Extract Sumner part number from title
-      const sumnerMatch = p.title.match(/After Market Sumner (\d+)/i);
+      const sumnerMatch = p.title.match(/after[\s-]*market\s+sumner\s+(\d+)/i);
       if (!sumnerMatch) return false;
       
       const sumnerPartNum = sumnerMatch[1];
@@ -568,7 +568,7 @@ ${[
 <div class="grid-cards">${popularParts.map(p => renderProductCard(p)).join('')}</div></div></section>
 
 <section class="eeband"><div class="wrap"><div class="sec-h"><div><div class="eyebrow" style="color:var(--on-dark-2)">EE brand</div><h2>Our own replacement parts, priced below the Sumner part</h2>
-<p style="color:var(--on-dark-2)">Save on wear parts like rollers, casters, and load lines. EE brand parts fit the same as Sumner OEM.</p></div><a href="${BASE_PATH}/search.html?q=ee">Shop all ${stats.eeParts} EE brand parts</a></div>
+<p style="color:var(--on-dark-2)">Save on wear parts like rollers, casters, and load lines. EE brand parts fit the same as Sumner OEM.</p></div><a href="${BASE_PATH}/search.html?q=ee" style="color:var(--on-dark-2)">Shop all ${stats.eeParts} EE brand parts</a></div>
 <div class="grid-cards">${eeCompare.map(p => {
   const sumnerPart = data.products.find(s => s.part_number === p.replaces_part_number && s.vendor !== 'Energized Engines');
   return renderProductCard(p, sumnerPart);
@@ -658,13 +658,13 @@ function buildProductPage(product) {
     galleryHtml = '<div class="gal"><div class="gal-main"><div style="color:var(--muted);text-align:center;padding:var(--s-12)">No photo yet</div></div></div>';
   } else if (images.length === 1) {
     // Single image: one column with full-size main image
-    galleryHtml = `<div class="gal"><div class="gal-main"><img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy" style="object-fit:contain;max-height:600px"></div></div>`;
+    galleryHtml = `<div class="gal"><div class="gal-main"><img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy" style="object-fit:contain"></div></div>`;
   } else {
     // Multiple images: thumbnails + main image
     const thumbnails = images.map((img, i) => 
       `<button class="gal-thumb${i === 0 ? ' active' : ''}" onclick="document.querySelectorAll('.gal-thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.querySelector('.gal-main img').src='${img.src}'"><img src="${img.src}" alt="${escapeHtml(title)}" loading="lazy"></button>`
     ).join('');
-    galleryHtml = `<div class="gal gal-multi"><div class="gal-thumbs">${thumbnails}</div><div class="gal-main"><img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy" style="object-fit:contain;max-height:600px"></div></div>`;
+    galleryHtml = `<div class="gal gal-multi"><div class="gal-thumbs">${thumbnails}</div><div class="gal-main"><img src="${images[0].src}" alt="${escapeHtml(title)}" loading="lazy" style="object-fit:contain"></div></div>`;
   }
   
   // Format part number for display: "EE 1021" for EE products, plain for others
@@ -677,7 +677,7 @@ function buildProductPage(product) {
   let savingPercent = 0;
   
   if (isEE && product.title) {
-    const sumnerMatch = product.title.match(/After Market Sumner (\d+)/i);
+    const sumnerMatch = product.title.match(/after[\s-]*market\s+sumner\s+(\d+)/i);
     if (sumnerMatch) {
       sumnerPartNum = sumnerMatch[1];
       const sumnerProduct = data.products?.find(p => 
@@ -849,6 +849,8 @@ function buildCartPage() {
 <span>Subtotal</span><span id="cartPageSubtotal" class="num">$0.00</span></div>
 <div style="display:flex;justify-content:space-between;padding:var(--s-4) 0;font-size:var(--fs-24);font-weight:700">
 <span>Total</span><span id="cartPageTotal" class="num">$0.00</span></div>
+<!-- https://energizedengines.com/policies/shipping-policy -->
+<p style="font-size:var(--fs-13);color:var(--muted);margin:var(--s-3) 0;line-height:1.4">Free standard ground shipping on qualified parts orders over $250 (Lower 48 states only, standard parts; oversized or freight items excluded). AK, HI &amp; U.S. Territories: $35 flat rate.</p>
 <a href="${BASE_PATH}/checkout.html" class="btn btn-pri btn-block">Proceed to Checkout</a>
 <a href="${BASE_PATH}/" class="btn btn-sec btn-block" style="margin-top:var(--s-2)">Continue Shopping</a>
 </div></div>
@@ -946,7 +948,7 @@ function buildSearchData() {
       // Get Sumner price if EE part (same logic as renderProductCard)
       let oldPrice = null;
       if (isEE && p.title) {
-        const sumnerMatch = p.title.match(/After Market Sumner (\d+)/i);
+        const sumnerMatch = p.title.match(/after[\s-]*market\s+sumner\s+(\d+)/i);
         if (sumnerMatch) {
           const sumnerPartNum = sumnerMatch[1];
           const sumnerProduct = data.products?.find(s => 

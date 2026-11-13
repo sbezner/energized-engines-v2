@@ -80,6 +80,19 @@
     return cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
   }
   
+  function calculateShipping(subtotal) {
+    const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
+    return subtotal >= threshold ? 0 : null; // null means "not yet calculated" or "TBD"
+  }
+  
+  function getShippingText(subtotal) {
+    const threshold = window.EEConfig?.FREE_SHIPPING_THRESHOLD || 150;
+    if (subtotal >= threshold) {
+      return 'FREE';
+    }
+    return 'Calculated at checkout';
+  }
+  
   function updateCartUI() {
     // Update cart count badge
     const countElems = document.querySelectorAll('.icon-btn .count');
@@ -255,6 +268,8 @@
     getCart,
     getCartCount,
     getCartTotal,
+    calculateShipping,
+    getShippingText,
     openCartDrawer,
     closeCartDrawer,
     renderCartDrawer,

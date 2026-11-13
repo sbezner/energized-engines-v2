@@ -241,7 +241,7 @@ function getFooter() {
 <div class="dr-h"><h3>CART <span id="cartCountText">(0)</span></h3><button class="icon-btn" id="cartCloseBtn" aria-label="Close">${icons.x}</button></div>
 <div class="dr-added" id="cartAddedBanner" style="display:none">${icons.check}<span id="cartAddedMsg"></span></div>
 <div class="dr-items" id="cartItems"></div>
-<div class="ship-meter" id="shippingMeter"><span id="shippingText">Add $150.00 for free ground shipping</span><div class="bar"><i id="shippingBar" style="width:0%"></i></div></div>
+<div class="ship-meter" id="shippingMeter"><span id="shippingText">Add $250.00 for free ground shipping</span><div class="bar"><i id="shippingBar" style="width:0%"></i></div></div>
 <div class="dr-f"><div class="tot"><span>Subtotal</span><b class="num" id="cartSubtotal">$0.00</b></div>
 <p style="font-size:var(--fs-13);color:var(--muted);margin:var(--s-2) 0">Shipping and tax calculated at checkout</p>
 <a href="${BASE_PATH}/checkout.html" class="btn btn-pri btn-block">${icons.lock}Check out</a>
@@ -552,7 +552,7 @@ ${[
   return renderProductCard(p, sumnerPart);
 }).join('')}</div></div></section>
 
-<section class="trust"><div class="wrap trust-g"><div><svg viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><b>Free ground shipping over $150</b><span>Lower 48. Free local delivery within 10 miles of Jersey Village, TX.</span></div>
+<section class="trust"><div class="wrap trust-g"><div><svg viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><b>Free ground shipping over $250</b><span>Lower 48. Free local delivery within 10 miles of Jersey Village, TX.</span></div>
 <div><svg viewBox="0 0 24 24"><path d="M4 10h11a5 5 0 0 1 0 10h-3"/><path d="m8 6-4 4 4 4"/></svg><b>14-day returns</b><span>Customer pays return shipping plus a 20% restocking fee. See <a href="${BASE_PATH}/return-policy.html" style="color:inherit;text-decoration:underline">return policy</a>.</span></div>
 <div><svg viewBox="0 0 24 24"><path d="M18 8h-3.3A7 7 0 0 0 5 8H2M18 16h-3.3A7 7 0 0 1 5 16H2M12 8v8"/></svg><b>Talk to a parts person</b><span>Call or text 832-444-5426 with your model and serial number.</span></div>
 <div><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><b>Demo checkout: no payment is taken</b><span>This is a test site. Shop at energizedengines.com for real orders.</span></div></div></section>

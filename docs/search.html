@@ -26,12 +26,12 @@
 <main>
 <div class="wrap srp-wrap">
 <div class="srp-side"><h3>Filters</h3>
-<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Brand</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
+<div class="fg open"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Brand</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
 <div class="fg-b"><label class="chk"><input type="checkbox" id="filterEE" value="ee"><span>EE brand</span></label>
 <label class="chk"><input type="checkbox" id="filterSumner" value="sumner"><span>Sumner OEM</span></label></div></div>
-<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Photo</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
+<div class="fg open"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Photo</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
 <div class="fg-b"><label class="chk"><input type="checkbox" id="filterPhoto" value="photo"><span>Has photo</span></label></div></div>
-<div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Series</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
+<div class="fg open"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Series</b><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>
 <div class="fg-b" id="seriesFilters"></div></div>
 <button class="btn btn-sec btn-sm" onclick="clearFilters()" style="margin-top:var(--s-4);width:100%">Clear filters</button></div>
 <div class="srp-main"><div class="srp-bar"><div id="searchCount"><h2>Loading...</h2></div><div class="srp-sort"><label class="sel sel-sm"><span>Sort</span><select id="sortSelect" class="selbox sm"><option value="relevance">Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="part-number">Part Number</option></select></label></div></div>
@@ -44,7 +44,7 @@
 <div class="dr-h"><h3>CART <span id="cartCountText">(0)</span></h3><button class="icon-btn" id="cartCloseBtn" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg></button></div>
 <div class="dr-added" id="cartAddedBanner" style="display:none"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span id="cartAddedMsg"></span></div>
 <div class="dr-items" id="cartItems"></div>
-<div class="ship-meter" id="shippingMeter"><span id="shippingText">Add $150.00 for free ground shipping</span><div class="bar"><i id="shippingBar" style="width:0%"></i></div></div>
+<div class="ship-meter" id="shippingMeter"><span id="shippingText">Add $250.00 for free ground shipping</span><div class="bar"><i id="shippingBar" style="width:0%"></i></div></div>
 <div class="dr-f"><div class="tot"><span>Subtotal</span><b class="num" id="cartSubtotal">$0.00</b></div>
 <p style="font-size:var(--fs-13);color:var(--muted);margin:var(--s-2) 0">Shipping and tax calculated at checkout</p>
 <a href="/energized-engines-v2/checkout.html" class="btn btn-pri btn-block"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Check out</a>

@@ -217,7 +217,7 @@
           <div class="pn">${escapeHtml(item.partNumber)}</div>
           <div style="font-weight:600;font-size:var(--fs-16);margin:4px 0">${escapeHtml(item.name)}</div>
           <div class="stock st-ok">${item.stock || 'In stock'}</div>
-          <div class="qty" style="margin-top:var(--s-2)">
+          <div class="qty sm" style="margin-top:var(--s-2)">
             <button onclick="EECart.updateQuantity('${item.id}', ${item.quantity - 1})">−</button>
             <span class="num">${item.quantity}</span>
             <button onclick="EECart.updateQuantity('${item.id}', ${item.quantity + 1})">+</button>

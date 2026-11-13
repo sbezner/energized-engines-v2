@@ -174,3 +174,4 @@ h1{font-size:var(--fs-40)} h2{font-size:var(--fs-32)} h3{font-size:var(--fs-20)}
 
 /* Fix cart qty display */
 .qty:empty{display:none}
+.qty.sm{display:inline-flex;width:max-content}

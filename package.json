@@ -2,5 +2,8 @@
   "devDependencies": {
     "@playwright/test": "^1.65.0",
     "playwright": "^1.65.0"
+  },
+  "scripts": {
+    "verify": "node scripts/verify-site.js"
   }
 }

@@ -268,19 +268,24 @@ module.exports = {
 
 // Continue with build functions in next section...
 
-// Return policy text from live site (14-day window)
-const REFUND_POLICY_TEXT = `Returns are accepted within 14 days of ship date. Customer pays return shipping fees plus a 20% restocking fee.
+// Return policy text from live site (copied faithfully section by section)
+const REFUND_POLICY_TEXT = {
+  intro: `Returns are accepted within 14 days of ship date. Customer pays return shipping fees plus a 20% restocking fee.`,
+  
+  ineligible: `CIRCUIT BOARDS, CIRCUIT CARDS, ELECTRONIC PARTS OF ANY KIND, Hardware, Sheet Metal, Nameplates, Service Kits, Non-standard or Made-To-Order Items, Partial Pack Quantities, Bulk Cable, Memory Cards, or any item considered low usage ARE NOT ELIGIBLE FOR RETURNS. Please make sure you have the correct part number before ordering these products.
 
-We have a 14-day return policy on eligible items, which means you have 14 days after receiving your item to request a return.
-
-To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.
-
-The following items cannot be returned:
-- Electrical parts and components
-- Special orders and custom parts
-- Installed or used parts
-
-To request a return, please contact us at Sales@EnergizedEngines.com or call 832-444-5426. All returns must be approved by Energized Engines before shipping.`;
+THIS POLICY IS STRICTLY ENFORCED.`,
+  
+  policy14day: `We have a 14-day return policy on eligible items, which means you have 14 days after receiving your item to request a return.`,
+  
+  eligibility: `Eligible items must be in the same condition that you received it, unworn or unused, with tags, and in its original packaging. You'll also need the receipt or proof of purchase. To start a return, you can contact us at sales@energizedengines.com. Please note that returns will need to be sent to the following address: 16225 St. Hellier, Jersey Village, TX, 77040 If your return is accepted, we'll send you return instructions on how and where to send your package. Items sent back to us without first requesting a return will not be accepted. You can always contact us for any return question at sales@energizedengines.com.`,
+  
+  damages: `Damages and issues Please inspect your order upon reception and contact us immediately if the item is defective, damaged or if you receive the wrong item, so that we can evaluate the issue and make it right.`,
+  
+  exchanges: `Exchanges The fastest way to ensure you get what you want is to return the item you have, and once the return is accepted, make a separate purchase for the new item.`,
+  
+  refunds: `Refunds We will notify you once we've received and inspected your return, and let you know if the refund was approved or not. If approved, you'll be automatically refunded on your original payment method within 10 business days. Please remember it can take some time for your bank or credit card company to process and post the refund too. If more than 15 business days have passed since we've approved your return, please contact us at sales@energizedengines.com.`
+};
 
 // Build all pages
 function buildAll() {
@@ -534,11 +539,13 @@ function buildReturnPolicyPage() {
 <div class="wrap" style="padding:var(--s-12) 0;max-width:800px">
 <h1>Return Policy</h1>
 <div style="line-height:1.8;color:var(--ink-2)">
-${REFUND_POLICY_TEXT.split('\n\n').map(p => `<p style="margin:var(--s-4) 0">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')}
-<h2 style="margin:var(--s-6) 0 var(--s-4)">How to Initiate a Return</h2>
-<p>Contact us before returning any item:</p>
-<ul style="margin:var(--s-2) 0"><li>Email: Sales@EnergizedEngines.com</li><li>Phone: 832-444-5426</li></ul>
-<p style="margin:var(--s-4) 0"><b>Do not return items without an RA number.</b></p>
+<p style="margin:var(--s-4) 0">${escapeHtml(REFUND_POLICY_TEXT.intro)}</p>
+<p style="margin:var(--s-4) 0">${escapeHtml(REFUND_POLICY_TEXT.ineligible).replace(/\n/g, '<br><br>')}</p>
+<p style="margin:var(--s-4) 0">${escapeHtml(REFUND_POLICY_TEXT.policy14day)}</p>
+<p style="margin:var(--s-4) 0">${escapeHtml(REFUND_POLICY_TEXT.eligibility)}</p>
+<p style="margin:var(--s-4) 0"><b>${REFUND_POLICY_TEXT.damages.split(' ')[0]}</b> ${escapeHtml(REFUND_POLICY_TEXT.damages.substring(REFUND_POLICY_TEXT.damages.indexOf(' ')))}</p>
+<p style="margin:var(--s-4) 0"><b>${REFUND_POLICY_TEXT.exchanges.split(' ')[0]}</b> ${escapeHtml(REFUND_POLICY_TEXT.exchanges.substring(REFUND_POLICY_TEXT.exchanges.indexOf(' ')))}</p>
+<p style="margin:var(--s-4) 0"><b>${REFUND_POLICY_TEXT.refunds.split(' ')[0]}</b> ${escapeHtml(REFUND_POLICY_TEXT.refunds.substring(REFUND_POLICY_TEXT.refunds.indexOf(' ')))}</p>
 </div></div>
 ${getFooter()}`;
   
@@ -642,14 +649,19 @@ ${getFooter()}`;
 
 function buildSearchData() {
   const searchData = {
-    parts: data.products.map(p => ({
-      id: p.id,
-      partNumber: p.extracted_part_number || p.part_number || '',
-      name: cleanTitle(p.title),
-      price: p.price || '0',
-      image: p.images?.[0]?.src || '',
-      handle: p.handle || `product-${p.id}`
-    })),
+    parts: data.products.map(p => {
+      const pn = p.extracted_part_number || p.part_number || '';
+      return {
+        id: p.id,
+        partNumber: pn,
+        normalized_pn: pn.toString().replace(/[^A-Z0-9]/gi, '').toUpperCase(),
+        name: p.title,
+        price: (p.variants?.[0]?.price || 0).toString(),
+        image: p.images?.[0]?.src || '',
+        handle: p.handle || `product-${p.id}`,
+        models: p.models || []
+      };
+    }),
     models: Object.keys(data.models)
   };
   

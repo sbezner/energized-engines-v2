@@ -28,23 +28,90 @@
       if (!input || !container) return;
       
       let debounceTimer;
+      let selectedIndex = -1;
+      
+      // ARIA setup
+      input.setAttribute('role', 'combobox');
+      input.setAttribute('aria-autocomplete', 'list');
+      input.setAttribute('aria-expanded', 'false');
+      input.setAttribute('aria-controls', container.id);
+      container.setAttribute('role', 'listbox');
+      
+      // Result count aria-live region
+      let liveRegion = document.getElementById('typeahead-live-' + container.id);
+      if (!liveRegion) {
+        liveRegion = document.createElement('div');
+        liveRegion.id = 'typeahead-live-' + container.id;
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.style.position = 'absolute';
+        liveRegion.style.left = '-10000px';
+        document.body.appendChild(liveRegion);
+      }
       
       input.addEventListener('input', function(e) {
         clearTimeout(debounceTimer);
         const query = e.target.value.trim();
+        selectedIndex = -1;
         
         if (query.length < 2) {
           container.classList.remove('show');
+          input.setAttribute('aria-expanded', 'false');
           return;
         }
         
         debounceTimer = setTimeout(() => {
-          showTypeahead(query, container);
+          const count = showTypeahead(query, container, liveRegion);
+          if (count > 0) {
+            input.setAttribute('aria-expanded', 'true');
+          }
         }, 120);
       });
       
+      // Keyboard navigation
+      input.addEventListener('keydown', function(e) {
+        if (!container.classList.contains('show')) return;
+        
+        const items = container.querySelectorAll('.it');
+        if (items.length === 0) return;
+        
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+          updateSelection(items, selectedIndex);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = Math.max(selectedIndex - 1, -1);
+          updateSelection(items, selectedIndex);
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+          e.preventDefault();
+          items[selectedIndex].click();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          container.classList.remove('show');
+          input.setAttribute('aria-expanded', 'false');
+          selectedIndex = -1;
+        }
+      });
+      
+      function updateSelection(items, index) {
+        items.forEach((item, i) => {
+          if (i === index) {
+            item.classList.add('selected');
+            item.setAttribute('aria-selected', 'true');
+          } else {
+            item.classList.remove('selected');
+            item.setAttribute('aria-selected', 'false');
+          }
+        });
+      }
+      
       input.addEventListener('blur', function() {
-        setTimeout(() => container.classList.remove('show'), 200);
+        setTimeout(() => {
+          container.classList.remove('show');
+          input.setAttribute('aria-expanded', 'false');
+          selectedIndex = -1;
+        }, 200);
       });
     }
     
@@ -52,8 +119,8 @@
     attachTypeahead(mobileInput, mobileTypeahead);
   }
   
-  function showTypeahead(query, container) {
-    if (!searchData) return;
+  function showTypeahead(query, container, liveRegion) {
+    if (!searchData) return 0;
     
     const results = searchParts(query);
     const matchedParts = results.slice(0, 5);
@@ -66,7 +133,7 @@
     
     if (matchedParts.length === 0 && matchedModels.length === 0) {
       container.classList.remove('show');
-      return;
+      return 0;
     }
     
     let html = '';
@@ -78,7 +145,7 @@
         const highlightedName = highlightMatch(part.name, query);
         const price = part.price && parseFloat(part.price) > 0 ? `$${parseFloat(part.price).toFixed(2)}` : 'Call for price';
         
-        html += `<a class="it" href="${BASE_PATH}/products/${part.handle}.html">
+        html += `<a class="it" role="option" aria-selected="false" href="${BASE_PATH}/products/${part.handle}.html">
           <img src="${part.image || BASE_PATH + '/images/placeholder.jpg'}" alt="" onerror="this.src='${BASE_PATH}/images/placeholder.jpg'">
           <div><div class="t">${highlightedName}</div><div class="pn">${highlightedPN}</div></div>
           <div class="p">${price}</div>
@@ -98,6 +165,14 @@
     
     container.innerHTML = html;
     container.classList.add('show');
+    
+    // Announce result count
+    if (liveRegion) {
+      const totalResults = matchedParts.length + matchedModels.length;
+      liveRegion.textContent = `${totalResults} suggestions available`;
+    }
+    
+    return matchedParts.length + matchedModels.length;
   }
   
   function searchParts(query) {

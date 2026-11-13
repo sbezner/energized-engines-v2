@@ -861,7 +861,7 @@ function buildSearchPage() {
 <div class="fg"><div class="fg-h" onclick="this.parentElement.classList.toggle('open')"><b>Series</b>${icons.chevronDown}</div>
 <div class="fg-b" id="seriesFilters"></div></div>
 <button class="btn btn-sec btn-sm" onclick="clearFilters()" style="margin-top:var(--s-4);width:100%">Clear filters</button></div>
-<div class="srp-main"><div class="srp-bar"><div id="searchCount"></div><div class="srp-sort"><label class="sel sel-sm"><span>Sort</span><select id="sortSelect" class="selbox sm"><option value="relevance">Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="part-number">Part Number</option></select></label></div></div>
+<div class="srp-main"><div class="srp-bar"><div id="searchCount"><h2>Loading...</h2></div><div class="srp-sort"><label class="sel sel-sm"><span>Sort</span><select id="sortSelect" class="selbox sm"><option value="relevance">Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="part-number">Part Number</option></select></label></div></div>
 <div id="searchResults"></div>
 <button id="showMoreBtn" class="btn btn-sec" style="display:none;margin:var(--s-6) auto">Show more</button></div>
 </div>

@@ -1,0 +1,49 @@
+/* Energized Engines redesign tokens. Lift these into the build as-is. */
+:root{
+  /* brand */
+  --red-500:#EA0917;  /* sampled from logo.png (most common pixel #EA0917) - logo, bolt, large display accents */
+  --red-600:#D10812;  /* primary buttons, white text 5.59:1 */
+  --red-700:#B00610;  /* hover, red text links on white 7.29:1, sale price */
+  --red-800:#9F0510;  /* test banner bg, white text 8.39:1 */
+  --red-50:#FDE8E9;
+
+  /* ink + neutrals */
+  --ink:#14171C;      /* body text 17.96:1 on white */
+  --ink-2:#4A525D;    /* secondary text 7.91:1 */
+  --muted:#6B737E;    /* captions, meta 4.8:1 on white */
+  --line:#E2E5E9;
+  --line-strong:#CDD2D8;
+  --bg:#F5F6F8;       /* page background */
+  --surface:#FFFFFF;
+  --charcoal:#1C2026; /* utility bar, footer, dark bands */
+  --charcoal-2:#2A2F37;
+  --on-dark-2:#B8BEC6;/* secondary text on charcoal 9.6:1 */
+
+  /* semantic */
+  --ok:#147A3A;   --ok-bg:#E6F4EC;    /* In stock, fitment verified */
+  --low:#9A4A00;  --low-bg:#FFF3DF;   /* Low stock, fitment not yet verified */
+  --back:#1B56B0; --back-bg:#E8F0FC;  /* Backorder / ships later */
+  --out:#4A525D;  --out-bg:#EEF0F2;   /* Out of stock */
+  --sale:#B00610; --sale-bg:#FDE8E9;  /* Save %, sale price */
+  --focus:#1B56B0;
+
+  /* type */
+  --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-head:"Barlow Condensed","Arial Narrow",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --fs-12:.75rem; --fs-13:.8125rem; --fs-14:.875rem; --fs-16:1rem; --fs-18:1.125rem;
+  --fs-20:1.25rem; --fs-24:1.5rem; --fs-32:2rem; --fs-40:2.5rem; --fs-56:3.5rem;
+
+  /* spacing (4px base) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px; --s-16:64px; --s-20:80px;
+
+  /* shape */
+  --r-sm:4px; --r-md:6px; --r-lg:10px; --r-pill:999px;
+  --sh-1:0 1px 2px rgba(20,23,28,.06),0 1px 1px rgba(20,23,28,.04);
+  --sh-2:0 4px 12px rgba(20,23,28,.08),0 1px 3px rgba(20,23,28,.06);
+  --sh-3:0 12px 32px rgba(20,23,28,.16),0 2px 6px rgba(20,23,28,.08);
+
+  /* layout */
+  --max:1320px; --gutter:24px; --header-h:72px;
+}
+@media (max-width:639px){:root{--gutter:16px;--header-h:56px}}

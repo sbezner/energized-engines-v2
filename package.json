@@ -1,5 +1,10 @@
 {
   "devDependencies": {
-    "playwright": "^1.63.0"
+    "@playwright/test": "^1.65.0",
+    "playwright": "^1.65.0"
+  },
+  "scripts": {
+    "verify": "node scripts/verify-site.js",
+    "verify:browser": "node scripts/verify-browser.js"
   }
 }

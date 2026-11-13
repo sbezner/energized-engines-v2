@@ -46,18 +46,29 @@ This preview site addresses key issues identified in the September 2026 traffic 
     └── build-site.js       # Generate static HTML
 ```
 
-## Building the Site
+## Building and Testing
 
+### Build the site
 ```bash
-# 1. Fetch the catalog (read-only)
-node scripts/fetch-catalog.js
-
-# 2. Process and deduplicate
-node scripts/process-catalog.js
-
-# 3. Build static site
-node scripts/build-site.js
+node scripts/build-redesign.js
 ```
+
+Generates all static HTML pages, search data, and assets in `/docs`.
+
+### Static verification (no dependencies)
+```bash
+npm run verify
+```
+
+Runs automated checks for product counts, prices, search ranking, badge counts, and content correctness.
+
+### Browser verification (requires Playwright)
+```bash
+npm ci && npx playwright install chromium
+npm run verify:browser
+```
+
+Runs Playwright-based tests for duplicate IDs and cart flow at multiple viewports (320px, 390px, 768px, 1280px).
 
 The site is built to work under the `/energized-engines-v2/` base path for GitHub Pages at `https://sbezner.github.io/energized-engines-v2/`.
 

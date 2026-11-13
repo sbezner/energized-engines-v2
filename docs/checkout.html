@@ -1,0 +1,60 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><title>Checkout | Energized Engines (test)</title>
+<link rel="icon" type="image/png" href="/energized-engines-v2/logo.png">
+<link rel="stylesheet" href="/energized-engines-v2/tokens.css"><link rel="stylesheet" href="/energized-engines-v2/site.css"><link rel="stylesheet" href="/energized-engines-v2/pages.css">
+<script src="/energized-engines-v2/config.js"></script>
+</head><body>
+<div class="test-banner">Test site. Nothing here is for sale and no orders are taken. Shop at <a href="https://www.energizedengines.com">energizedengines.com</a></div>
+<header class="hdr"><div class="wrap"><div class="row" style="height:64px">
+<a class="logo" href="/energized-engines-v2/"><img src="/energized-engines-v2/logo.png" alt="Energized Engines"></a>
+<span style="flex:1"></span>
+<div class="co-sec"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Secure checkout</div>
+<div class="hdr-phone">Questions? Call or text<b>832-444-5426</b></div>
+</div></div></header>
+<main><div class="wrap" style="padding-top:var(--s-8);padding-bottom:var(--s-8);max-width:1120px">
+<div class="co-g">
+<div><div class="co-step">
+<h3>Test Checkout</h3>
+<div style="background:var(--low-bg);color:var(--low);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-4)">
+<b>Demo Mode:</b> No payment will be processed. This is a test checkout to demonstrate the design.
+</div>
+<p>In production, this would integrate with Stripe Checkout to securely process payments. The cart contents would be sent to a serverless function that creates a Stripe Checkout Session.</p>
+<p style="margin-top:var(--s-4)">See <a href="/energized-engines-v2/README-checkout.md" class="link">README-checkout.md</a> for implementation details.</p>
+<button class="btn btn-pri" onclick="demoCheckout()" style="margin-top:var(--s-4)">Continue to Demo Order Confirmation</button>
+</div></div>
+<div class="co-r">
+<h3>Order Summary</h3>
+<div id="checkoutItems"></div>
+<div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;font-size:var(--fs-14);color:var(--muted);border-top:1px solid var(--line);margin-top:var(--s-3)">
+<span>Subtotal</span><span id="checkoutSubtotal" class="num">$0.00</span></div>
+<div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;font-size:var(--fs-14);color:var(--muted)">
+<span>Shipping</span><span>FREE</span></div>
+<div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;font-size:var(--fs-14);color:var(--muted);border-bottom:1px solid var(--line)">
+<span>Tax</span><span>Calculated</span></div>
+<div class="sum"><div class="gt"><span>Total</span><b id="checkoutTotal" class="num">$0.00</b></div></div>
+</div>
+</div>
+</div></main>
+<footer class="foot"><div class="wrap"><div class="legal"><span>&copy; 2026 Energized Engines</span></div></div></footer>
+<script src="/energized-engines-v2/cart.js"></script>
+<script>
+function demoCheckout() {
+  window.location.href = '/energized-engines-v2/order-confirmation.html?demo=1';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const cart = EECart.getCart();
+  const subtotal = EECart.getCartTotal();
+  const items = cart.map(item => `
+    <div class="li mini">
+      <img src="${item.image || '/energized-engines-v2/images/placeholder.jpg'}" alt="">
+      <div style="flex:1"><div style="font-size:var(--fs-13);font-weight:600">${item.name}</div>
+      <div class="pn">Qty ${item.quantity}</div></div>
+      <div style="font-weight:600">$${(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
+    </div>
+  `).join('');
+  document.getElementById('checkoutItems').innerHTML = items;
+  document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('checkoutTotal').textContent = `$${subtotal.toFixed(2)}`;
+});
+</script>
+</body></html>

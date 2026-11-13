@@ -1,3 +1,12 @@
 node_modules/
 temp/
 temp/
+
+# Test results
+test-results/
+
+# Local test server
+serve.js
+
+# Build artifacts
+energized-engines-v2

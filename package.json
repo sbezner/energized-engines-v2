@@ -4,6 +4,7 @@
     "playwright": "^1.65.0"
   },
   "scripts": {
-    "verify": "node scripts/verify-site.js"
+    "verify": "node scripts/verify-site.js",
+    "verify:browser": "node scripts/verify-browser.js"
   }
 }

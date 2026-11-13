@@ -587,7 +587,7 @@ function buildCartPage() {
 <h1>Shopping Cart</h1>
 <div class="cart-layout" style="margin-top:var(--s-6)">
 <div id="cartPageItems"></div>
-<div style="align-self:start;position:sticky;top:24px" class="d-only">
+<div style="align-self:start;position:sticky;top:24px">
 <div style="background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-5) var(--s-6)">
 <h3>Order Summary</h3>
 <div style="display:flex;justify-content:space-between;padding:var(--s-2) 0;border-bottom:1px solid var(--line)">
